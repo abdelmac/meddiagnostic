@@ -1,3 +1,6 @@
+import { useCatalog } from "../src/i18n/catalog";
+import { LanguageSwitch } from "../src/ui/LanguageSwitch";
+import { useI18n } from "../src/i18n";
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -175,6 +178,10 @@ function HeroArt() {
 }
 
 export default function App() {
+  const { questions, specialties, getQ, day } = useCatalog();
+
+  const { t, language } = useI18n();
+
   const { state, update, ready, error } = useStore();
   const c = useTheme();
   const { width } = useWindowDimensions();
@@ -272,7 +279,7 @@ export default function App() {
                 <Txt
                   style={{ fontSize: 24, color: c.accent, fontWeight: "800" }}
                 >
-                  Quiz
+                  {t("Quiz")}
                 </Txt>
               </Txt>
             </View>
@@ -280,7 +287,7 @@ export default function App() {
               muted
               style={{ fontSize: 9, letterSpacing: 2, marginBottom: 14 }}
             >
-              VOTRE ESPACE D’APPRENTISSAGE
+              {t("VOTRE ESPACE D’APPRENTISSAGE")}
             </Txt>
             {nav.map(({ label, icon: Icon }) => (
               <Pressable
@@ -336,10 +343,10 @@ export default function App() {
             >
               <Sparkles color={c.accent} size={21} />
               <Txt style={{ fontWeight: "700", fontSize: 13 }}>
-                Un peu chaque jour.
+                {t("Un peu chaque jour.")}
               </Txt>
               <Txt muted style={{ fontSize: 11, lineHeight: 18 }}>
-                Le raisonnement se construit une question à la fois.
+                {t("Le raisonnement se construit une question à la fois.")}
               </Txt>
               <Pressable
                 accessibilityRole="button"
@@ -348,7 +355,7 @@ export default function App() {
                 <Txt
                   style={{ fontSize: 11, color: c.accent, fontWeight: "600" }}
                 >
-                  Découvrir MedQuiz Premium ↗
+                  {t("Découvrir MedQuiz Premium ↗")}
                 </Txt>
               </Pressable>
             </View>
@@ -377,10 +384,10 @@ export default function App() {
               </View>
               <View>
                 <Txt style={{ fontSize: 12, fontWeight: "600" }}>
-                  Espace invité
+                  {t("Espace invité")}
                 </Txt>
                 <Txt muted style={{ fontSize: 10 }}>
-                  Progression sur cet appareil
+                  {t("Progression sur cet appareil")}
                 </Txt>
               </View>
             </View>
@@ -402,7 +409,7 @@ export default function App() {
             {desktop ? (
               <View style={row}>
                 <Txt muted style={{ fontSize: 12 }}>
-                  Mon espace
+                  {t("Mon espace")}
                 </Txt>
                 <ChevronRight size={13} color={c.muted} />
                 <Txt style={{ fontSize: 12, fontWeight: "500" }}>{tab}</Txt>
@@ -410,25 +417,30 @@ export default function App() {
             ) : (
               <View style={row}>
                 <Activity size={25} color={c.accent} />
-                <Txt style={{ fontWeight: "800", fontSize: 21 }}>MedQuiz</Txt>
+                <Txt style={{ fontWeight: "800", fontSize: 21 }}>
+                  {t("MedQuiz")}
+                </Txt>
               </View>
             )}
             <View style={row}>
-              <View
-                style={{
-                  backgroundColor: c.soft,
-                  borderRadius: 20,
-                  paddingHorizontal: 12,
-                  paddingVertical: 3,
-                }}
-              >
-                <Txt style={{ fontSize: 10, color: c.accent }}>
-                  Version découverte
-                </Txt>
-              </View>
+              <LanguageSwitch />
+              {desktop && (
+                <View
+                  style={{
+                    backgroundColor: c.soft,
+                    borderRadius: 20,
+                    paddingHorizontal: 12,
+                    paddingVertical: 3,
+                  }}
+                >
+                  <Txt style={{ fontSize: 10, color: c.accent }}>
+                    {t("Version découverte")}
+                  </Txt>
+                </View>
+              )}
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="Ouvrir le profil"
+                accessibilityLabel={t("Ouvrir le profil")}
                 onPress={() => go("Profil")}
                 style={{ padding: 8 }}
               >
@@ -474,15 +486,16 @@ export default function App() {
                 >
                   <View style={{ flex: 1, minWidth: 0 }}>
                     <Txt muted style={{ fontSize: 11, letterSpacing: 0.4 }}>
-                      VOTRE RENDEZ-VOUS AVEC LA CLINIQUE
+                      {t("VOTRE RENDEZ-VOUS AVEC LA CLINIQUE")}
                     </Txt>
                     <Title style={{ marginTop: 4 }}>
                       Un nouveau jour pour apprendre{" "}
                       <Txt style={{ fontSize: 26 }}>☀</Txt>
                     </Title>
                     <Txt muted style={{ fontSize: 13, marginTop: 5 }}>
-                      Un cas, un déclic. Construisez vos réflexes, à votre
-                      rythme.
+                      {t(
+                        "Un cas, un déclic. Construisez vos réflexes, à votre rythme.",
+                      )}
                     </Txt>
                   </View>
                 </View>
@@ -517,12 +530,14 @@ export default function App() {
                           letterSpacing: 1.3,
                         }}
                       >
-                        APPRENDRE. COMPRENDRE. RETENIR.
+                        {t("APPRENDRE. COMPRENDRE. RETENIR.")}
                       </Txt>
                     </View>
                     <Title style={{ fontSize: wide ? 31 : 27, lineHeight: 39 }}>
-                      Les bons réflexes commencent{wide ? "\n" : " "}par les
-                      bonnes questions.
+                      {t(
+                        "Les bons réflexes commencent{0}par les bonnes questions.",
+                        { 0: wide ? "\n" : " " },
+                      )}
                     </Title>
                     <Txt
                       style={{
@@ -532,25 +547,26 @@ export default function App() {
                         maxWidth: 420,
                       }}
                     >
-                      Reconnaissez les pathologies, comprenez vos erreurs et
-                      révisez ce que vous oubliez.
+                      {t(
+                        "Reconnaissez les pathologies, comprenez vos erreurs et révisez ce que vous oubliez.",
+                      )}
                     </Txt>
                     <View
                       style={[wrap, { alignItems: "center", marginTop: 3 }]}
                     >
                       <Button
-                        label={
+                        label={t(
                           state.active
                             ? "Reprendre mon quiz"
-                            : "Essayer un quiz"
-                        }
+                            : "Essayer un quiz",
+                        )}
                         icon={Play}
                         onPress={() =>
                           state.active ? setQuizOpen(true) : openConfig()
                         }
                       />
                       <Txt style={{ fontSize: 10, color: c.navy }}>
-                        5 questions · Sans compte · Gratuit
+                        {t("5 questions · Sans compte · Gratuit")}
                       </Txt>
                     </View>
                   </View>
@@ -566,7 +582,9 @@ export default function App() {
                       icon: BookOpen,
                       label: "Questions explorées",
                       value: String(unique.size),
-                      detail: `sur ${questions.length} cas de démonstration`,
+                      detail: t("sur {0} cas de démonstration", {
+                        0: questions.length,
+                      }),
                       color: c.accent,
                     },
                     {
@@ -630,14 +648,14 @@ export default function App() {
                           letterSpacing: -0.3,
                         }}
                       >
-                        À chaque spécialité, ses déclics
+                        {t("À chaque spécialité, ses déclics")}
                       </Title>
                       <Pressable
                         accessibilityRole="button"
                         onPress={() => go("Spécialités")}
                       >
                         <Txt style={{ fontSize: 11, color: c.accent }}>
-                          Tout explorer →
+                          {t("Tout explorer →")}
                         </Txt>
                       </Pressable>
                     </View>
@@ -646,7 +664,9 @@ export default function App() {
                         <Pressable
                           key={s.id}
                           accessibilityRole="button"
-                          accessibilityLabel={`Commencer un quiz de ${s.name}`}
+                          accessibilityLabel={t("Commencer un quiz de {0}", {
+                            0: s.name,
+                          })}
                           onPress={() => openConfig(s.id)}
                           style={({ hovered }: any) => ({
                             flex: 1,
@@ -674,7 +694,7 @@ export default function App() {
                             {s.name}
                           </Txt>
                           <Txt muted style={{ fontSize: 10, marginTop: 3 }}>
-                            10 cas cliniques · Démonstration
+                            {t("10 cas cliniques · Démonstration")}
                           </Txt>
                           <View style={{ marginTop: 15 }}>
                             <Bar
@@ -698,7 +718,7 @@ export default function App() {
                             ]}
                           >
                             <Txt muted style={{ fontSize: 9 }}>
-                              Explorer la spécialité
+                              {t("Explorer la spécialité")}
                             </Txt>
                             <ArrowRight size={13} color={s.color} />
                           </View>
@@ -724,16 +744,17 @@ export default function App() {
                         <Target size={17} color="#a37f3a" />
                       </View>
                       <Txt style={{ fontWeight: "700", fontSize: 13 }}>
-                        Votre petit pas du jour
+                        {t("Votre petit pas du jour")}
                       </Txt>
                     </View>
                     <Txt muted style={{ fontSize: 12, lineHeight: 21 }}>
-                      La régularité fait la différence. Un objectif accessible,
-                      chaque jour.
+                      {t(
+                        "La régularité fait la différence. Un objectif accessible, chaque jour.",
+                      )}
                     </Txt>
                     <View style={[row, { justifyContent: "space-between" }]}>
                       <Txt style={{ fontSize: 12, fontWeight: "600" }}>
-                        Objectif quotidien
+                        {t("Objectif quotidien")}
                       </Txt>
                       <Txt style={{ fontSize: 11, color: c.accent }}>
                         {doneToday} / {state.preferences.dailyGoal}
@@ -745,17 +766,17 @@ export default function App() {
                     <View style={[row, { gap: 6 }]}>
                       <Clock3 size={13} color={c.muted} />
                       <Txt muted style={{ fontSize: 10 }}>
-                        Quelques minutes pour progresser
+                        {t("Quelques minutes pour progresser")}
                       </Txt>
                     </View>
                     <Button
                       small
                       secondary
-                      label={
+                      label={t(
                         due.length
                           ? "Mes révisions du jour"
-                          : "Commencer une session"
-                      }
+                          : "Commencer une session",
+                      )}
                       onPress={due.length ? startReview : () => openConfig()}
                     />
                   </Card>
@@ -783,12 +804,14 @@ export default function App() {
                   </View>
                   <View style={{ flex: 1 }}>
                     <Txt style={{ fontWeight: "600", fontSize: 13 }}>
-                      Une erreur aujourd’hui. Un raisonnement plus solide
-                      demain.
+                      {t(
+                        "Une erreur aujourd’hui. Un raisonnement plus solide demain.",
+                      )}
                     </Txt>
                     <Txt muted style={{ fontSize: 11, marginTop: 2 }}>
-                      Chaque correction explique les indices clés et pourquoi
-                      les autres réponses conviennent moins.
+                      {t(
+                        "Chaque correction explique les indices clés et pourquoi les autres réponses conviennent moins.",
+                      )}
                     </Txt>
                   </View>
                   {desktop && <Leaf size={25} color="#aac3b5" />}
@@ -796,8 +819,9 @@ export default function App() {
                 <View style={[row, { justifyContent: "center", gap: 7 }]}>
                   <ShieldCheck size={13} color={c.muted} />
                   <Txt muted style={{ fontSize: 10, textAlign: "center" }}>
-                    Formation uniquement · Cas fictifs non relus médicalement ·
-                    Aucune donnée de patient
+                    {t(
+                      "Formation uniquement · Cas fictifs non relus médicalement · Aucune donnée de patient",
+                    )}
                   </Txt>
                 </View>
               </>
@@ -805,9 +829,11 @@ export default function App() {
             {tab === "Spécialités" && (
               <>
                 <PageHeading
-                  eyebrow="EXPLORER LE CATALOGUE"
-                  title="Les premiers repères de la clinique"
-                  description="Trois spécialités, 30 cas pour commencer à relier les signes et les hypothèses."
+                  eyebrow={t("EXPLORER LE CATALOGUE")}
+                  title={t("Les premiers repères de la clinique")}
+                  description={t(
+                    "Trois spécialités, 30 cas pour commencer à relier les signes et les hypothèses.",
+                  )}
                 />
                 {specialties.map((s) => (
                   <Card key={s.id} style={{ gap: 16 }}>
@@ -821,7 +847,9 @@ export default function App() {
                         <Title style={{ fontSize: 22 }}>{s.name}</Title>
                         <Txt muted>{s.subtitle}</Txt>
                         <Txt muted style={{ fontSize: 11 }}>
-                          10 questions · Clinique · Débutant et intermédiaire
+                          {t(
+                            "10 questions · Clinique · Débutant et intermédiaire",
+                          )}
                         </Txt>
                       </View>
                     </View>
@@ -832,20 +860,22 @@ export default function App() {
                             .filter((q) => q.specialty === s.id)
                             .map((q) => q.theme),
                         ),
-                      ].map((t) => (
-                        <Chip key={t} label={t} />
+                      ].map((topic) => (
+                        <Chip key={topic} label={t(topic)} />
                       ))}
                     </View>
                     <Button
-                      label={`Travailler la ${s.name.toLowerCase()}`}
+                      label={t("Travailler la {0}", {
+                        0: s.name.toLowerCase(),
+                      })}
                       onPress={() => openConfig(s.id)}
                     />
                   </Card>
                 ))}
                 <Txt muted style={{ fontSize: 12 }}>
-                  Les cas visuels et mixtes seront proposés après acquisition
-                  des images et validation éditoriale. Les autres spécialités
-                  seront ajoutées lorsqu’elles seront prêtes.
+                  {t(
+                    "Les cas visuels et mixtes seront proposés après acquisition des images et validation éditoriale. Les autres spécialités seront ajoutées lorsqu’elles seront prêtes.",
+                  )}
                 </Txt>
               </>
             )}
@@ -916,7 +946,7 @@ export default function App() {
       <Sheet
         visible={configure}
         onClose={() => setConfigure(false)}
-        title="Votre prochaine session"
+        title={t("Votre prochaine session")}
       >
         <Configure
           specialty={specialty}
@@ -944,7 +974,7 @@ export default function App() {
       <Sheet
         visible={!!result}
         onClose={() => setResult(null)}
-        title="Bilan de votre session"
+        title={t("Bilan de votre session")}
       >
         {result && (
           <Result
@@ -963,7 +993,7 @@ export default function App() {
       <Sheet
         visible={!!correction}
         onClose={() => setCorrection(null)}
-        title="Comprendre le raisonnement"
+        title={t("Comprendre le raisonnement")}
       >
         {correction && (
           <Correction
@@ -975,34 +1005,36 @@ export default function App() {
       <Sheet
         visible={premium}
         onClose={() => setPremium(false)}
-        title="MedQuiz Premium"
+        title={t("MedQuiz Premium")}
       >
         <View style={{ gap: 20 }}>
           <View style={[row, { gap: 9 }]}>
             <Sparkles color={c.accent} />
             <Title style={{ fontSize: 23 }}>
-              Plus de repères, à votre rythme.
+              {t("Plus de repères, à votre rythme.")}
             </Title>
           </View>
           <Txt>
-            À terme : banque publiée complète, examens blancs, révisions
-            adaptatives et packs hors connexion.
+            {t(
+              "À terme : banque publiée complète, examens blancs, révisions adaptatives et packs hors connexion.",
+            )}
           </Txt>
           <Card style={{ backgroundColor: c.soft, gap: 8 }}>
-            <Txt style={{ fontWeight: "700" }}>Offre en préparation</Txt>
+            <Txt style={{ fontWeight: "700" }}>{t("Offre en préparation")}</Txt>
             <Txt>
-              Hypothèses à tester : 9,99 € / mois ou 69,99 € / an (montant
-              annuel total). Aucun achat ni renouvellement n’est activé.
+              {t(
+                "Hypothèses à tester : 9,99 € / mois ou 69,99 € / an (montant annuel total). Aucun achat ni renouvellement n’est activé.",
+              )}
             </Txt>
           </Card>
           <Txt muted>
-            Les prix définitifs, les conditions de renouvellement et la
-            restauration des achats seront fournis par les boutiques et le
-            prestataire de paiement. Cette démonstration reste gratuite.
+            {t(
+              "Les prix définitifs, les conditions de renouvellement et la restauration des achats seront fournis par les boutiques et le prestataire de paiement. Cette démonstration reste gratuite.",
+            )}
           </Txt>
           <Button
             secondary
-            label="Continuer à apprendre"
+            label={t("Continuer à apprendre")}
             onPress={() => setPremium(false)}
           />
         </View>
@@ -1041,6 +1073,8 @@ function Sheet({
   title: string;
   children: React.ReactNode;
 }) {
+  const { t, language } = useI18n();
+
   const c = useTheme();
   return (
     <Modal
@@ -1085,7 +1119,7 @@ function Sheet({
             </Title>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Fermer"
+              accessibilityLabel={t("Fermer")}
               onPress={onClose}
               style={{ padding: 10 }}
             >
@@ -1111,6 +1145,10 @@ function Configure({
   specialty?: Specialty;
   onStart: () => void;
 }) {
+  const { questions, specialties, getQ, day } = useCatalog();
+
+  const { t, language } = useI18n();
+
   const { state, update } = useStore();
   const c = useTheme();
   const [ids, setIds] = useState<Specialty[]>(
@@ -1164,32 +1202,35 @@ function Configure({
     return (
       <View style={{ gap: 18 }}>
         <Txt>
-          Une session est déjà en cours. Reprenez-la pour conserver vos
-          réponses.
+          {t(
+            "Une session est déjà en cours. Reprenez-la pour conserver vos réponses.",
+          )}
         </Txt>
-        <Button label="Reprendre ma session" onPress={onStart} />
+        <Button label={t("Reprendre ma session")} onPress={onStart} />
       </View>
     );
   return (
     <View style={{ gap: 22 }}>
       <Txt muted>
-        Quelques choix pour adapter votre séance. Aucun compte nécessaire.
+        {t(
+          "Quelques choix pour adapter votre séance. Aucun compte nécessaire.",
+        )}
       </Txt>
-      <Field label="Votre niveau">
+      <Field label={t("Votre niveau")}>
         {["Début de clinique", "Externat", "Internat"].map((v) => (
           <Chip
             key={v}
-            label={v}
+            label={t(v)}
             selected={level === v}
             onPress={() => setLevel(v)}
           />
         ))}
       </Field>
-      <Field label="Spécialités">
+      <Field label={t("Spécialités")}>
         {specialties.map((s) => (
           <Chip
             key={s.id}
-            label={s.name}
+            label={t(s.name)}
             selected={ids.includes(s.id)}
             onPress={() =>
               setIds(
@@ -1201,7 +1242,7 @@ function Configure({
           />
         ))}
       </Field>
-      <Field label="Difficulté">
+      <Field label={t("Difficulté")}>
         {[
           ["toutes", "Toutes"],
           ["débutant", "Débutant"],
@@ -1209,36 +1250,36 @@ function Configure({
         ].map(([id, label]) => (
           <Chip
             key={id}
-            label={label!}
+            label={t(label!)}
             selected={difficulty === id}
             onPress={() => setDifficulty(id!)}
           />
         ))}
       </Field>
-      <Field label="Type de question">
-        <Chip label="Vignette clinique" selected />
+      <Field label={t("Type de question")}>
+        <Chip label={t("Vignette clinique")} selected />
         <Txt muted style={{ fontSize: 11 }}>
-          Visuel et mixte : en attente d’images sous licence.
+          {t("Visuel et mixte : en attente d’images sous licence.")}
         </Txt>
       </Field>
-      <Field label="Longueur de session">
+      <Field label={t("Longueur de session")}>
         {[5, 10, 20].map((n) => (
           <Chip
             key={n}
-            label={`${n} questions`}
+            label={t("{0} questions", { 0: n })}
             selected={count === n}
             onPress={() => setCount(n)}
           />
         ))}
       </Field>
-      <Field label="Mode">
+      <Field label={t("Mode")}>
         {[
           ["learning", "Apprentissage · correction immédiate"],
           ["exam", "Examen · correction à la fin"],
         ].map(([id, label]) => (
           <Chip
             key={id}
-            label={label!}
+            label={t(label!)}
             selected={mode === id}
             onPress={() => setMode(id as Session["mode"])}
           />
@@ -1247,19 +1288,19 @@ function Configure({
       {mode === "exam" && (
         <View style={row}>
           <Switch
-            accessibilityLabel="Chronométrer l’examen"
+            accessibilityLabel={t("Chronométrer l’examen")}
             value={timed}
             onValueChange={setTimed}
             trackColor={{ true: c.accent }}
           />
-          <Txt>Chronomètre · 90 secondes par question</Txt>
+          <Txt>{t("Chronomètre · 90 secondes par question")}</Txt>
         </View>
       )}
-      <Field label="Objectif quotidien">
+      <Field label={t("Objectif quotidien")}>
         {[5, 10, 20].map((n) => (
           <Chip
             key={n}
-            label={`${n} questions / jour`}
+            label={t("{0} questions / jour", { 0: n })}
             selected={goal === n}
             onPress={() => setGoal(n)}
           />
@@ -1270,17 +1311,24 @@ function Configure({
           {available === 0
             ? "Sélectionnez au moins une spécialité."
             : available < count
-              ? `${available} questions disponibles : la session sera adaptée, sans répétition.`
-              : `${count} questions distinctes · environ ${Math.ceil(Math.min(count, available) * 1.5)} minutes`}
+              ? t(
+                  "{0} questions disponibles : la session sera adaptée, sans répétition.",
+                  { 0: available },
+                )
+              : t("{0} questions distinctes · environ {1} minutes", {
+                  0: count,
+                  1: Math.ceil(Math.min(count, available) * 1.5),
+                })}
         </Txt>
       </View>
       <Txt muted style={{ fontSize: 11 }}>
-        Cas fictifs de démonstration, non validés médicalement. Ces QCM ne
-        constituent pas une référence clinique.
+        {t(
+          "Cas fictifs de démonstration, non validés médicalement. Ces QCM ne constituent pas une référence clinique.",
+        )}
       </Txt>
       {!!error && <Txt style={{ color: c.error }}>{error}</Txt>}
       <Button
-        label="C’est parti"
+        label={t("C’est parti")}
         disabled={available === 0}
         icon={Play}
         onPress={start}
@@ -1310,6 +1358,10 @@ function Quiz({
   close: () => void;
   complete: (s: Session) => void;
 }) {
+  const { questions, specialties, getQ, day } = useCatalog();
+
+  const { t, language } = useI18n();
+
   const { state, update } = useStore();
   const c = useTheme();
   const session = state.active;
@@ -1374,7 +1426,9 @@ function Quiz({
           style={[row, { padding: 8 }]}
         >
           <ChevronLeft color={c.text} size={19} />
-          <Txt style={{ fontSize: 12 }}>Quitter et reprendre plus tard</Txt>
+          <Txt style={{ fontSize: 12 }}>
+            {t("Quitter et reprendre plus tard")}
+          </Txt>
         </Pressable>
         <Txt muted style={{ fontSize: 12 }}>
           {session.mode === "exam" ? "Examen" : "Apprentissage"}
@@ -1395,10 +1449,13 @@ function Quiz({
       >
         <View style={[row, { justifyContent: "space-between" }]}>
           <Txt style={{ fontSize: 12, fontWeight: "600" }}>
-            Question {session.index + 1} sur {session.questionIds.length}
+            {t("Question {0} sur {1}", {
+              0: session.index + 1,
+              1: session.questionIds.length,
+            })}
           </Txt>
           <Txt muted style={{ fontSize: 11 }}>
-            Démonstration · non relue
+            {t("Démonstration · non relue")}
           </Txt>
         </View>
         <Bar
@@ -1409,13 +1466,15 @@ function Quiz({
           }
         />
         <View style={wrap}>
-          <Chip label={specialties.find((s) => s.id === q.specialty)!.name} />
-          <Chip label={q.theme} />
-          <Chip label={q.difficulty} />
+          <Chip
+            label={t(specialties.find((s) => s.id === q.specialty)!.name)}
+          />
+          <Chip label={t(q.theme)} />
+          <Chip label={t(q.difficulty)} />
         </View>
         <Card style={{ gap: 16 }}>
           <Txt muted style={{ fontSize: 10, letterSpacing: 1 }}>
-            VIGNETTE CLINIQUE · CAS FICTIF
+            {t("VIGNETTE CLINIQUE · CAS FICTIF")}
           </Txt>
           <Txt style={{ fontSize: 17, lineHeight: 29 }}>{q.context}</Txt>
           <Title style={{ fontSize: 20, lineHeight: 29 }}>{q.title}</Title>
@@ -1429,6 +1488,7 @@ function Quiz({
               <Pressable
                 key={o.label}
                 accessibilityRole="radio"
+                aria-checked={selected}
                 accessibilityState={{ checked: selected, disabled: !!answered }}
                 disabled={!!answered}
                 onPress={() => setChoice(i)}
@@ -1479,7 +1539,9 @@ function Quiz({
         </View>
         {!answered && (
           <>
-            <Field label="À quel point êtes-vous sûr·e de votre raisonnement ?">
+            <Field
+              label={t("À quel point êtes-vous sûr·e de votre raisonnement ?")}
+            >
               {[
                 ["fragile", "Je doute"],
                 ["moyenne", "Assez sûr·e"],
@@ -1487,18 +1549,18 @@ function Quiz({
               ].map(([id, label]) => (
                 <Chip
                   key={id}
-                  label={label!}
+                  label={t(label!)}
                   selected={confidence === id}
                   onPress={() => setConfidence(id as Confidence)}
                 />
               ))}
             </Field>
             <Button
-              label={
+              label={t(
                 session.mode === "exam"
                   ? "Enregistrer ma réponse"
-                  : "Valider ma réponse"
-              }
+                  : "Valider ma réponse",
+              )}
               disabled={choice === null}
               icon={Check}
               onPress={() => {
@@ -1510,7 +1572,7 @@ function Quiz({
         )}
         {answered && session.mode === "exam" && (
           <Txt style={{ color: c.accent }}>
-            Réponse enregistrée. Le corrigé sera disponible à la fin.
+            {t("Réponse enregistrée. Le corrigé sera disponible à la fin.")}
           </Txt>
         )}
         {showCorrection && <Correction question={q} choice={answered.choice} />}
@@ -1520,11 +1582,11 @@ function Quiz({
           <MarkButton question={q} />
           {answered && (
             <Button
-              label={
+              label={t(
                 session.index + 1 === session.questionIds.length
                   ? "Voir mon bilan"
-                  : "Question suivante"
-              }
+                  : "Question suivante",
+              )}
               onPress={next}
             />
           )}
@@ -1567,6 +1629,9 @@ function Correction({
   question: Question;
   choice?: number;
 }) {
+  const {day}=useCatalog();
+  const { t, language } = useI18n();
+
   const { state, update } = useStore();
   const c = useTheme();
   const [report, setReport] = useState(false);
@@ -1591,17 +1656,17 @@ function Correction({
       </Card>
       <View>
         <Txt style={{ fontWeight: "700", marginBottom: 9 }}>
-          Les indices qui font la différence
+          {t("Les indices qui font la différence")}
         </Txt>
         <View style={wrap}>
           {q.clues.map((clue) => (
-            <Chip key={clue} label={clue} />
+            <Chip key={clue} label={t(clue)} />
           ))}
         </View>
       </View>
       <View style={{ gap: 12 }}>
         <Txt style={{ fontWeight: "700" }}>
-          Pourquoi les autres propositions conviennent moins
+          {t("Pourquoi les autres propositions conviennent moins")}
         </Txt>
         {q.options
           .filter((_, i) => i !== q.correct)
@@ -1624,16 +1689,16 @@ function Correction({
       <Card style={{ backgroundColor: c.yellow, gap: 7 }}>
         <View style={row}>
           <Lightbulb size={18} color="#967332" />
-          <Txt style={{ fontWeight: "700" }}>À retenir</Txt>
+          <Txt style={{ fontWeight: "700" }}>{t("À retenir")}</Txt>
         </View>
         <Txt>{q.takeaway}</Txt>
       </Card>
       <Txt muted style={{ fontSize: 12 }}>
-        Objectif : {q.objective}
+        {t("Objectif : {0}", { 0: q.objective })}
       </Txt>
       <View style={{ gap: 6 }}>
         <Txt style={{ fontWeight: "600", fontSize: 12 }}>
-          Ressources pour la relecture médicale
+          {t("Ressources pour la relecture médicale")}
         </Txt>
         {q.sources.map((s) => (
           <Pressable
@@ -1653,19 +1718,22 @@ function Correction({
           </Pressable>
         ))}
         <Txt muted style={{ fontSize: 10 }}>
-          Version {q.version} · Rédaction : {day(q.editorialDate)} 2026 ·
-          Relecture médicale : non réalisée
+          {t(
+            "Version {0} · Rédaction : {1} 2026 · Relecture médicale : non réalisée",
+            { 0: q.version, 1: day(q.editorialDate) },
+          )}
         </Txt>
         <Txt muted style={{ fontSize: 10 }}>
-          Ces ressources générales ne constituent pas une validation de ce QCM.
-          Démonstration uniquement.
+          {t(
+            "Ces ressources générales ne constituent pas une validation de ce QCM. Démonstration uniquement.",
+          )}
         </Txt>
       </View>
       <View style={[wrap, { alignItems: "center" }]}>
         <Button
           small
           secondary
-          label={favorite ? "Retirer des favoris" : "Garder en favori"}
+          label={t(favorite ? "Retirer des favoris" : "Garder en favori")}
           icon={Bookmark}
           onPress={() =>
             update((s) => ({
@@ -1683,22 +1751,22 @@ function Correction({
         >
           <Flag size={15} color={c.muted} />
           <Txt muted style={{ fontSize: 11 }}>
-            Signaler une ambiguïté
+            {t("Signaler une ambiguïté")}
           </Txt>
         </Pressable>
       </View>
       {report && (
         <Card style={{ gap: 12 }}>
           <Txt style={{ fontWeight: "600" }}>
-            Qu’est-ce qui vous semble incorrect ?
+            {t("Qu’est-ce qui vous semble incorrect ?")}
           </Txt>
           <TextInput
-            accessibilityLabel="Description du signalement"
+            accessibilityLabel={t("Description du signalement")}
             value={reason}
             onChangeText={setReason}
             multiline
             maxLength={2000}
-            placeholder="Décrivez l’erreur, sans donnée de patient…"
+            placeholder={t("Décrivez l’erreur, sans donnée de patient…")}
             placeholderTextColor={c.muted}
             style={{
               color: c.text,
@@ -1712,7 +1780,7 @@ function Correction({
           />
           <Button
             small
-            label="Enregistrer le signalement local"
+            label={t("Enregistrer le signalement local")}
             disabled={!reason.trim() || sent}
             icon={Flag}
             onPress={() => {
@@ -1752,6 +1820,10 @@ function Result({
   openCorrection: (q: Question, choice?: number) => void;
   revise: () => void;
 }) {
+  const { questions, specialties, getQ, day } = useCatalog();
+
+  const { t, language } = useI18n();
+
   const c = useTheme();
   const answered = Object.keys(session.answers).length;
   const success = score(session, questions);
@@ -1764,7 +1836,7 @@ function Result({
           <GraduationCap size={35} color={c.accent} />
         </View>
         <Title style={{ fontSize: 27 }}>
-          Un pas de plus dans votre apprentissage.
+          {t("Un pas de plus dans votre apprentissage.")}
         </Title>
         <Txt
           style={{
@@ -1777,21 +1849,28 @@ function Result({
           {success} / {session.questionIds.length}
         </Txt>
         <Txt muted>
-          {answered} réponse{answered > 1 ? "s" : ""} enregistrée
-          {answered > 1 ? "s" : ""} · {session.questionIds.length - answered}{" "}
-          non répondue{session.questionIds.length - answered > 1 ? "s" : ""}
+          {t("{0} réponse{1} enregistrée{2} · {3} non répondue{4}", {
+            0: answered,
+            1: answered > 1 ? "s" : "",
+            2: answered > 1 ? "s" : "",
+            3: session.questionIds.length - answered,
+            4: session.questionIds.length - answered > 1 ? "s" : "",
+          })}
         </Txt>
         <Txt muted style={{ fontSize: 12, textAlign: "center" }}>
-          Ce résultat mesure votre réussite à ces QCM, pas votre compétence
-          clinique.
+          {t(
+            "Ce résultat mesure votre réussite à ces QCM, pas votre compétence clinique.",
+          )}
         </Txt>
       </View>
       <Button
-        label="Retrouver mes révisions"
+        label={t("Retrouver mes révisions")}
         icon={RotateCcw}
         onPress={revise}
       />
-      <Txt style={{ fontWeight: "700" }}>Revenir sur les raisonnements</Txt>
+      <Txt style={{ fontWeight: "700" }}>
+        {t("Revenir sur les raisonnements")}
+      </Txt>
       {session.questionIds.map((id, i) => {
         const q = getQ(id);
         const a = session.answers[id];
@@ -1823,7 +1902,9 @@ function Result({
               </Txt>
               <Txt muted style={{ fontSize: 11 }}>
                 {a
-                  ? `${a.choice === q.correct ? "Réussi" : "À consolider"} · Consulter le corrigé`
+                  ? t("{0} · Consulter le corrigé", {
+                      0: a.choice === q.correct ? "Réussi" : "À consolider",
+                    })
                   : "Non répondue"}
               </Txt>
             </View>
@@ -1844,6 +1925,10 @@ function RevisionScreen({
   openCorrection: (q: Question) => void;
   openConfig: () => void;
 }) {
+  const { questions, specialties, getQ, day } = useCatalog();
+
+  const { t, language } = useI18n();
+
   const { state } = useStore();
   const c = useTheme();
   const [filter, setFilter] = useState("erreurs");
@@ -1860,26 +1945,31 @@ function RevisionScreen({
   return (
     <>
       <PageHeading
-        eyebrow="CONSOLIDER LES ACQUIS"
-        title="Ce qui mérite un deuxième regard"
-        description="Revenez au bon moment sur les notions qui vous demandent encore un effort."
+        eyebrow={t("CONSOLIDER LES ACQUIS")}
+        title={t("Ce qui mérite un deuxième regard")}
+        description={t(
+          "Revenez au bon moment sur les notions qui vous demandent encore un effort.",
+        )}
       />
       <Card style={{ backgroundColor: c.hero, gap: 14 }}>
         <View style={row}>
           <RotateCcw color={c.accent} size={24} />
-          <Title style={{ fontSize: 23 }}>Mes révisions du jour</Title>
+          <Title style={{ fontSize: 23 }}>{t("Mes révisions du jour")}</Title>
         </View>
         <Txt>
           {due.length
-            ? `${due.length} question${due.length > 1 ? "s" : ""} à revoir : une échéance atteinte ou une notion que vous avez marquée.`
+            ? t(
+                "{0} question{1} à revoir : une échéance atteinte ou une notion que vous avez marquée.",
+                { 0: due.length, 1: due.length > 1 ? "s" : "" },
+              )
             : "Aucune révision échue. Une nouvelle erreur sera à revoir demain ; vous pouvez aussi marquer une question « À revoir »."}
         </Txt>
         <Button
-          label={
+          label={t(
             state.active
               ? "Reprendre la session en cours"
-              : "Lancer mes révisions"
-          }
+              : "Lancer mes révisions",
+          )}
           disabled={!due.length && !state.active}
           onPress={startReview}
         />
@@ -1892,7 +1982,7 @@ function RevisionScreen({
         ].map(([id, label]) => (
           <Chip
             key={id}
-            label={label!}
+            label={t(label!)}
             selected={filter === id}
             onPress={() => setFilter(id!)}
           />
@@ -1900,18 +1990,18 @@ function RevisionScreen({
       </View>
       {!ids.length ? (
         <Empty
-          title={
+          title={t(
             filter === "erreurs"
               ? "Votre carnet attend ses premiers déclics"
-              : "Aucune question enregistrée"
-          }
-          description={
+              : "Aucune question enregistrée",
+          )}
+          description={t(
             filter === "erreurs"
               ? "Les dernières réponses incorrectes apparaîtront ici. Une réussite ultérieure retire la question de ce carnet."
-              : "Utilisez les boutons Favori et À revoir pendant votre apprentissage."
-          }
+              : "Utilisez les boutons Favori et À revoir pendant votre apprentissage.",
+          )}
           action={
-            <Button small label="Explorer un quiz" onPress={openConfig} />
+            <Button small label={t("Explorer un quiz")} onPress={openConfig} />
           }
         />
       ) : (
@@ -1942,7 +2032,9 @@ function RevisionScreen({
                   {locked
                     ? "Corrigé disponible à la fin de l’examen en cours"
                     : "Consulter le corrigé"}
-                  {rev ? ` · Prochaine révision : ${day(rev.due)}` : ""}
+                  {rev
+                    ? t(" · Prochaine révision : {0}", { 0: day(rev.due) })
+                    : ""}
                 </Txt>
               </Card>
             </Pressable>
@@ -1950,10 +2042,9 @@ function RevisionScreen({
         })
       )}
       <Txt muted style={{ fontSize: 11 }}>
-        Pourquoi ces recommandations ? Une erreur ou une confiance fragile
-        déclenche une révision à J+1. Les intervalles augmentent avec les
-        réponses justes et la confiance. Les questions marquées sont proposées
-        immédiatement.
+        {t(
+          "Pourquoi ces recommandations ? Une erreur ou une confiance fragile déclenche une révision à J+1. Les intervalles augmentent avec les réponses justes et la confiance. Les questions marquées sont proposées immédiatement.",
+        )}
       </Txt>
     </>
   );
@@ -1964,6 +2055,10 @@ function ProgressScreen({
 }: {
   openSession: (s: Session) => void;
 }) {
+  const { questions, specialties, getQ, day } = useCatalog();
+
+  const { t, language } = useI18n();
+
   const { state } = useStore();
   const c = useTheme();
   const fresh = state.attempts.filter((a) => !a.repeated);
@@ -1974,9 +2069,11 @@ function ProgressScreen({
   return (
     <>
       <PageHeading
-        eyebrow="OBSERVER SON APPRENTISSAGE"
-        title="Des repères pour avancer"
-        description="Distinguez la découverte d’une notion de la mémorisation d’une réponse."
+        eyebrow={t("OBSERVER SON APPRENTISSAGE")}
+        title={t("Des repères pour avancer")}
+        description={t(
+          "Distinguez la découverte d’une notion de la mémorisation d’une réponse.",
+        )}
       />
       <View style={wrap}>
         {[
@@ -1987,34 +2084,40 @@ function ProgressScreen({
             <Txt muted>{label}</Txt>
             <Title>{a.length ? `${accuracy(a)} %` : "—"}</Title>
             <Txt muted style={{ fontSize: 12 }}>
-              {a.length} tentative{a.length > 1 ? "s" : ""} ·{" "}
-              {a.filter((x) => x.correct).length} réponse
-              {a.filter((x) => x.correct).length > 1 ? "s" : ""} juste
-              {a.filter((x) => x.correct).length > 1 ? "s" : ""}
+              {t("{0} tentative{1} · {2} réponse{3} juste{4}", {
+                0: a.length,
+                1: a.length > 1 ? "s" : "",
+                2: a.filter((x) => x.correct).length,
+                3: a.filter((x) => x.correct).length > 1 ? "s" : "",
+                4: a.filter((x) => x.correct).length > 1 ? "s" : "",
+              })}
             </Txt>
           </Card>
         ))}
       </View>
       <Card style={{ gap: 14 }}>
-        <Title style={{ fontSize: 20 }}>Les 7 derniers jours</Title>
+        <Title style={{ fontSize: 20 }}>{t("Les 7 derniers jours")}</Title>
         <Txt>
-          {week.length} tentatives ·{" "}
-          {new Set(week.map((a) => a.questionId)).size} questions distinctes ·{" "}
-          {
-            state.sessions.filter(
-              (s) =>
-                s.kind === "review" &&
-                Date.parse(s.finishedAt!) > Date.now() - 7 * 86400000,
-            ).length
-          }{" "}
-          sessions de révision terminées
+          {t(
+            "{0} tentatives · {1} questions distinctes · {2} sessions de révision terminées",
+            {
+              0: week.length,
+              1: new Set(week.map((a) => a.questionId)).size,
+              2: state.sessions.filter(
+                (s) =>
+                  s.kind === "review" &&
+                  Date.parse(s.finishedAt!) > Date.now() - 7 * 86400000,
+              ).length,
+            },
+          )}
         </Txt>
         <Txt muted style={{ fontSize: 11 }}>
-          Données réelles de cet appareil sur des cas de démonstration. Un petit
-          échantillon ne permet pas de conclure à une progression clinique.
+          {t(
+            "Données réelles de cet appareil sur des cas de démonstration. Un petit échantillon ne permet pas de conclure à une progression clinique.",
+          )}
         </Txt>
       </Card>
-      <Title style={{ fontSize: 21 }}>Par spécialité et par thème</Title>
+      <Title style={{ fontSize: 21 }}>{t("Par spécialité et par thème")}</Title>
       {specialties.map((s) => {
         const attempts = state.attempts.filter(
           (a) => getQ(a.questionId)?.specialty === s.id,
@@ -2025,7 +2128,7 @@ function ProgressScreen({
             <View style={[row, { justifyContent: "space-between" }]}>
               <Txt style={{ fontWeight: "700" }}>{s.name}</Txt>
               <Txt muted style={{ fontSize: 12 }}>
-                {count} / 10 explorées
+                {t("{0} / 10 explorées", { 0: count })}
               </Txt>
             </View>
             <Bar value={count * 10} color={s.color} />
@@ -2049,7 +2152,10 @@ function ProgressScreen({
                   </Txt>
                   <Txt style={{ fontSize: 12 }}>
                     {a.length
-                      ? `${a.filter((x) => x.correct).length}/${a.length} réponses justes`
+                      ? t("{0}/{1} réponses justes", {
+                          0: a.filter((x) => x.correct).length,
+                          1: a.length,
+                        })
                       : "À découvrir"}
                   </Txt>
                 </View>
@@ -2058,11 +2164,13 @@ function ProgressScreen({
           </Card>
         );
       })}
-      <Title style={{ fontSize: 21 }}>Historique des sessions</Title>
+      <Title style={{ fontSize: 21 }}>{t("Historique des sessions")}</Title>
       {!state.sessions.length ? (
         <Empty
-          title="Votre histoire commence ici"
-          description="Les sessions terminées seront conservées avec leurs corrections."
+          title={t("Votre histoire commence ici")}
+          description={t(
+            "Les sessions terminées seront conservées avec leurs corrections.",
+          )}
         />
       ) : (
         [...state.sessions].reverse().map((s) => (
@@ -2080,15 +2188,21 @@ function ProgressScreen({
             >
               <View>
                 <Txt style={{ fontWeight: "600" }}>
-                  {s.kind === "review"
-                    ? "Révision"
-                    : s.mode === "exam"
-                      ? "Examen"
-                      : "Apprentissage"}{" "}
-                  · {s.questionIds.length} questions
+                  {t("{0} · {1} questions", {
+                    0:
+                      s.kind === "review"
+                        ? "Révision"
+                        : s.mode === "exam"
+                          ? "Examen"
+                          : "Apprentissage",
+                    1: s.questionIds.length,
+                  })}
                 </Txt>
                 <Txt muted style={{ fontSize: 11 }}>
-                  {day(s.finishedAt!)} · {score(s, questions)} réponses justes
+                  {t("{0} · {1} réponses justes", {
+                    0: day(s.finishedAt!),
+                    1: score(s, questions),
+                  })}
                 </Txt>
               </View>
               <ChevronRight color={c.accent} size={18} />
@@ -2107,6 +2221,8 @@ function ProfileScreen({
   notice: (s: string) => void;
   premium: () => void;
 }) {
+  const { t, language } = useI18n();
+
   const { state, update } = useStore();
   const c = useTheme();
   const [confirm, setConfirm] = useState(false);
@@ -2134,33 +2250,38 @@ function ProfileScreen({
   return (
     <>
       <PageHeading
-        eyebrow="VOTRE ESPACE"
-        title="Un apprentissage à votre image"
-        description="Réglez votre confort de lecture et gardez le contrôle de vos données."
+        eyebrow={t("VOTRE ESPACE")}
+        title={t("Un apprentissage à votre image")}
+        description={t(
+          "Réglez votre confort de lecture et gardez le contrôle de vos données.",
+        )}
       />
       <Card style={{ gap: 14 }}>
         <View style={row}>
           <UserRound color={c.accent} size={30} />
           <View>
             <Title style={{ fontSize: 22 }}>
-              Bienvenue dans votre espace invité
+              {t("Bienvenue dans votre espace invité")}
             </Title>
-            <Txt muted>Vos résultats restent sur cet appareil.</Txt>
+            <Txt muted>{t("Vos résultats restent sur cet appareil.")}</Txt>
           </View>
         </View>
         <Txt>
-          La création de compte et la synchronisation seront disponibles dans
-          une prochaine étape. Vous pouvez déjà apprendre et conserver votre
-          progression localement.
+          {t(
+            "La création de compte et la synchronisation seront disponibles dans une prochaine étape. Vous pouvez déjà apprendre et conserver votre progression localement.",
+          )}
         </Txt>
         <Txt muted style={{ fontSize: 11 }}>
-          Ne saisissez aucune donnée personnelle de patient. Effacer les données
-          du navigateur ou désinstaller l’application supprime la progression
-          locale.
+          {t(
+            "Ne saisissez aucune donnée personnelle de patient. Effacer les données du navigateur ou désinstaller l’application supprime la progression locale.",
+          )}
         </Txt>
       </Card>
       <Card style={{ gap: 19 }}>
-        <Title style={{ fontSize: 20 }}>Confort et objectifs</Title>
+        <Field label={t("Langue de l’application")}>
+          <LanguageSwitch />
+        </Field>
+        <Title style={{ fontSize: 20 }}>{t("Confort et objectifs")}</Title>
         {[
           { label: "Mode sombre", key: "dark" as const },
           { label: "Texte plus grand", key: "largeText" as const },
@@ -2168,7 +2289,7 @@ function ProfileScreen({
           <View key={p.key} style={[row, { justifyContent: "space-between" }]}>
             <Txt>{p.label}</Txt>
             <Switch
-              accessibilityLabel={p.label}
+              accessibilityLabel={t(p.label)}
               value={state.preferences[p.key]}
               onValueChange={(v) =>
                 update((s) => ({
@@ -2180,11 +2301,11 @@ function ProfileScreen({
             />
           </View>
         ))}
-        <Field label="Objectif quotidien">
+        <Field label={t("Objectif quotidien")}>
           {[5, 10, 20].map((n) => (
             <Chip
               key={n}
-              label={`${n} questions`}
+              label={t("{0} questions", { 0: n })}
               selected={state.preferences.dailyGoal === n}
               onPress={() =>
                 update((s) => ({
@@ -2196,46 +2317,51 @@ function ProfileScreen({
           ))}
         </Field>
         <Txt muted style={{ fontSize: 12 }}>
-          Aucun rappel ni notification n’est envoyé dans cette version. Aucun
-          suivi publicitaire ni service d’analyse distant n’est actif.
+          {t(
+            "Aucun rappel ni notification n’est envoyé dans cette version. Aucun suivi publicitaire ni service d’analyse distant n’est actif.",
+          )}
         </Txt>
       </Card>
       <Card style={{ gap: 15 }}>
-        <Title style={{ fontSize: 20 }}>Votre offre</Title>
+        <Title style={{ fontSize: 20 }}>{t("Votre offre")}</Title>
         <Txt>
-          Découverte gratuite : tous les cas de démonstration, corrections
-          complètes et progression locale.
+          {t(
+            "Découverte gratuite : tous les cas de démonstration, corrections complètes et progression locale.",
+          )}
         </Txt>
         <Button
           secondary
-          label="Découvrir le projet Premium"
+          label={t("Découvrir le projet Premium")}
           icon={Sparkles}
           onPress={premium}
         />
       </Card>
       <Card style={{ gap: 16 }}>
-        <Title style={{ fontSize: 20 }}>Vos données vous appartiennent</Title>
+        <Title style={{ fontSize: 20 }}>
+          {t("Vos données vous appartiennent")}
+        </Title>
         <Button
           secondary
-          label="Exporter mes données"
+          label={t("Exporter mes données")}
           icon={Download}
           onPress={exportData}
         />
         {!confirm ? (
           <Button
             secondary
-            label="Effacer mes données locales"
+            label={t("Effacer mes données locales")}
             icon={Trash2}
             onPress={() => setConfirm(true)}
           />
         ) : (
           <View style={{ gap: 12 }}>
             <Txt style={{ color: c.error }}>
-              Cette action efface les réponses, les favoris et les préférences
-              de cet appareil. Exportez vos données avant de continuer.
+              {t(
+                "Cette action efface les réponses, les favoris et les préférences de cet appareil. Exportez vos données avant de continuer.",
+              )}
             </Txt>
             <Button
-              label="Confirmer l’effacement"
+              label={t("Confirmer l’effacement")}
               icon={Trash2}
               onPress={() => {
                 update(() => ({
@@ -2248,7 +2374,7 @@ function ProfileScreen({
             />
             <Button
               secondary
-              label="Conserver mes données"
+              label={t("Conserver mes données")}
               icon={X}
               onPress={() => setConfirm(false)}
             />
@@ -2256,9 +2382,9 @@ function ProfileScreen({
         )}
       </Card>
       <Txt muted style={{ fontSize: 11 }}>
-        MedQuiz 0.1 · Français · Application de formation, sans diagnostic
-        personnalisé. Les contenus de démonstration nécessitent une relecture
-        médicale avant toute publication commerciale.
+        {t(
+          "MedQuiz 0.1 · Français · Application de formation, sans diagnostic personnalisé. Les contenus de démonstration nécessitent une relecture médicale avant toute publication commerciale.",
+        )}
       </Txt>
     </>
   );

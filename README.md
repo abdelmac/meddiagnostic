@@ -1,6 +1,10 @@
 # MedQuiz
 
-Application de formation médicale en français, construite avec Expo SDK 58, React Native, TypeScript et Expo Router pour web, iOS et Android.
+Application de formation médicale en français et en anglais, construite avec Expo SDK 58, React Native, TypeScript et Expo Router pour web, iOS et Android.
+
+Publication statique gratuite sur Cloudflare Workers Static Assets : voir [le guide de déploiement](docs/HEBERGEMENT.md). Le sélecteur FR/EN conserve la progression ; les liens `/?lang=fr` et `/?lang=en` permettent de partager une langue précise.
+
+**Application publique : https://medquiz-europe.medcompass-web.workers.dev**
 
 **Livraison actuelle : étape A, démonstration locale.** Le parcours invité est implémenté, avec 30 cas fictifs. Les étapes B–D ne sont pas présentées comme terminées : pas encore de comptes, backend, paiements, administration ni contenu médical validé.
 
@@ -58,10 +62,10 @@ Les données sont stockées avec AsyncStorage (stockage navigateur sur le web). 
 - `tests/` : moteur et modèle économique ; `e2e/` : parcours Chrome.
 - `docs/` : décisions produit, algorithme, modèle économique, travail restant et validation.
 
-Les données médicales sont séparées de l’interface et chaque tentative conserve un numéro de version. La banque démo v1 doit rester immuable pour que les anciennes tentatives gardent leur sens. Le futur serveur devra stocker chaque version intégralement. L’internationalisation est préparée dans les types/contenus par séparation des données, mais l’extraction des chaînes UI vers des dictionnaires reste à faire.
+Les données médicales sont séparées de l’interface et chaque tentative conserve un numéro de version. La banque démo v1 doit rester immuable pour que les anciennes tentatives gardent leur sens. Le futur serveur devra stocker chaque version intégralement. Les messages UI anglais sont regroupés dans `src/i18n/en.ts`, les 30 cas traduits dans `src/data/questions.en.ts`. Les identifiants et positions des bonnes réponses sont identiques dans les deux langues.
 
 ## Suite et publication
 
 Lire [le périmètre et les décisions](docs/PRODUIT.md), [les règles de révision](docs/ALGORITHME-REVISION.md), [la préparation de production](docs/PRODUCTION.md) et [le bilan de validation](docs/VALIDATION.md).
 
-Ne pas publier comme produit médical validé ni activer d’abonnement avant relecture, images sous licence, serveur et tests de sécurité. Aucun déploiement ni achat n’a été effectué.
+Ne pas présenter la démonstration publique comme un produit médical validé ni activer d’abonnement avant relecture, images sous licence, serveur et tests de sécurité. Aucun achat n’est activé.

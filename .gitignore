@@ -8,5 +8,6 @@ dist-native/
 coverage/
 test-results/
 playwright-report/
+.wrangler/
 android/
 ios/

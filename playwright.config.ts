@@ -5,11 +5,12 @@ export default defineConfig({
   workers: 1,
   reporter: "list",
   use: {
-    baseURL: "http://127.0.0.1:8081",
+    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:8081",
     channel: "chrome",
     trace: "retain-on-failure",
+    locale: "fr-FR",
   },
-  webServer: {
+  webServer: process.env.PLAYWRIGHT_BASE_URL ? undefined : {
     command: "node scripts/serve.mjs",
     url: "http://127.0.0.1:8081",
     reuseExistingServer: true,
