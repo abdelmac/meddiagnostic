@@ -31,21 +31,25 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     let active = true;
     AsyncStorage.getItem(KEY)
       .then((saved) => {
-        const requested=Platform.OS==='web'&&typeof window!=='undefined'?new URLSearchParams(window.location.search).get('lang'):null;
+        const requested =
+          Platform.OS === "web" && typeof window !== "undefined"
+            ? new URLSearchParams(window.location.search).get("lang")
+            : null;
         if (active)
           setValue(
-            requested==='en'||requested==='fr'?requested:saved === "en" || saved === "fr"
-              ? saved
-              : Intl.DateTimeFormat()
-                    .resolvedOptions()
-                    .locale.toLowerCase()
-                    .startsWith("fr")
-                ? "fr"
-                : "en",
+            requested === "en" || requested === "fr"
+              ? requested
+              : saved === "en" || saved === "fr"
+                ? saved
+                : Intl.DateTimeFormat()
+                      .resolvedOptions()
+                      .locale.toLowerCase()
+                      .startsWith("fr")
+                  ? "fr"
+                  : "en",
           );
       })
-      .catch(() => {})
-      ;
+      .catch(() => {});
     return () => {
       active = false;
     };
@@ -61,7 +65,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, [language]);
   const setLanguage = (value: Language) => {
     setValue(value);
-    if(Platform.OS==='web'&&typeof window!=='undefined'){const url=new URL(window.location.href);url.searchParams.set('lang',value);window.history.replaceState(window.history.state,'',url);}
+    if (Platform.OS === "web" && typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("lang", value);
+      window.history.replaceState(window.history.state, "", url);
+    }
     AsyncStorage.setItem(KEY, value).catch(() => {});
   };
   return (

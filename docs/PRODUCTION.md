@@ -1,5 +1,7 @@
 # Travail restant avant production
 
+Mise à jour du 17 octobre 2026 : les comptes bêta, la synchronisation, les règles RLS, les fonctions d’entitlement/webhook sandbox et la suppression du compte sont maintenant implémentés et déployés. Les détails de configuration et limites réelles sont dans COMPTES-PAIEMENTS.md. Les étapes B et C ci-dessous conservent le plan initial ; l’administration, SMTP public, les clés et produits du fournisseur de paiement et la validation de son cycle réel restent à terminer.
+
 ## Contenu médical et iconographie — bloquant
 
 Les 30 cas sont des démonstrations originales, non relues. Les liens actuels renvoient à des ressources générales ; chaque question doit obtenir des références précises et une date de révision médicale réelle. Améliorer les distracteurs avec un relecteur, vérifier les diagnostics différentiels et les niveaux de difficulté. La date de rédaction ne doit jamais être présentée comme une date de validation.

@@ -1,4 +1,85 @@
 export const en: Record<string, string> = {
+ 'Enregistrer le signalement':'Save report','Signalement enregistré avec votre progression. Il sera inclus dans votre export.':'Report saved with your progress. It will be included in your export.','Aucun service éditorial ne traite encore ces signalements. Ils sont conservés avec votre progression et inclus dans votre export.':'No editorial service is processing these reports yet. They are saved with your progress and included in your export.','Découverte gratuite : tous les cas de démonstration, corrections complètes et progression sauvegardée.':'Free demo: all demonstration cases, full explanations and saved progress.','Tarifs commerciaux non validés. Cette version ne propose que des achats sandbox après configuration.':'Commercial pricing has not been validated. This version only supports sandbox purchases after configuration.',
+ 'Total annuel : {0}':'Annual total: {0}','Total mensuel : {0}':'Monthly total: {0}','Renouvellement automatique à la période indiquée jusqu’à annulation. Environnement de test uniquement.':'Renews automatically for the stated period until cancelled. Test environment only.',
+  "Un lien par e-mail suffit. Aucune carte bancaire nécessaire.":
+    "All you need is an email sign-in link. No payment card required.",
+  "Recevoir mon lien": "Send my sign-in link",
+  "Ouvrez le lien reçu par e-mail. Si le message contient un code, vous pouvez aussi le saisir ci-dessous.":
+    "Open the link sent to your email. If the message includes a code, you can also enter it below.",
+  "Renvoyer le lien": "Resend sign-in link",
+  "Si cette adresse est éligible, un lien de connexion a été envoyé. Vérifiez aussi les courriers indésirables.":
+    "If this address is eligible, a sign-in link has been sent. Please check your spam folder too.",
+  "À la création du compte, vos résultats invités seront importés après vérification. Nous conservons votre e-mail et votre progression pour les synchroniser ; ne saisissez aucune donnée de patient.":
+    "When you create an account, your guest results will be imported after verification. We store your email and progress to synchronize them; do not enter patient data.",
+  "L’inscription est actuellement réservée aux adresses invitées à la bêta.":
+    "Registration is currently restricted to invited beta email addresses.",
+  "Mon compte": "My account",
+  "Progression liée à votre compte": "Progress linked to your account",
+  "Supprimer mon compte": "Delete my account",
+  "Exportez vos données avant de continuer. La suppression efface définitivement le compte et sa progression distante. Annulez tout abonnement depuis sa plateforme de gestion.":
+    "Export your data before continuing. Deletion permanently removes the account and its cloud progress. Cancel any subscription through its management platform.",
+  "Une connexion datant de moins de 10 minutes est requise. Pour confirmer, saisissez DELETE.":
+    "You must have signed in within the last 10 minutes. To confirm, enter DELETE.",
+  "Confirmation de suppression du compte": "Account deletion confirmation",
+  "Supprimer définitivement mon compte": "Permanently delete my account",
+  "Suppression impossible. Reconnectez-vous et vérifiez la gestion de votre abonnement avant de réessayer.":
+    "Unable to delete the account. Sign in again and check subscription management before retrying.",
+  "Abonnement · environnement de test": "Subscription · test environment",
+  "Aucun paiement réel n’est activé. La banque de démonstration reste gratuite.":
+    "No real payments are enabled. The demo question bank remains free.",
+  "Connectez-vous pour retrouver vos achats de test sur ce compte.":
+    "Sign in to find your test purchases on this account.",
+  "Les produits de test seront disponibles après configuration du fournisseur de paiement.":
+    "Test products will be available once the payment provider is configured.",
+  "Premium de test actif": "Test Premium active",
+  "Aucun abonnement actif": "No active subscription",
+  "Échéance : {0}": "Expires: {0}",
+  "Tester cet abonnement": "Test this subscription",
+  "Actualiser mes droits de test": "Refresh my test access",
+  "Gérer mon abonnement de test": "Manage my test subscription",
+  "Le service d’abonnement est temporairement indisponible.":
+    "The subscription service is temporarily unavailable.",
+  "Un abonnement est déjà actif sur ce compte.":
+    "A subscription is already active on this account.",
+  "Un abonnement existe déjà. Actualisez vos droits avant un nouvel achat.":
+    "A subscription already exists. Refresh your access before making a new purchase.",
+  "Achat de test terminé. Les droits sont vérifiés par le serveur.":
+    "Test purchase completed. Access is verified by the server.",
+  "Achat non terminé. Aucun accès supplémentaire n’a été accordé.":
+    "Purchase not completed. No additional access was granted.",
+  "Votre compte": "Your account",
+  "La connexion aux comptes est en cours de préparation. Votre progression invitée reste sauvegardée sur cet appareil.":
+    "Account access is being prepared. Your guest progress remains saved on this device.",
+  "Sauvegardez vos progrès, retrouvez-les partout.":
+    "Save your progress and find it on every device.",
+  "Un code par e-mail suffit. Aucune carte bancaire nécessaire.":
+    "All you need is an email code. No payment card required.",
+  "Créer un compte": "Create an account",
+  "Se connecter": "Sign in",
+  "Adresse e-mail": "Email address",
+  "Recevoir mon code": "Send my code",
+  "Saisissez le code reçu par e-mail.": "Enter the code sent to your email.",
+  "Code de vérification": "Verification code",
+  "Vérifier et continuer": "Verify and continue",
+  "Renvoyer le code": "Resend code",
+  "Se déconnecter": "Sign out",
+  "Synchronisation en cours…": "Synchronizing…",
+  "Progression synchronisée": "Progress synchronized",
+  "Hors connexion : vos modifications restent sur cet appareil.":
+    "Offline: your changes remain on this device.",
+  "Synchroniser maintenant": "Sync now",
+  "Importer ma progression invitée": "Import my guest progress",
+  "L’import ajoute les résultats invités sans doublon. Vos données de compte sont séparées de celles des autres comptes sur cet appareil.":
+    "Import adds guest results without duplicates. Your account data is stored separately from other accounts on this device.",
+  "Action impossible. Vérifiez votre connexion et réessayez.":
+    "Unable to complete this action. Check your connection and try again.",
+  "Si cette adresse est éligible, un code a été envoyé. Vérifiez aussi les courriers indésirables.":
+    "If this address is eligible, a code has been sent. Please check your spam folder too.",
+  "Après connexion, vous pourrez importer vos résultats invités. Nous conservons votre e-mail et votre progression pour les synchroniser ; ne saisissez aucune donnée de patient.":
+    "After signing in, you can import your guest results. We store your email and progress to synchronize them; do not enter patient data.",
+  "Progression invitée importée. La synchronisation réessaiera si le réseau est indisponible.":
+    "Guest progress imported. Synchronization will retry if the network is unavailable.",
+  "Progression sauvegardée sur cet appareil": "Progress saved on this device",
   "Version {0} · Rédaction : {1} 2026 · Relecture médicale : non réalisée":
     "Version {0} · Written: {1} 2026 · Medical review: not performed",
   "{0} réponse{1} enregistrée{2} · {3} non répondue{4}":

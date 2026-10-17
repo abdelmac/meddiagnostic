@@ -6,7 +6,7 @@ Publication statique gratuite sur Cloudflare Workers Static Assets : voir [le gu
 
 **Application publique : https://medquiz-europe.medcompass-web.workers.dev**
 
-**Livraison actuelle : étape A, démonstration locale.** Le parcours invité est implémenté, avec 30 cas fictifs. Les étapes B–D ne sont pas présentées comme terminées : pas encore de comptes, backend, paiements, administration ni contenu médical validé.
+**Livraison actuelle : démonstration bilingue et comptes bêta.** Le parcours invité, les comptes Supabase, l’import invité, la synchronisation et la suppression du compte sont implémentés. L’envoi d’e-mails reste limité aux adresses de l’équipe tant qu’un SMTP personnalisé n’est pas raccordé. Le paiement sandbox est préparé mais attend les clés et produits RevenueCat ; aucun achat réel n’est activé. L’administration et la banque médicale validée restent à développer.
 
 ## Installation et lancement
 
@@ -22,7 +22,7 @@ npm run android
 npm run ios
 ```
 
-Le QR code Expo permet d’ouvrir le projet depuis un appareil du même réseau ; la version d’Expo Go doit correspondre au SDK. Aucun identifiant n’est nécessaire pour cette démonstration. Les identifiants de bundle `fr.medquiz.app` sont provisoires, à remplacer avant distribution.
+Le QR code Expo permet d’ouvrir le projet depuis un appareil du même réseau ; la version d’Expo Go doit correspondre au SDK. Le mode invité fonctionne sans identifiant. Pour les comptes, copier `.env.example` vers `.env` et renseigner les valeurs publiques du projet Supabase (jamais la clé service-role). Les identifiants de bundle `fr.medquiz.app` sont provisoires, à remplacer avant distribution.
 
 ## Vérification
 
@@ -49,9 +49,11 @@ L’export JavaScript iOS/Android ne compile pas d’IPA/APK et ne prouve pas un
 - Révisions espacées, carnet des dernières erreurs, favoris et marqueurs À revoir.
 - Progression par thème, distinction questions nouvelles/répétées et bilan glissant de sept jours.
 - Mode sombre, texte agrandi, rôles d’accessibilité, interface adaptée aux grands et petits écrans.
-- Export des données, suppression locale avec confirmation et signalements explicitement locaux.
+- Export des données, suppression locale avec confirmation et signalements sauvegardés avec la progression. Les signalements ne sont pas encore traités par une administration éditoriale.
+- Connexion bêta, import des résultats invités, caches séparés par compte et synchronisation sans doublons.
+- Suppression du compte avec connexion récente, révocation des sessions et suppression des données distantes.
 
-Les données sont stockées avec AsyncStorage (stockage navigateur sur le web). Elles ne sont pas chiffrées pour conserver des données de santé : **ne pas entrer de données de patients**. La démo ne réalise aucun diagnostic personnalisé. Un signalement n’est pas transmis à un service médical : il est conservé dans l’export local.
+Les données sont stockées avec AsyncStorage (stockage navigateur sur le web), et synchronisées vers Supabase Paris pour les comptes connectés. Elles ne sont pas conçues pour conserver des données de santé : **ne pas entrer de données de patients**. La démo ne réalise aucun diagnostic personnalisé. Un signalement n’est pas transmis à un service médical opérationnel ; il est conservé dans la progression et l’export.
 
 ## Organisation
 
@@ -67,5 +69,7 @@ Les données médicales sont séparées de l’interface et chaque tentative con
 ## Suite et publication
 
 Lire [le périmètre et les décisions](docs/PRODUIT.md), [les règles de révision](docs/ALGORITHME-REVISION.md), [la préparation de production](docs/PRODUCTION.md) et [le bilan de validation](docs/VALIDATION.md).
+
+État précis des comptes, restrictions e-mail, synchronisation et configuration du paiement de test : [COMPTES-PAIEMENTS.md](docs/COMPTES-PAIEMENTS.md).
 
 Ne pas présenter la démonstration publique comme un produit médical validé ni activer d’abonnement avant relecture, images sous licence, serveur et tests de sécurité. Aucun achat n’est activé.

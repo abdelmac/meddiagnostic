@@ -1,0 +1,3 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {sandboxEntitlement} from '../src/domain/entitlements';
+const now=Date.parse('2026-10-17T12:00:00Z');const fixture=(expiry:string,isSandbox=true)=>({subscriber:{entitlements:{premium:{expires_date:expiry,product_identifier:'annual'}},subscriptions:{annual:{is_sandbox:isSandbox,store:'STRIPE'}}}});
+test('droits de test : pas de droit absent, expiré ou provenant de production',()=>{assert.equal(sandboxEntitlement({},now).active,false);assert.equal(sandboxEntitlement(fixture('2026-12-01'),now).active,true);assert.equal(sandboxEntitlement(fixture('2026-01-01'),now).active,false);assert.equal(sandboxEntitlement(fixture('2026-12-01',false),now).active,false);});

@@ -1,1 +1,1 @@
-export {StoreProvider,useStore} from './account-state';
+export { StoreProvider, useStore } from "./account-state";

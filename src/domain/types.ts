@@ -50,7 +50,11 @@ export type Session = {
   kind: "quiz" | "review";
 };
 export type LocalState = {
-  syncMeta?: {actor:string;clock:number;fields:Record<string,{clock:number;actor:string;value:unknown}>};
+  syncMeta?: {
+    actor: string;
+    clock: number;
+    fields: Record<string, { clock: number; actor: string; value: unknown }>;
+  };
   schema: 1;
   attempts: Attempt[];
   reviews: Record<string, Review>;

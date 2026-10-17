@@ -1,5 +1,7 @@
 # Validation — 17 octobre 2026
 
+Mise à jour comptes : 18 tests unitaires/SQL réussis ; intégration Supabase réelle multi-contextes, vérification d’un code et suppression d’un compte fictif testées. Le détail et les limites de livraison figurent dans COMPTES-PAIEMENTS.md. Les paragraphes ci-dessous décrivent les validations antérieures du parcours invité ; les comptes et fonctions serveur ne doivent plus être considérés comme absents.
+
 Environnement : Windows, Node 24.19, Expo SDK 58, React 19.3 et React Native 0.88. Dépendances natives sélectionnées avec `expo install`, verrouillées dans `package-lock.json`.
 
 ## Résultats

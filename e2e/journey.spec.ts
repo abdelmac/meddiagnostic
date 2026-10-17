@@ -62,11 +62,15 @@ test("invité : quiz, reprise, bilan, corrections, révisions et favoris", async
   await expect(
     page.getByText("Consulter le corrigé", { exact: false }),
   ).toBeVisible();
-  await page.getByRole('button',{name:'Lancer mes révisions'}).click();
-  await expect(page.getByText('Question 1 sur 1',{exact:true})).toBeVisible();
+  await page.getByRole("button", { name: "Lancer mes révisions" }).click();
+  await expect(
+    page.getByText("Question 1 sur 1", { exact: true }),
+  ).toBeVisible();
   await answer(page);
-  await page.getByRole('button',{name:'Voir mon bilan'}).click();
-  await expect(page.getByText('Un pas de plus dans votre apprentissage.')).toBeVisible();
+  await page.getByRole("button", { name: "Voir mon bilan" }).click();
+  await expect(
+    page.getByText("Un pas de plus dans votre apprentissage."),
+  ).toBeVisible();
   expect(errors).toEqual([]);
 });
 test("examen : correction différée et bilan disponible", async ({ page }) => {

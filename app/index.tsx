@@ -1,5 +1,9 @@
 import { useCatalog } from "../src/i18n/catalog";
 import { LanguageSwitch } from "../src/ui/LanguageSwitch";
+import { AccountPanel } from "../src/ui/AccountPanel";
+import { SubscriptionPanel } from "../src/ui/SubscriptionPanel";
+import { DeleteAccountPanel } from "../src/ui/DeleteAccountPanel";
+import { useAuth } from "../src/auth";
 import { useI18n } from "../src/i18n";
 import React, { useEffect, useState } from "react";
 import {
@@ -178,6 +182,7 @@ function HeroArt() {
 }
 
 export default function App() {
+  const { user } = useAuth();
   const { questions, specialties, getQ, day } = useCatalog();
 
   const { t, language } = useI18n();
@@ -384,10 +389,14 @@ export default function App() {
               </View>
               <View>
                 <Txt style={{ fontSize: 12, fontWeight: "600" }}>
-                  {t("Espace invité")}
+                  {t(user ? "Mon compte" : "Espace invité")}
                 </Txt>
                 <Txt muted style={{ fontSize: 10 }}>
-                  {t("Progression sur cet appareil")}
+                  {t(
+                    user
+                      ? "Progression liée à votre compte"
+                      : "Progression sur cet appareil",
+                  )}
                 </Txt>
               </View>
             </View>
@@ -1008,6 +1017,7 @@ export default function App() {
         title={t("MedQuiz Premium")}
       >
         <View style={{ gap: 20 }}>
+          <SubscriptionPanel />
           <View style={[row, { gap: 9 }]}>
             <Sparkles color={c.accent} />
             <Title style={{ fontSize: 23 }}>
@@ -1023,7 +1033,7 @@ export default function App() {
             <Txt style={{ fontWeight: "700" }}>{t("Offre en préparation")}</Txt>
             <Txt>
               {t(
-                "Hypothèses à tester : 9,99 € / mois ou 69,99 € / an (montant annuel total). Aucun achat ni renouvellement n’est activé.",
+                "Tarifs commerciaux non validés. Cette version ne propose que des achats sandbox après configuration.",
               )}
             </Txt>
           </Card>
@@ -1629,7 +1639,7 @@ function Correction({
   question: Question;
   choice?: number;
 }) {
-  const {day}=useCatalog();
+  const { day } = useCatalog();
   const { t, language } = useI18n();
 
   const { state, update } = useStore();
@@ -1780,7 +1790,7 @@ function Correction({
           />
           <Button
             small
-            label={t("Enregistrer le signalement local")}
+            label={t("Enregistrer le signalement")}
             disabled={!reason.trim() || sent}
             icon={Flag}
             onPress={() => {
@@ -1802,8 +1812,8 @@ function Correction({
           />
           <Txt muted style={{ fontSize: 11 }}>
             {sent
-              ? "Signalement enregistré sur cet appareil. Il sera inclus dans votre export."
-              : "Aucun service éditorial n’est connecté : ce signalement reste sur cet appareil et n’est pas envoyé."}
+              ? "Signalement enregistré avec votre progression. Il sera inclus dans votre export."
+              : "Aucun service éditorial ne traite encore ces signalements. Ils sont conservés avec votre progression et inclus dans votre export."}
           </Txt>
         </Card>
       )}
@@ -2256,27 +2266,9 @@ function ProfileScreen({
           "Réglez votre confort de lecture et gardez le contrôle de vos données.",
         )}
       />
-      <Card style={{ gap: 14 }}>
-        <View style={row}>
-          <UserRound color={c.accent} size={30} />
-          <View>
-            <Title style={{ fontSize: 22 }}>
-              {t("Bienvenue dans votre espace invité")}
-            </Title>
-            <Txt muted>{t("Vos résultats restent sur cet appareil.")}</Txt>
-          </View>
-        </View>
-        <Txt>
-          {t(
-            "La création de compte et la synchronisation seront disponibles dans une prochaine étape. Vous pouvez déjà apprendre et conserver votre progression localement.",
-          )}
-        </Txt>
-        <Txt muted style={{ fontSize: 11 }}>
-          {t(
-            "Ne saisissez aucune donnée personnelle de patient. Effacer les données du navigateur ou désinstaller l’application supprime la progression locale.",
-          )}
-        </Txt>
-      </Card>
+      <AccountPanel />
+      <SubscriptionPanel />
+      <DeleteAccountPanel />
       <Card style={{ gap: 19 }}>
         <Field label={t("Langue de l’application")}>
           <LanguageSwitch />
@@ -2326,7 +2318,7 @@ function ProfileScreen({
         <Title style={{ fontSize: 20 }}>{t("Votre offre")}</Title>
         <Txt>
           {t(
-            "Découverte gratuite : tous les cas de démonstration, corrections complètes et progression locale.",
+            "Découverte gratuite : tous les cas de démonstration, corrections complètes et progression sauvegardée.",
           )}
         </Txt>
         <Button

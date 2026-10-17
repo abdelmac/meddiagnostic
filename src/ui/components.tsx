@@ -1,4 +1,4 @@
-import {useI18n} from '../i18n';
+import { useI18n } from "../i18n";
 import React from "react";
 import {
   ActivityIndicator,
@@ -19,7 +19,7 @@ export function Txt({
   muted,
   ...props
 }: React.ComponentProps<typeof Text> & { muted?: boolean }) {
-  const {t}=useI18n();
+  const { t } = useI18n();
   const c = useTheme();
   const { state } = useStore();
   const resolved = StyleSheet.flatten(style) ?? {};
@@ -43,7 +43,9 @@ export function Txt({
         { fontSize, lineHeight },
       ]}
     >
-      {React.Children.map(children,child=>typeof child==='string'?t(child):child)}
+      {React.Children.map(children, (child) =>
+        typeof child === "string" ? t(child) : child,
+      )}
     </Text>
   );
 }
@@ -54,7 +56,6 @@ export function Title({
   children: React.ReactNode;
   style?: TextStyle;
 }) {
-
   return (
     <Txt
       accessibilityRole="header"
@@ -107,7 +108,6 @@ export function Button({
   icon?: LucideIcon;
   small?: boolean;
 }) {
-
   const c = useTheme();
   return (
     <Pressable
@@ -155,7 +155,6 @@ export function Chip({
   selected?: boolean;
   onPress?: () => void;
 }) {
-
   const c = useTheme();
   return (
     <Pressable
@@ -217,7 +216,6 @@ export function Empty({
   description: string;
   action?: React.ReactNode;
 }) {
-
   const c = useTheme();
   return (
     <Card style={{ alignItems: "center", padding: 36, gap: 10 }}>
@@ -242,8 +240,7 @@ export function Empty({
   );
 }
 export function Loading() {
- const { t, language } = useI18n();
-
+  const { t, language } = useI18n();
 
   const c = useTheme();
   return (

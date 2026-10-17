@@ -1,0 +1,5 @@
+import {test,expect} from '@playwright/test';
+test('profil public : comptes bêta bilingues et aucun paiement réel',async({page})=>{
+ await page.goto('/');await page.getByRole('button',{name:'Profil',exact:true}).click();await expect(page.getByRole('textbox',{name:'Adresse e-mail',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Recevoir mon lien',exact:true})).toBeDisabled();await expect(page.getByText('L’inscription est actuellement réservée aux adresses invitées à la bêta.',{exact:true})).toBeVisible();await expect(page.getByText('Aucun paiement réel n’est activé. La banque de démonstration reste gratuite.',{exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'English',exact:true}).first().click();await expect(page.getByRole('textbox',{name:'Email address',exact:true})).toBeVisible();await expect(page.getByText('Registration is currently restricted to invited beta email addresses.',{exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Send my sign-in link',exact:true})).toBeDisabled();
+});
