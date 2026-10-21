@@ -1,0 +1,323 @@
+{
+  "dataset": "BodyParts3D 3.0 — isolated 95% detail models",
+  "archive": {
+    "url": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/20110915/BodyParts3D_3.0_obj_95.zip",
+    "bytes": 547270545,
+    "centralDirectorySha256": "5cbf1d76b91121c34012647943c9a511bfb705b5e91603f128d2d1b569681602",
+    "retrieval": "Verified HTTP byte ranges; the whole archive was not downloaded"
+  },
+  "importer": "scripts/import-bodyparts3d-details.mjs",
+  "license": "CC-BY-SA-2.1-JP",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.1/jp/",
+  "attribution": "BodyParts3D, Copyright(C) 2010-2011 The Database Center for Life Science licensed under CC Attribution-ShareAlike 2.1 Japan",
+  "isolatedOnly": true,
+  "normalization": {
+    "applied": true,
+    "units": "metres",
+    "up": "+Y",
+    "anterior": "+Z",
+    "floorY": 0,
+    "sourceUnits": "millimetres",
+    "sourceBounds": {
+      "min": [
+        -334.1189880371094,
+        -246.7830047607422,
+        -78.11119842529297
+      ],
+      "max": [
+        332.82501220703125,
+        45.24760055541992,
+        1641.3599853515625
+      ]
+    },
+    "rotationDegreesX": -90,
+    "scale": 0.001,
+    "translation": [
+      0.0006469879150390626,
+      0.07811119842529297,
+      -0.10076770210266113
+    ]
+  },
+  "entries": [
+    {
+      "id": "FMA13295_FJ3131",
+      "sourceFmaId": "FMA13295",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA13295.obj",
+      "sourceBytes": 14572772,
+      "compressedBytes": 3711687,
+      "crc32": 4046174827,
+      "sha256": "8a0372e1d749aca1ccdf4cc7b8f8c47baf6066b554d6679def83cc13d381af4a"
+    },
+    {
+      "id": "FMA34680_FJ1468",
+      "sourceFmaId": "FMA34680",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA34680.obj",
+      "sourceBytes": 2079174,
+      "compressedBytes": 614514,
+      "crc32": 2810745414,
+      "sha256": "881a976cfad470915594e56f56c20211a62f23c85f988667ec1e49e64b316082"
+    },
+    {
+      "id": "FMA34681_FJ1468M",
+      "sourceFmaId": "FMA34681",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA34681.obj",
+      "sourceBytes": 1932740,
+      "compressedBytes": 565135,
+      "crc32": 2273550161,
+      "sha256": "aaa80a6b4b8e5b80766b4ae52e8152bda2af17c65b1984f07d0a5bab15c239bb"
+    },
+    {
+      "id": "FMA34682_FJ1467",
+      "sourceFmaId": "FMA34682",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA34682.obj",
+      "sourceBytes": 2109103,
+      "compressedBytes": 625309,
+      "crc32": 794954834,
+      "sha256": "5ef4c62428ff938852da69bfed7ead33343502e39a50a4c22bb490de6e8361ef"
+    },
+    {
+      "id": "FMA34683_FJ1467M",
+      "sourceFmaId": "FMA34683",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA34683.obj",
+      "sourceBytes": 1975945,
+      "compressedBytes": 582429,
+      "crc32": 4282473546,
+      "sha256": "8f64e40e2860be6611da72c6d0429b6f8b4260fbe30a2933ce171aacd9a59c14"
+    },
+    {
+      "id": "FMA34684_FJ1513",
+      "sourceFmaId": "FMA34684",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA34684.obj",
+      "sourceBytes": 3167922,
+      "compressedBytes": 924803,
+      "crc32": 2374961704,
+      "sha256": "a19a9f482b3614cb9608b6254adfa346eb9e1ba1706f56d7a33f7c4895ac5317"
+    },
+    {
+      "id": "FMA34685_FJ1513M",
+      "sourceFmaId": "FMA34685",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA34685.obj",
+      "sourceBytes": 3084728,
+      "compressedBytes": 893933,
+      "crc32": 1071446502,
+      "sha256": "5cd4d4ec6c1d9523cf70badcdb583b0f86a5fc29dcd37ee227cd4e82c34c31ed"
+    },
+    {
+      "id": "FMA34690_FJ1447",
+      "sourceFmaId": "FMA34690",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA34690.obj",
+      "sourceBytes": 715824,
+      "compressedBytes": 214835,
+      "crc32": 1007016833,
+      "sha256": "e0c50920897a874da0b3284332e2ef51273652e9b6d753941f75479e68d89691"
+    },
+    {
+      "id": "FMA34691_FJ1447M",
+      "sourceFmaId": "FMA34691",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA34691.obj",
+      "sourceBytes": 654658,
+      "compressedBytes": 197441,
+      "crc32": 3430148765,
+      "sha256": "9a7cea314c6324acac67d0bda210b9f07a7d51c01ebcd6512873b9f59aaf7b33"
+    },
+    {
+      "id": "FMA37684_FJ1512",
+      "sourceFmaId": "FMA37684",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA37684.obj",
+      "sourceBytes": 2154129,
+      "compressedBytes": 647896,
+      "crc32": 4220990834,
+      "sha256": "9e4ce998d59b5991e3f61d3d86b004fdbdb9f4eadeb12f504cede00f02677c66"
+    },
+    {
+      "id": "FMA37685_FJ1512M",
+      "sourceFmaId": "FMA37685",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA37685.obj",
+      "sourceBytes": 2061792,
+      "compressedBytes": 609217,
+      "crc32": 1301007369,
+      "sha256": "1962a76a2ddda835182cf144a221a9c1c7afdb51e4c8ef7d859f83a02e724b38"
+    },
+    {
+      "id": "FMA37686_FJ1478",
+      "sourceFmaId": "FMA37686",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA37686.obj",
+      "sourceBytes": 2462224,
+      "compressedBytes": 737805,
+      "crc32": 3037788720,
+      "sha256": "a6fcd6f582ab2dd8f4ce646228e47bc5de8275b2972fa9413ebd9f76099f16b5"
+    },
+    {
+      "id": "FMA37687_FJ1478M",
+      "sourceFmaId": "FMA37687",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA37687.obj",
+      "sourceBytes": 2340183,
+      "compressedBytes": 685859,
+      "crc32": 3869827115,
+      "sha256": "e4231c882b3bdee2cfc1e5072915547ae9931841e612e214d828296b8f64c61a"
+    },
+    {
+      "id": "FMA37695_FJ1480",
+      "sourceFmaId": "FMA37695",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA37695.obj",
+      "sourceBytes": 1857356,
+      "compressedBytes": 539473,
+      "crc32": 3903708037,
+      "sha256": "8e0fcf8c1605350aa5c39a2528f6153cec78f8a317bd27d60b152b74486a2deb"
+    },
+    {
+      "id": "FMA37696_FJ1480M",
+      "sourceFmaId": "FMA37696",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA37696.obj",
+      "sourceBytes": 1760421,
+      "compressedBytes": 512189,
+      "crc32": 4146732013,
+      "sha256": "9e0ef66582d69e839db21259b38ff71aa4bdd60b2a286b72701ec9ea6fad17a0"
+    },
+    {
+      "id": "FMA37697_FJ1477",
+      "sourceFmaId": "FMA37697",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA37697.obj",
+      "sourceBytes": 2631084,
+      "compressedBytes": 772898,
+      "crc32": 158540141,
+      "sha256": "8ca9740b8fcc9c4563f2be416c0cfb650e349b084447589f3fb2fbc1cb6e9dbc"
+    },
+    {
+      "id": "FMA37698_FJ1477M",
+      "sourceFmaId": "FMA37698",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA37698.obj",
+      "sourceBytes": 2469252,
+      "compressedBytes": 713134,
+      "crc32": 1778482112,
+      "sha256": "a63f47799c2da133234b632b2836d4a3584c585e533d29c857023ad1fe00e63e"
+    },
+    {
+      "id": "FMA37699_FJ1479",
+      "sourceFmaId": "FMA37699",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA37699.obj",
+      "sourceBytes": 2868732,
+      "compressedBytes": 836887,
+      "crc32": 1644138486,
+      "sha256": "7115163852d79ab26193635475b6be6a2f72e95856446c40a845c03ccf52400c"
+    },
+    {
+      "id": "FMA37700_FJ1479M",
+      "sourceFmaId": "FMA37700",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA37700.obj",
+      "sourceBytes": 2621867,
+      "compressedBytes": 755205,
+      "crc32": 2240091040,
+      "sha256": "53d4214ad3b6fe64ea3f45ba1d8f489f6f9d93cfb4ae5f1d4f2cf8df57ace7e5"
+    },
+    {
+      "id": "FMA38928_FJ1433",
+      "sourceFmaId": "FMA38928",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA38928.obj",
+      "sourceBytes": 6328935,
+      "compressedBytes": 1809136,
+      "crc32": 2647472103,
+      "sha256": "73c7ecdebcc1f0b7873ff6c3343d87815b0dfef57e42c8bf1d2e8c46f049f68a"
+    },
+    {
+      "id": "FMA38929_FJ1433M",
+      "sourceFmaId": "FMA38929",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA38929.obj",
+      "sourceBytes": 5841189,
+      "compressedBytes": 1637872,
+      "crc32": 1929917617,
+      "sha256": "20981d942d01de94f5b714ac4520a9f5c84b2634b7f5ed2bb894d118092ce882"
+    },
+    {
+      "id": "FMA38930_FJ1442",
+      "sourceFmaId": "FMA38930",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA38930.obj",
+      "sourceBytes": 7235639,
+      "compressedBytes": 2055210,
+      "crc32": 761297986,
+      "sha256": "95f49aeaa0c04f8afa1b6d5a895a8ac3802b0b2212c662d0c9e6f12244bab0c4"
+    },
+    {
+      "id": "FMA38931_FJ1442M",
+      "sourceFmaId": "FMA38931",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA38931.obj",
+      "sourceBytes": 6730750,
+      "compressedBytes": 1874669,
+      "crc32": 920390263,
+      "sha256": "ce8d6eb5c13ff1fdab52e67285fd3068f1ee1678016fde74e55ebadca8ccedb6"
+    },
+    {
+      "id": "FMA38932_FJ1443",
+      "sourceFmaId": "FMA38932",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA38932.obj",
+      "sourceBytes": 4915538,
+      "compressedBytes": 1428173,
+      "crc32": 1172388139,
+      "sha256": "01cffc5193295bedaa5afdcec6669b4d8be7b17d18c17361fc9b88f74fe42d59"
+    },
+    {
+      "id": "FMA38933_FJ1443M",
+      "sourceFmaId": "FMA38933",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA38933.obj",
+      "sourceBytes": 4586808,
+      "compressedBytes": 1309659,
+      "crc32": 1563599134,
+      "sha256": "7d1b012a56f50fb44d23c311774431bad03e97dd6fbda76b3509cb1e8b739228"
+    },
+    {
+      "id": "FMA38934_FJ1441",
+      "sourceFmaId": "FMA38934",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA38934.obj",
+      "sourceBytes": 4491701,
+      "compressedBytes": 1262893,
+      "crc32": 3823814383,
+      "sha256": "2118bedf0eea1108a7a65975112dae78917ca6b2f93cb5414d69e15ce228aca2"
+    },
+    {
+      "id": "FMA38935_FJ1441M",
+      "sourceFmaId": "FMA38935",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA38935.obj",
+      "sourceBytes": 4285643,
+      "compressedBytes": 1192288,
+      "crc32": 4095232440,
+      "sha256": "4a18e430f71fc9c73f59cc12539b6bbb39df0724462d06bd7a051a134d7f1b43"
+    },
+    {
+      "id": "FMA45874_FJ1446",
+      "sourceFmaId": "FMA45874",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA45874.obj",
+      "sourceBytes": 540361,
+      "compressedBytes": 162413,
+      "crc32": 3624236096,
+      "sha256": "d81320664968ea84ae63f73aaef3ca5f4886d65c7a7bd4226daa3ac26717f8a3"
+    },
+    {
+      "id": "FMA45875_FJ1446M",
+      "sourceFmaId": "FMA45875",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA45875.obj",
+      "sourceBytes": 494764,
+      "compressedBytes": 145752,
+      "crc32": 1272631174,
+      "sha256": "2ba5fc4d3e70a4384b6bafa75fda86a1e96cf4ef977ee6c02c9ab66f2d487cf9"
+    },
+    {
+      "id": "FMA79979_FJ1464",
+      "sourceFmaId": "FMA79979",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA79979.obj",
+      "sourceBytes": 2694539,
+      "compressedBytes": 776920,
+      "crc32": 182609044,
+      "sha256": "b4add2132fa5b5580a3ebd79a964deb626e424b5f7b76de9be9092417d6e76ed"
+    },
+    {
+      "id": "FMA79980_FJ1464M",
+      "sourceFmaId": "FMA79980",
+      "archiveEntry": "BodyParts3D_3.0_obj_95\\FMA79980.obj",
+      "sourceBytes": 2570479,
+      "compressedBytes": 736449,
+      "crc32": 2048724409,
+      "sha256": "8c921e26f0fd22d9bb3bcef948f2ab10c0dcfe6adbdbbc8c916b5183bd5cf7cf"
+    }
+  ],
+  "unavailable": []
+}

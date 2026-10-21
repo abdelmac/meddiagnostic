@@ -15,6 +15,9 @@ import { reserveSession } from "../src/services/quotas";
 import { reservationId } from "../src/domain/quotas";
 import { DeleteAccountPanel } from "../src/ui/DeleteAccountPanel";
 import { useAuth } from "../src/auth";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AUTH_DESTINATION_KEY, AUTH_MODE_KEY, authDestination } from "../src/domain/auth-navigation";
 import { useI18n } from "../src/i18n";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -196,7 +199,10 @@ function HeroArt() {
 }
 
 export default function App() {
-  const { user } = useAuth();
+  const auth = useAuth();
+  const { user } = auth;
+  const router = useRouter();
+  const authParams = useLocalSearchParams<{ screen?: string }>();
   const { allowance } = useQuota();
   const reviewRequest = useRef(reservationId());
   const [reviewBusy, setReviewBusy] = useState(false);
@@ -223,6 +229,30 @@ export default function App() {
   } | null>(null);
   const [premium, setPremium] = useState(false);
   const [notice, setNotice] = useState("");
+  useEffect(() => {
+    let alive = true;
+    if (auth.error && !user) {
+      void Promise.all([AsyncStorage.getItem(AUTH_DESTINATION_KEY), AsyncStorage.getItem(AUTH_MODE_KEY)]).then(([saved, mode]) => {
+        if (alive) router.replace(`/auth?mode=${mode === "signup" ? "signup" : "login"}&next=${authDestination(saved)}`);
+      }).catch(() => { if (alive) router.replace("/auth"); });
+      return () => { alive = false; };
+    }
+    if (!user) return;
+    void (async () => {
+      const url = Platform.OS === "web" && typeof window !== "undefined" ? new URL(window.location.href) : null;
+      const requested = authParams.screen ?? await AsyncStorage.getItem(AUTH_DESTINATION_KEY);
+      if (!alive || !requested) return;
+      const destination = authDestination(requested);
+      setTab(destination === "competition" ? "Compétition" : destination === "home" ? "Accueil" : "Profil");
+      await AsyncStorage.multiRemove([AUTH_DESTINATION_KEY, AUTH_MODE_KEY]);
+      if (url?.searchParams.has("screen")) {
+        url.searchParams.delete("screen");
+        window.history.replaceState(window.history.state, "", url.href);
+      }
+      if (Platform.OS !== "web" && authParams.screen) router.setParams({ screen: undefined });
+    })().catch(() => {});
+    return () => { alive = false; };
+  }, [user?.id, auth.error, authParams.screen]);
   useEffect(() => {
     if (Platform.OS !== "web" || typeof window === "undefined") return;
     const url = new URL(window.location.href);
@@ -462,11 +492,12 @@ export default function App() {
               )}
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={t("Ouvrir le profil")}
-                onPress={() => go("Profil")}
-                style={{ padding: 8 }}
+                accessibilityLabel={t(user ? "Ouvrir le profil" : "Se connecter")}
+                onPress={() => user ? go("Profil") : router.push("/auth?mode=login")}
+                style={{ padding: 8, minHeight: 44, flexDirection: "row", alignItems: "center", gap: 8 }}
               >
-                <UserRound color={c.muted} size={19} />
+                <UserRound color={user ? c.muted : c.accent} size={19} />
+                {!user && desktop && <Txt style={{ color: c.accent, fontWeight: "600", fontSize: 12 }}>{t("Se connecter")}</Txt>}
               </Pressable>
             </View>
           </View>
@@ -921,7 +952,7 @@ export default function App() {
             {tab === "Progression" && (
               <><StreakPanel /><ProgressScreen openSession={(s) => setResult(s)} /></>
             )}
-            {tab === "Compétition" && <CompetitivePanel onSignIn={() => go("Profil")} />}
+            {tab === "Compétition" && <CompetitivePanel onSignIn={() => router.push("/auth?mode=login&next=competition")} />}
             {tab === "Profil" && (
               <ProfileScreen
                 notice={setNotice}

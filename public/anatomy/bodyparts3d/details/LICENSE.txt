@@ -1,0 +1,9 @@
+ISOLATED HD DETAILS: BodyParts3D 3.0, official 95% archive
+BodyParts3D, Copyright(C) 2010-2011 The Database Center for Life Science licensed under CC Attribution-ShareAlike 2.1 Japan
+License: Creative Commons Attribution-ShareAlike 2.1 Japan (CC-BY-SA-2.1-JP)
+https://creativecommons.org/licenses/by-sa/2.1/jp/
+Source archive: https://dbarchive.biosciencedbc.jp/data/bodyparts3d/20110915/BodyParts3D_3.0_obj_95.zip
+Files: details/*.glb
+These adapted detail files remain distributed under CC-BY-SA-2.1-JP, separately from the base atlas.
+Adaptations: selected archive entries, original positions converted to metres with the base atlas axis convention, source normals retained, lossless Meshopt compression. No registration or additional decimation.
+The 3.0 details retain their original geometry and are for isolated inspection only; they must not be superimposed on the 4.0/4.3 body or used to infer relationships between versions.

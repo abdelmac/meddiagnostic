@@ -8,7 +8,7 @@ test("atlas : corps cliquable, cinq calques, recherche, face/dos, zoom et traduc
   const body = page.getByTestId("anatomy-body-diagram");
   await page.getByRole("button", { name: "Vue 2D", exact: true }).click();
   await expect(body).toHaveAccessibleName(/Deltoïde/);
-  await page.getByRole("button", { name: "Calque : Muscles", exact: true }).click();
+  await page.getByRole("button", { name: "Muscles", exact: true }).click();
   await body.scrollIntoViewIfNeeded();
   const target = await body.evaluate((node) => {
     const svg = node as SVGSVGElement;
@@ -22,18 +22,20 @@ test("atlas : corps cliquable, cinq calques, recherche, face/dos, zoom et traduc
   await page.getByRole("button", { name: "Zoomer sur la structure", exact: true }).click();
   await expect(body).not.toHaveAttribute("viewBox", before!);
   await page.getByRole("button", { name: "Revoir le corps entier", exact: true }).click();
-  await page.getByRole("button", { name: "Calque : Nerfs", exact: true }).click();
+  await page.getByRole("button", { name: "Nerfs", exact: true }).click();
+  await expect(page.getByTestId("anatomy-workspace").getByRole("button", { name: "Nerf médian", exact: true })).toBeVisible();
   await page.getByRole("textbox", { name: "Rechercher une structure anatomique", exact: true }).fill("sciatique");
+  await expect(page.getByTestId("anatomy-workspace").getByRole("button", { name: "Nerf médian", exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "Nerf sciatique", exact: true }).click();
   await expect(body).toHaveAccessibleName(/postérieure.*Nerf sciatique/);
   await page.getByRole("textbox", { name: "Rechercher une structure anatomique", exact: true }).fill("");
-  await page.getByRole("button", { name: "Calque : Organes", exact: true }).click();
+  await page.getByRole("button", { name: "Organes", exact: true }).click();
   await page.getByRole("button", { name: "Face", exact: true }).click();
   await page.getByRole("button", { name: "Cœur", exact: true }).click();
   await expect(body).toHaveAccessibleName(/Cœur/);
-  await page.getByRole("button", { name: "Calque : Vaisseaux", exact: true }).click();
+  await page.getByRole("button", { name: "Vaisseaux", exact: true }).click();
   await expect(body).toHaveAccessibleName(/Aorte/);
-  await page.getByRole("button", { name: "Calque : Squelette", exact: true }).click();
+  await page.getByRole("button", { name: "Squelette", exact: true }).click();
   await page.getByRole("button", { name: "Dos", exact: true }).click();
   await expect(body).toHaveAccessibleName(/postérieure/);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

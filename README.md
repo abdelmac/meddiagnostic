@@ -4,11 +4,13 @@ Application de formation médicale en français et en anglais, construite avec E
 
 L’identité violette et lime reprend l’[emblème fourni](public/brand/ippomed-emblem.png), sans texte. À l’accueil, **Anatomie et Spécialités sont présentées au même niveau**.
 
-**Anatomie :** atlas 3D WebGL original avec Three.js, 36 structures dans cinq systèmes, rotation, isolation, opacité et repères d’attaches, avec vue 2D de repli. Sept parcours accompagnent la révision de la première année à l’internat. La banque comprend **140 questions d’anatomie, dont 98 sur les muscles**, en français et en anglais. Voir [le support anatomie et ses limites](docs/ANATOMIE.md).
+**Anatomie :** atlas WebGL avec **2 320 maillages anatomiques BodyParts3D**, soit 6,41 millions de triangles dans cinq systèmes. Sélection directement sur le corps, survol nommé, rotation, cadrage, couches superposables, masquage, isolation et transparence, avec vue 2D de repli. Sept parcours accompagnent la révision de la première année à l’internat. La banque comprend **140 questions d’anatomie, dont 98 sur les muscles**, en français et en anglais. Voir [le support anatomie, les sources et ses limites](docs/ANATOMIE.md).
 
 Publication statique gratuite sur Cloudflare Workers Static Assets : voir [le guide de déploiement](docs/HEBERGEMENT.md). Le sélecteur FR/EN conserve la progression ; les liens `/?lang=fr` et `/?lang=en` permettent de partager une langue précise.
 
 **Application publique : https://medquiz-europe.medcompass-web.workers.dev**
+
+La [page de connexion et d’inscription](https://medquiz-europe.medcompass-web.workers.dev/auth) dispose d’un parcours dédié FR/EN : Google, lien e-mail ou code quand le message en contient un, erreurs contextualisées, renvoi temporisé et retour à l’espace demandé. Le code saisi reste en mémoire ; la demande en cours peut être reprise après rechargement. Voir [l’état réel des fournisseurs et les éléments nécessaires à l’ouverture publique](docs/AUTHENTIFICATION.md).
 
 **Livraison du 21 octobre 2026 :** 170 questions de démonstration bilingues (30 cliniques et 140 anatomiques), séries quotidiennes de révision avec semaine, record et paliers, comptes e-mail, gratuit limité à 3 sessions de 10 questions par jour, compétition à deux avec timer et classements par année, bibliothèque documentaire et 64 questions originales bilingues en brouillon. Les intégrations Google PKCE et Premium Stripe sont codées ; Google et les paiements restent désactivés faute d’identifiants de configuration. Les tarifs prévus restent **5 € par mois ou 25 € par an**. Le SMTP par défaut reste limité aux adresses invitées. Voir [les fonctionnalités et limites](docs/FONCTIONNALITES.md), [Google](GOOGLE-AUTH.md) et [Stripe](STRIPE.md). L’administration éditoriale et la validation médicale restent à organiser.
 
@@ -65,6 +67,7 @@ Les données sont stockées avec AsyncStorage (stockage navigateur sur le web), 
 
 - `src/data/questions.ts` : catalogue de 170 questions de démonstration, dont 30 cas cliniques ; brouillons exclus des sessions.
 - `src/data/anatomy-*.ts` et `muscle-*.ts` : 140 questions anatomiques, structures, cours et fiches d’origines, d’insertions, d’actions et d’innervation.
+- `public/anatomy/bodyparts3d/` : surfaces GLB, crédits, licences et provenance ; `scripts/import-bodyparts3d.mjs` : import reproductible depuis les sources conservées hors publication.
 - `src/domain/engine.ts` : logique pure de sessions, scores et révisions ; `types.ts` : contrats.
 - `src/state.tsx` : chargement et file de sauvegarde locale.
 - `src/ui/` : composants visuels et thèmes ; `app/` : navigation et parcours.
@@ -81,4 +84,4 @@ Lire [le périmètre et les décisions](docs/PRODUIT.md), [les règles de révis
 
 État précis des comptes, restrictions e-mail, synchronisation et configuration du paiement de test : [COMPTES-PAIEMENTS.md](docs/COMPTES-PAIEMENTS.md).
 
-Les représentations anatomiques restent schématiques et le contenu de démonstration attend une relecture médicale identifiée. Aucun asset de Complete Anatomy n’est embarqué. Aucun achat réel n’est activé.
+Les surfaces 3D proviennent de BodyParts3D 4.0 (CC BY 4.0) et d’un supplément nerveux 4.3 (CC BY-SA 2.1 Japon). Les modèles et notices restent disponibles sous leurs licences respectives. Les schémas de quiz restent simplifiés ; le corpus 3D est incomplet et sa nomenclature française partielle. Le contenu attend une relecture médicale identifiée. Aucun asset de Complete Anatomy n’est embarqué. Aucun achat réel n’est activé.

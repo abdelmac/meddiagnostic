@@ -14,9 +14,8 @@ test("Google activé prépare un échange PKCE avec retour sur l’origine de l�
       body: "<p>OAuth provider test boundary</p>",
     });
   });
-  await page.goto("/?lang=fr");
+  await page.goto("/auth?mode=login&lang=fr");
   const appOrigin = new URL(page.url()).origin;
-  await page.getByRole("button", { name: "Profil", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "Continuer avec Google", exact: true }),
   ).toBeEnabled();
@@ -43,9 +42,9 @@ test("un refus OAuth affiche un message sûr puis retire les paramètres sensibl
   await page.goto(
     "/?lang=fr&error=access_denied&error_description=DO_NOT_DISPLAY_SECRET",
   );
-  await page.getByRole("button", { name: "Profil", exact: true }).click();
+  await expect(page).toHaveURL((url) => url.pathname === "/auth");
   await expect(
-    page.getByText("Connexion Google annulée.", { exact: true }),
+    page.getByText("Connexion Google annulée. Vous pouvez réessayer ou utiliser votre e-mail.", { exact: true }),
   ).toBeVisible();
   await expect(
     page.getByText("DO_NOT_DISPLAY_SECRET", { exact: true }),
@@ -54,4 +53,26 @@ test("un refus OAuth affiche un message sûr puis retire les paramètres sensibl
   await expect(
     page.getByRole("button", { name: "Continuer avec Google", exact: true }),
   ).toBeDisabled();
+});
+
+test("réessayer Google après un refus conserve la destination compétition", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("medquiz.auth.destination", "competition"));
+  await page.route("**/auth/v1/settings", (route) => route.fulfill({ json: { external: { google: true } } }));
+  let authorize: URL | undefined;
+  await page.route("**/auth/v1/authorize?**", async (route) => {
+    authorize = new URL(route.request().url());
+    await route.fulfill({ contentType: "text/html", body: "<p>OAuth retry test boundary</p>" });
+  });
+  await page.goto("/?lang=fr&error=access_denied&error_description=DO_NOT_DISPLAY_SECRET");
+  await expect(page).toHaveURL((url) => url.pathname === "/auth" && url.searchParams.get("next") === "competition");
+  await expect(page.getByText("Connexion Google annulée. Vous pouvez réessayer ou utiliser votre e-mail.", { exact: true })).toBeVisible();
+  const appOrigin = new URL(page.url()).origin;
+  const retry = page.getByRole("button", { name: "Continuer avec Google", exact: true });
+  await expect(retry).toBeEnabled();
+  await retry.click();
+  await expect.poll(() => authorize?.searchParams.get("provider")).toBe("google");
+  expect(authorize!.searchParams.get("redirect_to")).toBe(appOrigin);
+  const state = await page.context().storageState();
+  const origin = state.origins.find((entry) => entry.origin === appOrigin);
+  expect(origin?.localStorage.find((entry) => entry.name === "medquiz.auth.destination")?.value).toBe("competition");
 });

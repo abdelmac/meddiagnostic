@@ -1,8 +1,24 @@
-# Validation du 21 octobre 2026 — Ippomed, anatomie 3D et séries
+# Validation du 21 octobre 2026 — Ippomed et authentification dédiée
 
 La première section décrit la version Ippomed actuellement publiée. Les suivantes conservent les contrôles des publications précédentes du jour. Le rapport historique [VALIDATION.md](VALIDATION.md) ne décrit plus les capacités actuelles des comptes et du serveur.
 
-## Version Ippomed publiée
+## Authentification dédiée publiée
+
+Version Cloudflare : `80533347-606d-46e8-96d4-ec44ad73e207`. Entrée directe : <https://medquiz-europe.medcompass-web.workers.dev/auth>.
+
+- Page connexion/inscription FR/EN avec l’emblème Ippomed, présentation adaptée au mobile, Google et parcours e-mail sans mot de passe. L’en-tête, le profil et la compétition ouvrent cette page.
+- Écran de vérification par lien ou code si le message en contient un ; renvoi après 60 secondes, modification de l’adresse, reprise de la demande après rechargement. Le code saisi reste en mémoire et n’est jamais inclus dans la demande sauvegardée. Cette demande locale est supprimée après connexion ou déconnexion.
+- Validation des champs et messages contrôlés pour code incorrect/expiré, réseau, limitation d’envoi et annulation OAuth. Les diagnostics bruts et états d’existence de compte ne sont pas affichés. Les retours acceptent seulement trois écrans internes et conservent le mode et la destination après annulation Google.
+- TypeScript, audit des traductions et recherche des secrets serveur connus : réussis. **64 tests Node/PostgreSQL réussis**, dont dix nouveaux tests de validation et de messages Auth.
+- **55 scénarios navigateur validés**. La première suite a réussi 52 scénarios et ignoré les trois répétitions mobiles d’intégrations serveur. Trois échecs de harnais (sélecteur ambigu et lecture dans une navigation OAuth interceptée) ont été corrigés ; la relance ciblée a réussi les sept scénarios exécutés et ignoré la répétition mobile de vérification serveur.
+- Un compte synthétique s’est connecté avec un code vérifié par le serveur réel, a retrouvé le profil puis a été supprimé avec révocation de session. La livraison d’e-mails était interceptée pour ne contacter personne. Les tests comptes entre appareils et les deux modes compétitifs ont également réussi ; tous les comptes et fichiers de fixtures ont été nettoyés.
+- Après publication du build final : **28 contrôles réussis** sur Chrome bureau et aux dimensions iPhone 13, sur l’URL publique. Les envois d’e-mails et le fournisseur OAuth sont simulés dans ces scénarios. Les captures `artifacts/auth-desktop.png`, `auth-mobile-web.png` et `auth-verification-desktop.png` permettent de revoir l’interface.
+- Audit distant Auth : e-mail activé et confirmation exigée ; Google désactivé. Les URL et paramètres OTP déclarés correspondent au projet distant. L’état SMTP personnalisé et les modèles distants ne sont pas confirmés par cet audit ; aucune réception d’e-mail public ni authentification auprès du vrai fournisseur Google n’a été validée. Voir [AUTHENTIFICATION.md](AUTHENTIFICATION.md).
+- Advisors ne remonte aucun défaut de base de données. L’avertissement Auth préexistant sur les mots de passe compromis reste présent ; le parcours proposé ne demande aucun mot de passe.
+
+La publication du formulaire ne configure pas les fournisseurs. Google attend le client OAuth Web ; l’ouverture des e-mails au public attend un expéditeur et un service d’envoi vérifiés. Le modèle bilingue Ippomed préparé dans `supabase/templates/code.html` n’a pas été activé à distance. Aucun achat de service ou changement de formule n’a été effectué.
+
+## Publication précédente : emblème Ippomed
 
 Version Cloudflare : `f175af05-1b04-432e-9328-91643a77ea1e`, sur <https://medquiz-europe.medcompass-web.workers.dev>. Elle remplace `da68772b-fe26-4012-a1fd-b678aad18a19` pour utiliser l’emblème sans texte préféré par l’utilisateur.
 

@@ -9,6 +9,7 @@ import { AppState, Linking, Platform } from "react-native";
 import type { Session, User } from "@supabase/supabase-js";
 import { getSupabase } from "./services/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AUTH_DESTINATION_KEY, AUTH_MODE_KEY, AUTH_PENDING_REQUEST_KEY } from "./domain/auth-navigation";
 import {
   callbackError,
   cleanAuthCallbackURL,
@@ -60,6 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const consumedCodes = new Set<string>();
     const applySession = async (session: Session | null) => {
       const current = ++sequence.current;
+      if (session?.user) await AsyncStorage.removeItem(AUTH_PENDING_REQUEST_KEY).catch(() => {});
       // Bind an explicit create-with-Google request to the account Google
       // actually verified, before the account store attempts guest import.
       if (
@@ -239,7 +241,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await client.auth.signOut({ scope: "local" });
     if (error) throw error;
     setError("");
-    await AsyncStorage.multiRemove([OAUTH_IMPORT, "medquiz.pending-import"]);
+    await AsyncStorage.multiRemove([OAUTH_IMPORT, "medquiz.pending-import", AUTH_PENDING_REQUEST_KEY, AUTH_DESTINATION_KEY, AUTH_MODE_KEY]);
   };
   return (
     <Context.Provider

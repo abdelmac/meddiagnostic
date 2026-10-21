@@ -57,8 +57,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (Platform.OS === "web" && typeof document !== "undefined") {
       document.documentElement.lang = language;
-      document.title =
-        language === "fr"
+      const authenticationPage = window.location.pathname.replace(/\/$/, "") === "/auth";
+      document.title = authenticationPage
+        ? language === "fr" ? "Connexion et inscription · Ippomed" : "Sign in and create an account · Ippomed"
+        : language === "fr"
           ? "Ippomed — Apprendre, comprendre, retenir"
           : "Ippomed — Learn, understand, remember";
     }

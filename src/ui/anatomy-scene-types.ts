@@ -1,4 +1,8 @@
-import type { AnatomyLanguage, AnatomySystem, AnatomyView } from "../data/anatomy-structures";
+import type {
+  AnatomyLanguage,
+  AnatomySystem,
+  AnatomyView,
+} from "../data/anatomy-structures";
 
 export type AnatomySceneProps = {
   system: AnatomySystem;
@@ -9,7 +13,12 @@ export type AnatomySceneProps = {
   height?: number;
   language?: AnatomyLanguage;
   isolate?: boolean;
+  isolatedDetail?: boolean;
   opacity?: number;
   showAttachments?: boolean;
   resetKey?: number;
+  hiddenIds?: readonly string[];
+  visibleSystems?: readonly AnatomySystem[];
+  focusSelectionKey?: number;
+  onReady?: (info: { meshCount: number; structureIds: string[] }) => void;
 };

@@ -17,9 +17,7 @@ test("vérification réelle du code et suppression du compte de test", async ({
   await page.route("**/auth/v1/otp**", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
   );
-  await page.goto("/");
-  await page.getByRole("button", { name: "Profil", exact: true }).click();
-  await page.getByRole("button", { name: "Se connecter", exact: true }).click();
+  await page.goto("/auth?mode=login&lang=fr");
   await page
     .getByRole("textbox", { name: "Adresse e-mail", exact: true })
     .fill(bob.email);
@@ -35,8 +33,8 @@ test("vérification réelle du code et suppression du compte de test", async ({
   await expect(
     page.getByRole("textbox", { name: "Code de vérification", exact: true }),
   ).toHaveCount(0, { timeout: 15000 });
-  await page.getByRole("button", { name: "Profil", exact: true }).click();
   await expect(page.getByText(bob.email, { exact: true })).toBeVisible();
+  await expect(page).toHaveURL((url) => url.pathname === "/" && !url.searchParams.has("screen"));
   await page
     .getByRole("textbox", {
       name: "Confirmation de suppression du compte",
@@ -54,7 +52,7 @@ test("vérification réelle du code et suppression du compte de test", async ({
   ).toBeVisible({ timeout: 15000 });
   await page.getByRole("button", { name: "Profil", exact: true }).click();
   await expect(
-    page.getByRole("button", { name: "Se connecter", exact: true }),
+    page.getByRole("button", { name: "Se connecter", exact: true }).last(),
   ).toBeVisible();
   await expect(page.getByText(bob.email, { exact: true })).toHaveCount(0);
 });
