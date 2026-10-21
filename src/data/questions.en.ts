@@ -1,5 +1,7 @@
 import type { Question } from "../domain/types";
-import { questions } from "./questions";
+import { clinicalQuestions as questions } from "./questions";
+import { anatomyQuestionsEn } from "./anatomy-questions.en";
+import { muscleQuestionsEn } from "./muscle-questions.en";
 type Seed = [string, string, string, string[], string, string];
 export const englishSeeds: Seed[] = [
   [
@@ -247,7 +249,7 @@ export const englishSeeds: Seed[] = [
     "Recognizing fibrosis does not establish that it is idiopathic.",
   ],
 ];
-export const questionsEn: Question[] = questions.map((q, index) => {
+const clinicalQuestionsEn: Question[] = questions.map((q, index) => {
   const seed = englishSeeds[index]!;
   const names = new Map(
     questions.map((item, i) => [
@@ -280,3 +282,5 @@ export const questionsEn: Question[] = questions.map((q, index) => {
     })),
   };
 });
+
+export const questionsEn: Question[] = [...clinicalQuestionsEn, ...anatomyQuestionsEn, ...muscleQuestionsEn];

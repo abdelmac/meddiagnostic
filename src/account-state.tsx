@@ -102,6 +102,7 @@ function AccountStore({
   const update: Store["update"] = (fn) => {
     if (!ready || corrupt.current) return;
     const next = fn(current.current);
+    if (next === current.current) return;
     apply(userId ? captureChanges(current.current, next) : next);
     if (userId) {
       pendingSync.current = true;

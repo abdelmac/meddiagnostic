@@ -15,6 +15,7 @@ export function getSupabase() {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: Platform.OS === "web",
+        flowType: "pkce",
       },
     });
   return instance;

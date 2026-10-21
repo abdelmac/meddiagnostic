@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { questions, visualDrafts } from "../src/data/questions";
+import { clinicalQuestions, questions, visualDrafts } from "../src/data/questions";
 import {
   createSession,
   initialState,
@@ -26,9 +26,9 @@ const makeSession = (count = 5) =>
     { ...config, specialties: [...config.specialties], count },
     () => 0.42,
   );
-test("la banque démo possède 30 questions cohérentes, aucune validation inventée", () => {
-  assert.equal(questions.length, 30);
-  assert.equal(new Set(questions.map((q) => q.id)).size, 30);
+test("la banque démo conserve ses 30 cas cliniques et des questions cohérentes, aucune validation inventée", () => {
+  assert.equal(clinicalQuestions.length, 30);
+  assert.equal(new Set(questions.map((q) => q.id)).size, questions.length);
   for (const q of questions) {
     assert.equal(q.options.length, 4);
     assert.equal(new Set(q.options.map((o) => o.label)).size, 4);

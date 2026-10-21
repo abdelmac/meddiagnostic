@@ -1,5 +1,7 @@
 # Comptes et paiements de test — livraison du 17 octobre 2026
 
+> Historique du premier raccordement. Depuis le 21 octobre, le parcours web utilise Stripe directement : voir [les fonctionnalités actuelles](FONCTIONNALITES.md) et [la configuration Stripe](../STRIPE.md). RevenueCat ne fait plus partie du parcours d’achat affiché.
+
 ## Infrastructure appliquée
 
 - Organisation Supabase dédiée : MedQuiz (`hyfbnpzekiyhehyjnujo`), sans activation d’abonnement payant.

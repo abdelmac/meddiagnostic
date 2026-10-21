@@ -1,12 +1,16 @@
-# MedQuiz
+# Ippomed
 
 Application de formation médicale en français et en anglais, construite avec Expo SDK 58, React Native, TypeScript et Expo Router pour web, iOS et Android.
+
+L’identité violette et lime reprend l’[emblème fourni](public/brand/ippomed-emblem.png), sans texte. À l’accueil, **Anatomie et Spécialités sont présentées au même niveau**.
+
+**Anatomie :** atlas 3D WebGL original avec Three.js, 36 structures dans cinq systèmes, rotation, isolation, opacité et repères d’attaches, avec vue 2D de repli. Sept parcours accompagnent la révision de la première année à l’internat. La banque comprend **140 questions d’anatomie, dont 98 sur les muscles**, en français et en anglais. Voir [le support anatomie et ses limites](docs/ANATOMIE.md).
 
 Publication statique gratuite sur Cloudflare Workers Static Assets : voir [le guide de déploiement](docs/HEBERGEMENT.md). Le sélecteur FR/EN conserve la progression ; les liens `/?lang=fr` et `/?lang=en` permettent de partager une langue précise.
 
 **Application publique : https://medquiz-europe.medcompass-web.workers.dev**
 
-**Livraison actuelle : démonstration bilingue et comptes bêta.** Le parcours invité, les comptes Supabase, l’import invité, la synchronisation et la suppression du compte sont implémentés. L’envoi d’e-mails reste limité aux adresses de l’équipe tant qu’un SMTP personnalisé n’est pas raccordé. Le paiement sandbox est préparé mais attend les clés et produits RevenueCat ; aucun achat réel n’est activé. L’administration et la banque médicale validée restent à développer.
+**Livraison du 21 octobre 2026 :** 170 questions de démonstration bilingues (30 cliniques et 140 anatomiques), séries quotidiennes de révision avec semaine, record et paliers, comptes e-mail, gratuit limité à 3 sessions de 10 questions par jour, compétition à deux avec timer et classements par année, bibliothèque documentaire et 64 questions originales bilingues en brouillon. Les intégrations Google PKCE et Premium Stripe sont codées ; Google et les paiements restent désactivés faute d’identifiants de configuration. Les tarifs prévus restent **5 € par mois ou 25 € par an**. Le SMTP par défaut reste limité aux adresses invitées. Voir [les fonctionnalités et limites](docs/FONCTIONNALITES.md), [Google](GOOGLE-AUTH.md) et [Stripe](STRIPE.md). L’administration éditoriale et la validation médicale restent à organiser.
 
 ## Installation et lancement
 
@@ -42,12 +46,14 @@ L’export JavaScript iOS/Android ne compile pas d’IPA/APK et ne prouve pas un
 ## Ce qui fonctionne
 
 - Accueil, spécialités, configuration courte du niveau, des matières et de l’objectif quotidien.
-- Sessions de 5, 10 ou 20 cas adaptées à la banque filtrée, sans doublon.
+- Atlas anatomique 3D avec repli 2D, fiches musculaires et quiz filtrés par objectif, structure et année d’étude de 1 à 12.
+- Sessions adaptées à la banque filtrée, sans doublon : dix questions maximum en gratuit ; toutes les questions compatibles peuvent être proposées avec des droits Premium actifs.
 - Apprentissage avec correction immédiate et examen avec correction différée et chronomètre optionnel.
 - Réponse unique, confiance, score, session reprenable et historique local.
 - Explication du raisonnement et des distracteurs, indices, objectif pédagogique, encadré À retenir et liens de ressources pour relecture.
 - Révisions espacées, carnet des dernières erreurs, favoris et marqueurs À revoir.
 - Progression par thème, distinction questions nouvelles/répétées et bilan glissant de sept jours.
+- Séries quotidiennes calculées selon les jours de Paris : activité de la semaine, record et paliers à 3, 7, 14, 30 et 100 jours ; réponses solo et duels, synchronisées pour les comptes.
 - Mode sombre, texte agrandi, rôles d’accessibilité, interface adaptée aux grands et petits écrans.
 - Export des données, suppression locale avec confirmation et signalements sauvegardés avec la progression. Les signalements ne sont pas encore traités par une administration éditoriale.
 - Connexion bêta, import des résultats invités, caches séparés par compte et synchronisation sans doublons.
@@ -57,14 +63,17 @@ Les données sont stockées avec AsyncStorage (stockage navigateur sur le web), 
 
 ## Organisation
 
-- `src/data/questions.ts` : 30 cas originaux de démonstration et brouillon visuel exclu des sessions.
+- `src/data/questions.ts` : catalogue de 170 questions de démonstration, dont 30 cas cliniques ; brouillons exclus des sessions.
+- `src/data/anatomy-*.ts` et `muscle-*.ts` : 140 questions anatomiques, structures, cours et fiches d’origines, d’insertions, d’actions et d’innervation.
 - `src/domain/engine.ts` : logique pure de sessions, scores et révisions ; `types.ts` : contrats.
 - `src/state.tsx` : chargement et file de sauvegarde locale.
 - `src/ui/` : composants visuels et thèmes ; `app/` : navigation et parcours.
 - `tests/` : moteur et modèle économique ; `e2e/` : parcours Chrome.
 - `docs/` : décisions produit, algorithme, modèle économique, travail restant et validation.
 
-Les données médicales sont séparées de l’interface et chaque tentative conserve un numéro de version. La banque démo v1 doit rester immuable pour que les anciennes tentatives gardent leur sens. Le futur serveur devra stocker chaque version intégralement. Les messages UI anglais sont regroupés dans `src/i18n/en.ts`, les 30 cas traduits dans `src/data/questions.en.ts`. Les identifiants et positions des bonnes réponses sont identiques dans les deux langues.
+Les données médicales sont séparées de l’interface et chaque tentative conserve un numéro de version. Les questions déjà utilisées gardent leur version afin que les anciennes tentatives conservent leur sens. Les versions de la banque compétitive sont stockées côté serveur, avec les corrigés privés jusqu’à la fin du match ; la migration ajoutant les 98 questions musculaires est appliquée. Les messages UI anglais sont regroupés dans `src/i18n/en.ts` et les traductions du catalogue dans `src/data/questions.en.ts` et les modules anatomiques bilingues. Les identifiants et positions des bonnes réponses sont identiques dans les deux langues.
+
+Le nom produit est **Ippomed**. Les identifiants techniques `medquiz`, l’adresse publique et les clés de stockage existantes sont conservés pour assurer la compatibilité.
 
 ## Suite et publication
 
@@ -72,4 +81,4 @@ Lire [le périmètre et les décisions](docs/PRODUIT.md), [les règles de révis
 
 État précis des comptes, restrictions e-mail, synchronisation et configuration du paiement de test : [COMPTES-PAIEMENTS.md](docs/COMPTES-PAIEMENTS.md).
 
-Ne pas présenter la démonstration publique comme un produit médical validé ni activer d’abonnement avant relecture, images sous licence, serveur et tests de sécurité. Aucun achat n’est activé.
+Les représentations anatomiques restent schématiques et le contenu de démonstration attend une relecture médicale identifiée. Aucun asset de Complete Anatomy n’est embarqué. Aucun achat réel n’est activé.

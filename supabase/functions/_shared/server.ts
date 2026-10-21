@@ -1,6 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2.118.0";
 const origin = "https://medquiz-europe.medcompass-web.workers.dev";
-export function cors(req: Request) {
+export function cors(req: Request): Record<string, string> {
   const supplied = req.headers.get("origin") ?? "";
   return supplied === origin ||
     supplied === "http://localhost:8081" ||

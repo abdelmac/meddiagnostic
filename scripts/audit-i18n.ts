@@ -2,7 +2,7 @@ import ts from "typescript";
 import fs from "node:fs";
 import { en } from "../src/i18n/en";
 const missing = new Set<string>();
-for (const file of ["app/index.tsx", "src/ui/components.tsx", "src/ui/AccountPanel.tsx", "src/ui/SubscriptionPanel.tsx", "src/ui/DeleteAccountPanel.tsx"]) {
+for (const file of ["app/index.tsx", "src/ui/components.tsx", "src/ui/AccountPanel.tsx", "src/ui/SubscriptionPanel.tsx", "src/ui/DeleteAccountPanel.tsx", "src/ui/QuotaPanel.tsx"]) {
   const source = ts.createSourceFile(
     file,
     fs.readFileSync(file, "utf8"),
@@ -21,7 +21,7 @@ for (const file of ["app/index.tsx", "src/ui/components.tsx", "src/ui/AccountPan
       if (
         !(key in en) &&
         /[a-zA-ZÀ-ÿ]/.test(key) &&
-        !["MedQuiz", "MedQuiz Premium"].includes(key)
+        !["Ippomed", "Ippomed Premium"].includes(key)
       )
         missing.add(key);
     }

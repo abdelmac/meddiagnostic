@@ -3,14 +3,14 @@ import assert from "node:assert/strict";
 import { questions } from "../src/data/questions";
 import { questionsEn, englishSeeds } from "../src/data/questions.en";
 import { en } from "../src/i18n/en";
-test("les 30 traductions conservent les identifiants, versions et indices des bonnes réponses", () => {
-  assert.equal(questionsEn.length, 30);
+test("les traductions conservent les identifiants, versions et indices des bonnes réponses", () => {
+  assert.equal(questionsEn.length, questions.length);
   questionsEn.forEach((q, i) => {
     const original = questions[i]!;
     assert.equal(q.id, original.id);
     assert.equal(q.version, original.version);
     assert.equal(q.correct, original.correct);
-    assert.equal(q.options[q.correct]!.label, englishSeeds[i]![0]);
+    if (i < englishSeeds.length) assert.equal(q.options[q.correct]!.label, englishSeeds[i]![0]);
     assert.notEqual(q.context, original.context);
     assert.notEqual(q.reasoning, original.reasoning);
     assert.equal(q.status, "demo");

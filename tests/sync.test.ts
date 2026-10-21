@@ -12,6 +12,23 @@ import {
   prepareSnapshot,
 } from "../src/domain/sync";
 const empty = () => structuredClone(initialState);
+
+test("les réponses compétitives fusionnées gardent une activité unique et le même jour serveur sur deux appareils", () => {
+  const first = empty(), second = empty();
+  first.studyEvents = [
+    { id: "competitive:match:0", at: "2026-10-20T21:59:00Z", source: "competition" },
+    { id: "competitive:match:1", at: "2026-10-20T22:01:00Z", source: "competition" },
+  ];
+  second.studyEvents = [
+    { id: "competitive:match:0", at: "2026-10-20T22:05:00Z", source: "competition" },
+    { id: "competitive:match:2", at: "2026-10-20T22:01:00Z", source: "competition" },
+  ];
+  const merged = mergeProgress(first, second);
+  assert.deepEqual(merged.studyEvents, mergeProgress(second, first).studyEvents);
+  assert.equal(merged.studyEvents!.length, 3);
+  assert.equal(merged.studyEvents![0]!.at, "2026-10-20T21:59:00Z");
+  assert.deepEqual(mergeProgress(merged, second).studyEvents, merged.studyEvents);
+});
 test("un retrait de favori survit à un appareil obsolète et les fusions ne dupliquent pas les tentatives", () => {
   const s = createSession(questions, {
     specialties: ["cardiologie"],

@@ -96,10 +96,11 @@ test("adaptation au stock, préférences persistantes et absence de débordement
   await page
     .getByRole("button", { name: "Commencer un quiz de Dermatologie" })
     .click();
-  await page.getByRole("button", { name: "20 questions", exact: true }).click();
+  await expect(page.getByRole("button", { name: "20 questions", exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: "10 questions", exact: true }).click();
   await expect(
     page.getByText(
-      "10 questions disponibles : la session sera adaptée, sans répétition.",
+      "10 questions distinctes · environ 15 minutes",
     ),
   ).toBeVisible();
   await page.getByRole("button", { name: "Fermer", exact: true }).click();

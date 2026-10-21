@@ -59,8 +59,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       document.documentElement.lang = language;
       document.title =
         language === "fr"
-          ? "MedQuiz — Apprendre, comprendre, retenir"
-          : "MedQuiz — Learn, understand, remember";
+          ? "Ippomed — Apprendre, comprendre, retenir"
+          : "Ippomed — Learn, understand, remember";
     }
   }, [language]);
   const setLanguage = (value: Language) => {

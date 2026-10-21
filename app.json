@@ -1,6 +1,7 @@
 {
   "expo": {
-    "name": "MedQuiz",
+    "name": "Ippomed",
+    "icon": "./public/brand/ippomed-emblem.png",
     "slug": "medquiz",
     "scheme": "medquiz",
     "version": "0.1.0",
@@ -16,7 +17,8 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "name": "MedQuiz — Comprendre pour mieux soigner"
+      "name": "Ippomed — Comprendre pour mieux soigner",
+      "favicon": "./public/brand/ippomed-emblem.png"
     },
     "plugins": ["expo-router", "expo-status-bar"]
   }

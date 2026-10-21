@@ -101,6 +101,9 @@ export function mergeProgress(
   ];
   const result: LocalState = {
     ...local,
+    studyEvents: [...new Map([...(remote.studyEvents ?? []), ...(local.studyEvents ?? [])]
+      .sort((a, b) => b.at.localeCompare(a.at) || a.id.localeCompare(b.id)).map((event) => [event.id, event])).values()]
+      .sort((a, b) => a.at.localeCompare(b.at) || a.id.localeCompare(b.id)),
     attempts,
     reviews,
     sessions,

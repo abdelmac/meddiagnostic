@@ -1,4 +1,6 @@
 import type { Question, Specialty } from "../domain/types";
+import { anatomyQuestions } from "./anatomy-questions";
+import { muscleQuestions } from "./muscle-questions";
 
 export const specialties: {
   id: Specialty;
@@ -6,7 +8,7 @@ export const specialties: {
   subtitle: string;
   color: string;
   tint: string;
-  icon: "skin" | "heart" | "lungs";
+  icon: "skin" | "heart" | "lungs" | "body";
 }[] = [
   {
     id: "dermatologie",
@@ -31,6 +33,14 @@ export const specialties: {
     color: "#4d859d",
     tint: "#e7f2f8",
     icon: "lungs",
+  },
+  {
+    id: "anatomie",
+    name: "Anatomie",
+    subtitle: "Explorer le corps, de la première à la dernière année",
+    color: "#6f6397",
+    tint: "#f0edf8",
+    icon: "body",
   },
 ];
 // Original educational drafts. No medical validation or image rights are implied.
@@ -294,7 +304,7 @@ const pulmonology: Seed[] = [
   ],
 ];
 const groups = [dermatology, cardiology, pulmonology];
-export const questions: Question[] = groups.flatMap((seeds, group) =>
+export const clinicalQuestions: Question[] = groups.flatMap((seeds, group) =>
   seeds.map((seed, index) => {
     const [diagnosis, theme, context, clues, reasoning, takeaway] = seed;
     const alternatives = [
@@ -350,6 +360,8 @@ export const questions: Question[] = groups.flatMap((seeds, group) =>
     };
   }),
 );
+
+export const questions: Question[] = [...clinicalQuestions, ...anatomyQuestions, ...muscleQuestions];
 
 export const visualDrafts: Question[] = [
   {

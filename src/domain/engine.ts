@@ -6,10 +6,12 @@ import type {
   Review,
   Session,
   Specialty,
+  AnatomyFocus,
 } from "./types";
 
 export const initialState: LocalState = {
   schema: 1,
+  studyEvents: [],
   attempts: [],
   reviews: {},
   favorites: [],
@@ -69,6 +71,9 @@ export function createSession(
     count: number;
     mode: Session["mode"];
     timerMinutes: number | null;
+    studyYear?: number;
+    anatomyFocus?: AnatomyFocus;
+    structureId?: string;
     ids?: string[];
     kind?: Session["kind"];
   },
@@ -80,6 +85,9 @@ export function createSession(
       config.specialties.includes(q.specialty) &&
       (config.difficulty === "toutes" || q.difficulty === config.difficulty) &&
       (config.type === "tous" || q.type === config.type) &&
+      (!config.studyYear || !q.studyYears || q.studyYears.includes(config.studyYear)) &&
+      (!config.anatomyFocus || q.anatomyFocus === config.anatomyFocus) &&
+      (!config.structureId || q.diagram?.structureId === config.structureId) &&
       (!config.ids || config.ids.includes(q.id)),
   );
   for (let i = pool.length - 1; i > 0; i--) {
@@ -97,6 +105,7 @@ export function createSession(
     startedAt: new Date().toISOString(),
     timerMinutes: config.timerMinutes,
     kind: config.kind ?? "quiz",
+    ...(config.studyYear ? { studyYear: config.studyYear } : {}),
   };
 }
 export function recordAnswer(

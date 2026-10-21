@@ -2,10 +2,21 @@ import { useCatalog } from "../src/i18n/catalog";
 import { LanguageSwitch } from "../src/ui/LanguageSwitch";
 import { AccountPanel } from "../src/ui/AccountPanel";
 import { SubscriptionPanel } from "../src/ui/SubscriptionPanel";
+import { QuotaPanel } from "../src/ui/QuotaPanel";
+import { CompetitivePanel } from "../src/ui/CompetitivePanel";
+import { SourceCatalogPanel } from "../src/ui/SourceCatalogPanel";
+import { AnatomyCoursesPanel } from "../src/ui/AnatomyCoursesPanel";
+import { QuestionFigure } from "../src/ui/anatomy-vector";
+import { Brand } from "../src/ui/Brand";
+import { HomeLearningSpaces } from "../src/ui/HomeLearningSpaces";
+import { StreakPanel, StreakCelebration } from "../src/ui/StreakPanel";
+import { useQuota } from "../src/quota";
+import { reserveSession } from "../src/services/quotas";
+import { reservationId } from "../src/domain/quotas";
 import { DeleteAccountPanel } from "../src/ui/DeleteAccountPanel";
 import { useAuth } from "../src/auth";
 import { useI18n } from "../src/i18n";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   ScrollView,
@@ -67,6 +78,7 @@ import {
 } from "../src/domain/engine";
 import type {
   Confidence,
+  AnatomyFocus,
   Question,
   Session,
   Specialty,
@@ -87,12 +99,14 @@ import {
   wrap,
 } from "../src/ui/components";
 
-type Tab = "Accueil" | "Spécialités" | "Révisions" | "Progression" | "Profil";
+type Tab = "Accueil" | "Anatomie" | "Spécialités" | "Révisions" | "Progression" | "Compétition" | "Profil";
 const nav: { label: Tab; icon: LucideIcon }[] = [
   { label: "Accueil", icon: Home },
+  { label: "Anatomie", icon: GraduationCap },
   { label: "Spécialités", icon: Layers3 },
   { label: "Révisions", icon: RotateCcw },
   { label: "Progression", icon: TrendingUp },
+  { label: "Compétition", icon: Target },
   { label: "Profil", icon: UserRound },
 ];
 const getQ = (id: string) => questions.find((q) => q.id === id)!;
@@ -183,6 +197,9 @@ function HeroArt() {
 
 export default function App() {
   const { user } = useAuth();
+  const { allowance } = useQuota();
+  const reviewRequest = useRef(reservationId());
+  const [reviewBusy, setReviewBusy] = useState(false);
   const { questions, specialties, getQ, day } = useCatalog();
 
   const { t, language } = useI18n();
@@ -195,6 +212,9 @@ export default function App() {
   const [tab, setTab] = useState<Tab>("Accueil");
   const [configure, setConfigure] = useState(false);
   const [specialty, setSpecialty] = useState<Specialty | undefined>();
+  const [requestedStudyYear, setRequestedStudyYear] = useState<number | undefined>();
+  const [requestedFocus, setRequestedFocus] = useState<AnatomyFocus | undefined>();
+  const [requestedStructure, setRequestedStructure] = useState<string | undefined>();
   const [quizOpen, setQuizOpen] = useState(false);
   const [result, setResult] = useState<Session | null>(null);
   const [correction, setCorrection] = useState<{
@@ -203,17 +223,30 @@ export default function App() {
   } | null>(null);
   const [premium, setPremium] = useState(false);
   const [notice, setNotice] = useState("");
+  useEffect(() => {
+    if (Platform.OS !== "web" || typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    if (!["success", "cancel", "return"].includes(url.searchParams.get("billing") ?? "")) return;
+    setTab("Profil");
+    setNotice("Votre statut d’abonnement est vérifié auprès de Stripe.");
+    url.searchParams.delete("billing");
+    window.history.replaceState(window.history.state, "", url.href);
+  }, []);
   const due = dueIds(state);
   const today = state.attempts.filter(
     (a) => new Date(a.at).toDateString() === new Date().toDateString(),
   );
   const unique = new Set(state.attempts.map((a) => a.questionId));
   const doneToday = new Set(today.map((a) => a.questionId)).size;
-  const openConfig = (id?: Specialty) => {
+  const openConfig = (id?: Specialty, year?: number, focus?: AnatomyFocus, structureId?: string) => {
     setSpecialty(id);
+    setRequestedStudyYear(year);
+    setRequestedFocus(focus);
+    setRequestedStructure(structureId);
     setConfigure(true);
   };
-  const startReview = () => {
+  const startReview = async () => {
+    if (reviewBusy) return;
     if (state.active) {
       setQuizOpen(true);
       return;
@@ -225,20 +258,28 @@ export default function App() {
       );
       return;
     }
-    update((s) => ({
-      ...s,
-      active: createSession(questions, {
+    setReviewBusy(true);
+    try {
+      const active = createSession(questions, {
         specialties: specialties.map((s) => s.id),
         difficulty: "toutes",
         type: "tous",
-        count: 20,
+        count: allowance?.premium ? 200 : 10,
         mode: "learning",
         timerMinutes: null,
         ids,
         kind: "review",
-      }),
-    }));
-    setQuizOpen(true);
+      });
+      await reserveSession(user?.id ?? null, reviewRequest.current, active.questionIds.length);
+      active.id = reviewRequest.current;
+      update((s) => ({ ...s, active }));
+      reviewRequest.current = reservationId();
+      setQuizOpen(true);
+    } catch (e) {
+      setNotice((e as Error).message);
+    } finally {
+      setReviewBusy(false);
+    }
   };
   useEffect(() => {
     if (!notice) return;
@@ -264,30 +305,7 @@ export default function App() {
               paddingTop: 35,
             }}
           >
-            <View style={[row, { gap: 9, marginBottom: 43 }]}>
-              <View
-                style={{
-                  width: 34,
-                  height: 34,
-                  borderRadius: 10,
-                  backgroundColor: c.accent,
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Activity color="#fff" size={23} />
-              </View>
-              <Txt
-                style={{ fontWeight: "800", fontSize: 24, letterSpacing: -1 }}
-              >
-                Med
-                <Txt
-                  style={{ fontSize: 24, color: c.accent, fontWeight: "800" }}
-                >
-                  {t("Quiz")}
-                </Txt>
-              </Txt>
-            </View>
+            <View style={{ marginBottom: 32 }}><Brand /></View>
             <Txt
               muted
               style={{ fontSize: 9, letterSpacing: 2, marginBottom: 14 }}
@@ -360,7 +378,7 @@ export default function App() {
                 <Txt
                   style={{ fontSize: 11, color: c.accent, fontWeight: "600" }}
                 >
-                  {t("Découvrir MedQuiz Premium ↗")}
+                  {t("Découvrir Ippomed Premium ↗")}
                 </Txt>
               </Pressable>
             </View>
@@ -424,12 +442,7 @@ export default function App() {
                 <Txt style={{ fontSize: 12, fontWeight: "500" }}>{tab}</Txt>
               </View>
             ) : (
-              <View style={row}>
-                <Activity size={25} color={c.accent} />
-                <Txt style={{ fontWeight: "800", fontSize: 21 }}>
-                  {t("MedQuiz")}
-                </Txt>
-              </View>
+              <Brand compact />
             )}
             <View style={row}>
               <LanguageSwitch />
@@ -468,6 +481,7 @@ export default function App() {
               gap: 25,
             }}
           >
+            {!quizOpen && <StreakCelebration />}
             {!!error && (
               <Card style={{ backgroundColor: c.errorBg }}>
                 <Txt style={{ color: c.error }}>{error}</Txt>
@@ -508,6 +522,8 @@ export default function App() {
                     </Txt>
                   </View>
                 </View>
+                <StreakPanel compact onStart={() => openConfig()} />
+                <HomeLearningSpaces onAnatomy={() => go("Anatomie")} onSpecialties={() => go("Spécialités")} />
                 <View
                   style={{
                     backgroundColor: c.hero,
@@ -703,7 +719,7 @@ export default function App() {
                             {s.name}
                           </Txt>
                           <Txt muted style={{ fontSize: 10, marginTop: 3 }}>
-                            {t("10 cas cliniques · Démonstration")}
+                            {s.id === "anatomie" ? t("{0} questions illustrées · Tous niveaux", { 0: questions.filter((q) => q.specialty === s.id).length }) : t("10 cas cliniques · Démonstration")}
                           </Txt>
                           <View style={{ marginTop: 15 }}>
                             <Bar
@@ -715,7 +731,7 @@ export default function App() {
                                         getQ(a.questionId)?.specialty === s.id,
                                     )
                                     .map((a) => a.questionId),
-                                ).size * 10
+                                ).size * 100 / Math.max(1, questions.filter((q) => q.specialty === s.id).length)
                               }
                               color={s.color}
                             />
@@ -839,9 +855,9 @@ export default function App() {
               <>
                 <PageHeading
                   eyebrow={t("EXPLORER LE CATALOGUE")}
-                  title={t("Les premiers repères de la clinique")}
+                  title={t("Anatomie et raisonnement clinique")}
                   description={t(
-                    "Trois spécialités, 30 cas pour commencer à relier les signes et les hypothèses.",
+                    "Des schémas d’anatomie de la première année à l’internat et des cas cliniques pour relier les signes aux hypothèses.",
                   )}
                 />
                 {specialties.map((s) => (
@@ -856,9 +872,7 @@ export default function App() {
                         <Title style={{ fontSize: 22 }}>{s.name}</Title>
                         <Txt muted>{s.subtitle}</Txt>
                         <Txt muted style={{ fontSize: 11 }}>
-                          {t(
-                            "10 questions · Clinique · Débutant et intermédiaire",
-                          )}
+                          {s.id === "anatomie" ? t("{0} questions illustrées · Tous niveaux", { 0: questions.filter((q) => q.specialty === s.id).length }) : t("10 questions · Clinique · Débutant et intermédiaire")}
                         </Txt>
                       </View>
                     </View>
@@ -883,7 +897,7 @@ export default function App() {
                 ))}
                 <Txt muted style={{ fontSize: 12 }}>
                   {t(
-                    "Les cas visuels et mixtes seront proposés après acquisition des images et validation éditoriale. Les autres spécialités seront ajoutées lorsqu’elles seront prêtes.",
+                    "Les schémas d’anatomie sont des illustrations pédagogiques originales. Les photographies cliniques restent en attente de droits et de validation éditoriale.",
                   )}
                 </Txt>
               </>
@@ -902,13 +916,17 @@ export default function App() {
                 openConfig={() => openConfig()}
               />
             )}
+            {tab === "Anatomie" && <AnatomyCoursesPanel onPractice={(year, focus, structureId) => openConfig("anatomie", year, focus, structureId)} />}
+            {tab === "Spécialités" && <SourceCatalogPanel />}
             {tab === "Progression" && (
-              <ProgressScreen openSession={(s) => setResult(s)} />
+              <><StreakPanel /><ProgressScreen openSession={(s) => setResult(s)} /></>
             )}
+            {tab === "Compétition" && <CompetitivePanel onSignIn={() => go("Profil")} />}
             {tab === "Profil" && (
               <ProfileScreen
                 notice={setNotice}
                 premium={() => setPremium(true)}
+                openProgress={() => go("Progression")}
               />
             )}
           </ScrollView>
@@ -923,7 +941,7 @@ export default function App() {
                 paddingBottom: 8,
               }}
             >
-              {nav.map(({ label, icon: Icon }) => (
+              {nav.filter((item) => item.label !== "Progression").map(({ label, icon: Icon }) => (
                 <Pressable
                   key={label}
                   accessibilityRole="button"
@@ -959,6 +977,9 @@ export default function App() {
       >
         <Configure
           specialty={specialty}
+          requestedYear={requestedStudyYear}
+          requestedFocus={requestedFocus}
+          requestedStructure={requestedStructure}
           onStart={() => {
             setConfigure(false);
             setQuizOpen(true);
@@ -1014,34 +1035,10 @@ export default function App() {
       <Sheet
         visible={premium}
         onClose={() => setPremium(false)}
-        title={t("MedQuiz Premium")}
+        title={t("Ippomed Premium")}
       >
         <View style={{ gap: 20 }}>
           <SubscriptionPanel />
-          <View style={[row, { gap: 9 }]}>
-            <Sparkles color={c.accent} />
-            <Title style={{ fontSize: 23 }}>
-              {t("Plus de repères, à votre rythme.")}
-            </Title>
-          </View>
-          <Txt>
-            {t(
-              "À terme : banque publiée complète, examens blancs, révisions adaptatives et packs hors connexion.",
-            )}
-          </Txt>
-          <Card style={{ backgroundColor: c.soft, gap: 8 }}>
-            <Txt style={{ fontWeight: "700" }}>{t("Offre en préparation")}</Txt>
-            <Txt>
-              {t(
-                "Tarifs commerciaux non validés. Cette version ne propose que des achats sandbox après configuration.",
-              )}
-            </Txt>
-          </Card>
-          <Txt muted>
-            {t(
-              "Les prix définitifs, les conditions de renouvellement et la restauration des achats seront fournis par les boutiques et le prestataire de paiement. Cette démonstration reste gratuite.",
-            )}
-          </Txt>
           <Button
             secondary
             label={t("Continuer à apprendre")}
@@ -1150,9 +1147,15 @@ function Sheet({
 
 function Configure({
   specialty,
+  requestedYear,
+  requestedFocus,
+  requestedStructure,
   onStart,
 }: {
   specialty?: Specialty;
+  requestedYear?: number;
+  requestedFocus?: AnatomyFocus;
+  requestedStructure?: string;
   onStart: () => void;
 }) {
   const { questions, specialties, getQ, day } = useCatalog();
@@ -1160,12 +1163,20 @@ function Configure({
   const { t, language } = useI18n();
 
   const { state, update } = useStore();
+  const { user } = useAuth();
+  const { allowance, error: quotaError } = useQuota();
+  const [busy, setBusy] = useState(false);
+  const pending = useRef<{ key: string; session: Session } | null>(null);
   const c = useTheme();
   const [ids, setIds] = useState<Specialty[]>(
     specialty ? [specialty] : state.preferences.specialties,
   );
   const [count, setCount] = useState(5);
   const [difficulty, setDifficulty] = useState("toutes");
+  const [questionType, setQuestionType] = useState(specialty === "anatomie" ? "visuel" : "clinique");
+  const [studyYear, setStudyYear] = useState<number | undefined>(requestedYear ?? state.preferences.studyYear ?? undefined);
+  const [anatomyFocus, setAnatomyFocus] = useState<AnatomyFocus | undefined>(requestedFocus);
+  const [structureId, setStructureId] = useState<string | undefined>(requestedStructure);
   const [mode, setMode] = useState<Session["mode"]>("learning");
   const [timed, setTimed] = useState(false);
   const [level, setLevel] = useState(state.preferences.level);
@@ -1173,19 +1184,31 @@ function Configure({
   const [error, setError] = useState("");
   const available = questions.filter(
     (q) =>
+      q.status === "demo" &&
       ids.includes(q.specialty) &&
-      (difficulty === "toutes" || difficulty === q.difficulty),
+      (difficulty === "toutes" || difficulty === q.difficulty) &&
+      (questionType === "tous" || q.type === questionType) &&
+      (!anatomyFocus || q.anatomyFocus === anatomyFocus) &&
+      (!structureId || q.diagram?.structureId === structureId) &&
+      (!studyYear || !q.studyYears || q.studyYears.includes(studyYear)),
   ).length;
-  const start = () => {
+  const start = async () => {
+    if (busy) return;
     if (state.active) {
       onStart();
       return;
     }
+    setBusy(true);
+    setError("");
     try {
-      const active = createSession(questions, {
+      const key = JSON.stringify([ids, difficulty, count, mode, timed, questionType, studyYear, anatomyFocus, structureId]);
+      const active = pending.current?.key === key ? pending.current.session : createSession(questions, {
         specialties: ids,
         difficulty,
-        type: "clinique",
+        type: questionType,
+        studyYear,
+        anatomyFocus,
+        structureId,
         count,
         mode,
         timerMinutes:
@@ -1193,6 +1216,11 @@ function Configure({
             ? Math.ceil(Math.min(count, available) * 1.5)
             : null,
       });
+      if (pending.current?.key !== key) {
+        active.id = reservationId();
+        pending.current = { key, session: active };
+      }
+      await reserveSession(user?.id ?? null, active.id, active.questionIds.length);
       update((s) => ({
         ...s,
         active,
@@ -1201,11 +1229,14 @@ function Configure({
           specialties: ids,
           level,
           dailyGoal: goal,
+          studyYear: studyYear ?? null,
         },
       }));
       onStart();
     } catch (e) {
       setError((e as Error).message);
+    } finally {
+      setBusy(false);
     }
   };
   if (state.active)
@@ -1226,7 +1257,17 @@ function Configure({
           "Quelques choix pour adapter votre séance. Aucun compte nécessaire.",
         )}
       </Txt>
-      <Field label={t("Votre niveau")}>
+      <QuotaPanel />
+      {ids.includes("anatomie") && <Field label={t("Objectif du quiz anatomique")}>
+        <Chip label={t("Tous les objectifs")} selected={!anatomyFocus} onPress={() => setAnatomyFocus(undefined)} />
+        {([["origin", "Origines"], ["insertion", "Insertions"], ["action", "Actions"], ["innervation", "Innervation"], ["identification", "Identification"]] as [AnatomyFocus, string][]).map(([focus, label]) => <Chip key={focus} label={t(label)} selected={anatomyFocus === focus} onPress={() => setAnatomyFocus(focus)} />)}
+        {structureId && <Button small secondary label={t("Élargir à toutes les structures")} onPress={() => setStructureId(undefined)} />}
+      </Field>}
+      {ids.includes("anatomie") && <Field label={t("Année d’étude en anatomie")}>
+        <Chip label={t("Toutes les années")} selected={!studyYear} onPress={() => setStudyYear(undefined)} />
+        {Array.from({ length: 12 }, (_, i) => i + 1).map((year) => <Chip key={year} label={year <= 6 ? t("Année {0}", { 0: year }) : t("Internat · année {0}", { 0: year })} selected={studyYear === year} onPress={() => setStudyYear(year)} />)}
+      </Field>}
+      {!ids.every((id) => id === "anatomie") && <Field label={t("Votre niveau")}>
         {["Début de clinique", "Externat", "Internat"].map((v) => (
           <Chip
             key={v}
@@ -1235,7 +1276,7 @@ function Configure({
             onPress={() => setLevel(v)}
           />
         ))}
-      </Field>
+      </Field>}
       <Field label={t("Spécialités")}>
         {specialties.map((s) => (
           <Chip
@@ -1257,6 +1298,7 @@ function Configure({
           ["toutes", "Toutes"],
           ["débutant", "Débutant"],
           ["intermédiaire", "Intermédiaire"],
+          ["avancé", "Avancé"],
         ].map(([id, label]) => (
           <Chip
             key={id}
@@ -1267,13 +1309,10 @@ function Configure({
         ))}
       </Field>
       <Field label={t("Type de question")}>
-        <Chip label={t("Vignette clinique")} selected />
-        <Txt muted style={{ fontSize: 11 }}>
-          {t("Visuel et mixte : en attente d’images sous licence.")}
-        </Txt>
+        {[["tous", "Tous les types"], ["clinique", "Vignette clinique"], ["visuel", "Schéma anatomique"]].map(([value, label]) => <Chip key={value} label={t(label!)} selected={questionType === value} onPress={() => setQuestionType(value!)} />)}
       </Field>
       <Field label={t("Longueur de session")}>
-        {[5, 10, 20].map((n) => (
+        {(allowance?.premium ? [...new Set([5, 10, 20, 30, Math.max(5, Math.min(200, available))])] : [5, 10]).map((n) => (
           <Chip
             key={n}
             label={t("{0} questions", { 0: n })}
@@ -1333,13 +1372,14 @@ function Configure({
       </View>
       <Txt muted style={{ fontSize: 11 }}>
         {t(
-          "Cas fictifs de démonstration, non validés médicalement. Ces QCM ne constituent pas une référence clinique.",
+          "Questions de démonstration et schémas pédagogiques non validés médicalement. Ces QCM ne constituent pas une référence clinique.",
         )}
       </Txt>
       {!!error && <Txt style={{ color: c.error }}>{error}</Txt>}
+      {!!quotaError && <Txt accessibilityRole="alert">{t(quotaError)}</Txt>}
       <Button
         label={t("C’est parti")}
-        disabled={available === 0}
+        disabled={available === 0 || busy || !allowance || allowance.remaining === 0}
         icon={Play}
         onPress={start}
       />
@@ -1457,6 +1497,7 @@ function Quiz({
           gap: 20,
         }}
       >
+        <StreakCelebration />
         <View style={[row, { justifyContent: "space-between" }]}>
           <Txt style={{ fontSize: 12, fontWeight: "600" }}>
             {t("Question {0} sur {1}", {
@@ -1484,10 +1525,11 @@ function Quiz({
         </View>
         <Card style={{ gap: 16 }}>
           <Txt muted style={{ fontSize: 10, letterSpacing: 1 }}>
-            {t("VIGNETTE CLINIQUE · CAS FICTIF")}
+            {t(q.diagram ? "ANATOMIE · SCHÉMA PÉDAGOGIQUE" : "VIGNETTE CLINIQUE · CAS FICTIF")}
           </Txt>
           <Txt style={{ fontSize: 17, lineHeight: 29 }}>{q.context}</Txt>
           <Title style={{ fontSize: 20, lineHeight: 29 }}>{q.title}</Title>
+          {q.diagram && <View testID="anatomy-quiz-figure"><QuestionFigure structureId={q.diagram.structureId} view={q.diagram.view === "back" ? "posterior" : "anterior"} hideLabels language={language} height={370} /></View>}
         </Card>
         <View style={{ gap: 10 }}>
           {q.options.map((o, i) => {
@@ -1663,6 +1705,7 @@ function Correction({
         </View>
         <Title style={{ fontSize: 23 }}>{q.options[q.correct]!.label}</Title>
         <Txt>{q.reasoning}</Txt>
+        {q.diagram && <View testID="anatomy-correction-figure"><QuestionFigure structureId={q.diagram.structureId} view={q.diagram.view === "back" ? "posterior" : "anterior"} hideLabels={false} language={language} height={320} /></View>}
       </Card>
       <View>
         <Txt style={{ fontWeight: "700", marginBottom: 9 }}>
@@ -2227,9 +2270,11 @@ function ProgressScreen({
 function ProfileScreen({
   notice,
   premium,
+  openProgress,
 }: {
   notice: (s: string) => void;
   premium: () => void;
+  openProgress: () => void;
 }) {
   const { t, language } = useI18n();
 
@@ -2248,7 +2293,7 @@ function ProfileScreen({
         a.click();
         URL.revokeObjectURL(url);
       } else {
-        await Share.share({ message: text, title: "Mes données MedQuiz" });
+        await Share.share({ message: text, title: "Mes données Ippomed" });
       }
       notice(
         "Export préparé. Vos données incluent les signalements enregistrés localement.",
@@ -2267,6 +2312,7 @@ function ProfileScreen({
         )}
       />
       <AccountPanel />
+      <Button secondary label={t("Voir ma progression")} onPress={openProgress} />
       <SubscriptionPanel />
       <DeleteAccountPanel />
       <Card style={{ gap: 19 }}>
@@ -2375,7 +2421,7 @@ function ProfileScreen({
       </Card>
       <Txt muted style={{ fontSize: 11 }}>
         {t(
-          "MedQuiz 0.1 · Français · Application de formation, sans diagnostic personnalisé. Les contenus de démonstration nécessitent une relecture médicale avant toute publication commerciale.",
+          "Ippomed 0.1 · Français · Application de formation, sans diagnostic personnalisé. Les contenus de démonstration nécessitent une relecture médicale avant toute publication commerciale.",
         )}
       </Txt>
     </>

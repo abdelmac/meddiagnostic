@@ -1,11 +1,12 @@
-export type Specialty = "dermatologie" | "cardiologie" | "pneumologie";
+export type Specialty = "dermatologie" | "cardiologie" | "pneumologie" | "anatomie";
 export type Confidence = "fragile" | "moyenne" | "solide";
+export type AnatomyFocus = "origin" | "insertion" | "action" | "innervation" | "identification";
 export type Question = {
   id: string;
   version: number;
   specialty: Specialty;
   theme: string;
-  difficulty: "débutant" | "intermédiaire";
+  difficulty: "débutant" | "intermédiaire" | "avancé";
   type: "clinique" | "visuel" | "mixte";
   objective: string;
   title: string;
@@ -19,6 +20,9 @@ export type Question = {
   editorialDate: string;
   status: "demo" | "draft";
   medicalReviewer: null;
+  studyYears?: number[];
+  anatomyFocus?: AnatomyFocus;
+  diagram?: { structureId: string; view?: "front" | "back" };
   image?: { uri: string; attribution: string; license: string; alt: string };
 };
 export type Attempt = {
@@ -48,8 +52,10 @@ export type Session = {
   answers: Record<string, { choice: number; confidence: Confidence }>;
   timerMinutes: number | null;
   kind: "quiz" | "review";
+  studyYear?: number;
 };
 export type LocalState = {
+  studyEvents?: { id: string; at: string; source: "competition" }[];
   syncMeta?: {
     actor: string;
     clock: number;
@@ -63,6 +69,7 @@ export type LocalState = {
   sessions: Session[];
   active: Session | null;
   preferences: {
+    studyYear?: number | null;
     level: string;
     specialties: Specialty[];
     dailyGoal: number;

@@ -1,0 +1,76 @@
+import { test, expect } from "@playwright/test";
+import { questions } from "../src/data/questions";
+
+test("atlas : corps cliquable, cinq calques, recherche, face/dos, zoom et traduction", async ({ page }, info) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Explorer le corps humain", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Atlas du corps humain", exact: true })).toBeVisible();
+  const body = page.getByTestId("anatomy-body-diagram");
+  await page.getByRole("button", { name: "Vue 2D", exact: true }).click();
+  await expect(body).toHaveAccessibleName(/Deltoïde/);
+  await page.getByRole("button", { name: "Calque : Muscles", exact: true }).click();
+  await body.scrollIntoViewIfNeeded();
+  const target = await body.evaluate((node) => {
+    const svg = node as SVGSVGElement;
+    const point = svg.createSVGPoint(); point.x = 100; point.y = 206;
+    const screen = point.matrixTransform(svg.getScreenCTM()!);
+    return { x: screen.x, y: screen.y };
+  });
+  await page.mouse.click(target.x, target.y);
+  await expect(body).toHaveAccessibleName(/Biceps brachial/);
+  const before = await body.getAttribute("viewBox");
+  await page.getByRole("button", { name: "Zoomer sur la structure", exact: true }).click();
+  await expect(body).not.toHaveAttribute("viewBox", before!);
+  await page.getByRole("button", { name: "Revoir le corps entier", exact: true }).click();
+  await page.getByRole("button", { name: "Calque : Nerfs", exact: true }).click();
+  await page.getByRole("textbox", { name: "Rechercher une structure anatomique", exact: true }).fill("sciatique");
+  await page.getByRole("button", { name: "Nerf sciatique", exact: true }).click();
+  await expect(body).toHaveAccessibleName(/postérieure.*Nerf sciatique/);
+  await page.getByRole("textbox", { name: "Rechercher une structure anatomique", exact: true }).fill("");
+  await page.getByRole("button", { name: "Calque : Organes", exact: true }).click();
+  await page.getByRole("button", { name: "Face", exact: true }).click();
+  await page.getByRole("button", { name: "Cœur", exact: true }).click();
+  await expect(body).toHaveAccessibleName(/Cœur/);
+  await page.getByRole("button", { name: "Calque : Vaisseaux", exact: true }).click();
+  await expect(body).toHaveAccessibleName(/Aorte/);
+  await page.getByRole("button", { name: "Calque : Squelette", exact: true }).click();
+  await page.getByRole("button", { name: "Dos", exact: true }).click();
+  await expect(body).toHaveAccessibleName(/postérieure/);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await body.screenshot({ path: `artifacts/anatomie-corps-${info.project.name}.png` });
+  await page.getByRole("button", { name: "English", exact: true }).first().click();
+  await expect(page.getByRole("heading", { name: "Human body atlas", exact: true })).toBeVisible();
+  await expect(body).toHaveAccessibleName(/posterior view/);
+});
+
+test("anatomie : cours internat, quiz illustré année12, nom masqué et corrigé traduit", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Anatomie", exact: true }).click();
+  await page.getByRole("button", { name: "Internat · 7e année et +", exact: true }).click();
+  await page.getByRole("button", { name: "Ouvrir le cours", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Le cours essentiel", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Passer aux questions illustrées", exact: true }).click();
+  await page.getByRole("button", { name: "Internat · année 12", exact: true }).click();
+  await page.getByRole("button", { name: "Avancé", exact: true }).click();
+  await page.getByRole("button", { name: "C’est parti", exact: true }).click();
+  const diagram = page.getByTestId("anatomy-question-diagram");
+  await expect(diagram).toHaveAccessibleName("Schéma anatomique : identifiez la structure repérée A.");
+  await expect(page.getByText("Question 1 sur 5", { exact: true })).toBeVisible();
+  const session = await page.evaluate(() => JSON.parse(localStorage.getItem("medquiz.local.v1")!).active);
+  expect(session.studyYear).toBe(12);
+  expect(session.questionIds).toHaveLength(5);
+  expect(session.questionIds.every((id: string) => {
+    const q = questions.find((question) => question.id === id);
+    return q?.specialty === "anatomie" && q.studyYears?.includes(12) && q.difficulty === "avancé" && !!q.diagram;
+  })).toBe(true);
+  await page.getByRole("radio").first().click();
+  await page.getByRole("button", { name: "Valider ma réponse", exact: true }).click();
+  await expect(page.getByTestId("anatomy-correction-figure").getByTestId("anatomy-body-diagram")).toBeVisible();
+  await page.getByRole("button", { name: "Quitter et reprendre plus tard" }).click();
+  await page.getByRole("button", { name: "English", exact: true }).first().click();
+  await page.getByRole("button", { name: "Accueil", exact: true }).or(page.getByRole("button", { name: "Home", exact: true })).click();
+  await page.getByRole("button", { name: "Resume my quiz", exact: true }).click();
+  await expect(page.getByTestId("anatomy-question-diagram")).toHaveAccessibleName("Anatomical diagram: identify the structure marked A.");
+  await expect(page.getByTestId("anatomy-correction-figure").getByTestId("anatomy-body-diagram")).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});

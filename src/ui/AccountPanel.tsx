@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { TextInput, View } from "react-native";
-import { LogIn, LogOut, RefreshCw, Cloud, Upload } from "lucide-react-native";
+import { LogIn, LogOut, RefreshCw, Upload } from "lucide-react-native";
 import { useAuth } from "../auth";
 import { useStore } from "../state";
 import { useI18n } from "../i18n";
@@ -20,6 +20,7 @@ export function AccountPanel() {
   const run = async (action: () => Promise<void>, success: string) => {
     setBusy(true);
     setMessage("");
+    auth.clearError();
     try {
       await action();
       setMessage(success);
@@ -101,11 +102,8 @@ export function AccountPanel() {
         {t("Sauvegardez vos progrès, retrouvez-les partout.")}
       </Title>
       <Txt muted>
-        {t("Un lien par e-mail suffit. Aucune carte bancaire nécessaire.")}
-      </Txt>
-      <Txt muted style={{ fontSize: 12 }}>
         {t(
-          "L’inscription est actuellement réservée aux adresses invitées à la bêta.",
+          "Avec Google ou un lien par e-mail. Aucune carte bancaire nécessaire.",
         )}
       </Txt>
       <View style={wrap}>
@@ -116,6 +114,7 @@ export function AccountPanel() {
             setCreate(true);
             setSent(false);
             setMessage("");
+            auth.clearError();
           }}
         />
         <Chip
@@ -125,9 +124,35 @@ export function AccountPanel() {
             setCreate(false);
             setSent(false);
             setMessage("");
+            auth.clearError();
           }}
         />
       </View>
+      <Button
+        secondary
+        label={t("Continuer avec Google")}
+        icon={LogIn}
+        disabled={busy || auth.googleStatus !== "enabled"}
+        onPress={() => void run(() => auth.signInWithGoogle(create), "")}
+      />
+      {auth.googleStatus !== "enabled" && (
+        <Txt muted style={{ fontSize: 12 }}>
+          {t(
+            auth.googleStatus === "checking"
+              ? "Vérification de la connexion Google…"
+              : auth.googleStatus === "disabled"
+                ? "La connexion Google sera disponible après activation. Vous pouvez utiliser l’e-mail ci-dessous."
+                : "La connexion Google est temporairement indisponible. Réessayez plus tard.",
+          )}
+        </Txt>
+      )}
+      <Txt muted style={{ fontSize: 12 }}>
+        {t(
+          auth.googleStatus === "enabled"
+            ? "La connexion par e-mail est réservée aux adresses invitées à la bêta."
+            : "L’inscription est actuellement réservée aux adresses invitées à la bêta.",
+        )}
+      </Txt>
       <TextInput
         accessibilityLabel={t("Adresse e-mail")}
         value={email}
@@ -165,7 +190,7 @@ export function AccountPanel() {
         <>
           <Txt>
             {t(
-              "Ouvrez le lien reçu par e-mail. Si le message contient un code, vous pouvez aussi le saisir ci-dessous.",
+              "Ouvrez le lien sur cet appareil, dans le même navigateur. Si le message contient un code, vous pouvez aussi le saisir ci-dessous.",
             )}
           </Txt>
           <TextInput
@@ -204,6 +229,7 @@ export function AccountPanel() {
         </>
       )}
       {!!message && <Txt accessibilityRole="alert">{t(message)}</Txt>}
+      {!!auth.error && <Txt accessibilityRole="alert">{t(auth.error)}</Txt>}
       <Txt muted style={{ fontSize: 11 }}>
         {t(
           "À la création du compte, vos résultats invités seront importés après vérification. Nous conservons votre e-mail et votre progression pour les synchroniser ; ne saisissez aucune donnée de patient.",

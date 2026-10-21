@@ -159,6 +159,7 @@ export function Chip({
   return (
     <Pressable
       accessibilityRole={onPress ? "button" : "text"}
+      aria-pressed={onPress ? !!selected : undefined}
       accessibilityState={{ selected: !!selected }}
       onPress={onPress}
       style={{
@@ -264,7 +265,7 @@ export function Organ({
   size = 90,
   color = "#a85f6c",
 }: {
-  kind: "heart" | "lungs" | "skin";
+  kind: "heart" | "lungs" | "skin" | "body";
   size?: number;
   color?: string;
 }) {
@@ -276,7 +277,14 @@ export function Organ({
       accessibilityElementsHidden
     >
       <Circle cx="60" cy="60" r="52" fill={color} opacity=".07" />
-      {kind === "heart" ? (
+      {kind === "body" ? (
+        <>
+          <Circle cx="60" cy="23" r="10" fill={color} opacity=".8" />
+          <Path d="M47 38 Q60 33 73 38 L84 60 L78 65 L69 50 L69 72 L76 102 L66 104 L60 78 L54 104 L44 102 L51 72 L51 50 L42 65 L36 60Z" fill={color} opacity=".65" />
+          <Line x1="60" y1="40" x2="60" y2="71" stroke="#fff" strokeWidth="2" />
+          <Path d="M51 50 Q60 56 69 50 M51 61 Q60 67 69 61" stroke="#fff" strokeWidth="1.5" fill="none" />
+        </>
+      ) : kind === "heart" ? (
         <>
           <Path
             d="M59 35 C45 11 19 27 28 54 C33 70 49 89 63 101 C74 85 101 70 96 48 C92 31 75 27 63 40 L59 35Z"
