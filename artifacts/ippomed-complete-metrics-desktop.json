@@ -1,0 +1,30 @@
+{
+  "origin": "https://medquiz-europe.medcompass-web.workers.dev",
+  "project": "desktop",
+  "timingScope": "Navigation to interactive preview; HIGH requests held",
+  "previewLoadMs": 9195,
+  "initial": {
+    "meshes": 687,
+    "triangles": 2548718,
+    "drawCalls": 694,
+    "highMeshes": 0,
+    "highTriangles": 0,
+    "residentTriangles": 0
+  },
+  "shoulder": {
+    "meshes": 687,
+    "triangles": 1721476,
+    "drawCalls": 247,
+    "highMeshes": 4,
+    "highTriangles": 145450,
+    "residentTriangles": 145450
+  },
+  "final": {
+    "meshes": 687,
+    "triangles": 2803170,
+    "drawCalls": 208,
+    "highMeshes": 26,
+    "highTriangles": 1942862,
+    "residentTriangles": 3107918
+  }
+}

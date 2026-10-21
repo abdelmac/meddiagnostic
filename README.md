@@ -4,7 +4,7 @@ Application de formation médicale en français et en anglais, construite avec E
 
 L’identité violette et lime reprend l’[emblème fourni](public/brand/ippomed-emblem.png), sans texte. À l’accueil, **Anatomie et Spécialités sont présentées au même niveau**.
 
-**Anatomie :** atlas WebGL avec **2 320 maillages anatomiques BodyParts3D**, soit 6,41 millions de triangles dans cinq systèmes. Sélection directement sur le corps, survol nommé, rotation, cadrage, couches superposables, masquage, isolation et transparence, avec vue 2D de repli. Sept parcours accompagnent la révision de la première année à l’internat. La banque comprend **140 questions d’anatomie, dont 98 sur les muscles**, en français et en anglais. Voir [le support anatomie, les sources et ses limites](docs/ANATOMIE.md).
+**Anatomie :** le **Corps détaillé** affiche 934 modèles BodyParts3D issus d’une même référence, avec **26,3 millions de triangles disponibles**. Les détails se chargent progressivement dans le corps, au zoom et au cadrage, sans mélanger les poses de différentes versions. Cinq raccourcis de région, sélection directe, rotation, masquage, isolation, transparence et couches superposables accompagnent l’exploration. L’**Atlas étendu** conserve séparément les 2 320 éléments de la précédente version et ses branches nerveuses et vasculaires supplémentaires. Sept parcours accompagnent la révision de la première année à l’internat ; les **140 questions anatomiques bilingues**, dont 98 musculaires, restent accessibles. Voir [le support anatomie, les sources et ses limites](docs/ANATOMIE.md).
 
 Publication statique gratuite sur Cloudflare Workers Static Assets : voir [le guide de déploiement](docs/HEBERGEMENT.md). Le sélecteur FR/EN conserve la progression ; les liens `/?lang=fr` et `/?lang=en` permettent de partager une langue précise.
 
@@ -68,6 +68,7 @@ Les données sont stockées avec AsyncStorage (stockage navigateur sur le web), 
 - `src/data/questions.ts` : catalogue de 170 questions de démonstration, dont 30 cas cliniques ; brouillons exclus des sessions.
 - `src/data/anatomy-*.ts` et `muscle-*.ts` : 140 questions anatomiques, structures, cours et fiches d’origines, d’insertions, d’actions et d’innervation.
 - `public/anatomy/bodyparts3d/` : surfaces GLB, crédits, licences et provenance ; `scripts/import-bodyparts3d.mjs` : import reproductible depuis les sources conservées hors publication.
+- `public/anatomy/bodyparts3d-complete/` : aperçu du corps et détails progressifs de la même source 3.0 ; `scripts/import-bodyparts3d-complete.mjs` : récupération, conversion et vérification des 934 modèles.
 - `src/domain/engine.ts` : logique pure de sessions, scores et révisions ; `types.ts` : contrats.
 - `src/state.tsx` : chargement et file de sauvegarde locale.
 - `src/ui/` : composants visuels et thèmes ; `app/` : navigation et parcours.
@@ -84,4 +85,4 @@ Lire [le périmètre et les décisions](docs/PRODUIT.md), [les règles de révis
 
 État précis des comptes, restrictions e-mail, synchronisation et configuration du paiement de test : [COMPTES-PAIEMENTS.md](docs/COMPTES-PAIEMENTS.md).
 
-Les surfaces 3D proviennent de BodyParts3D 4.0 (CC BY 4.0) et d’un supplément nerveux 4.3 (CC BY-SA 2.1 Japon). Les modèles et notices restent disponibles sous leurs licences respectives. Les schémas de quiz restent simplifiés ; le corpus 3D est incomplet et sa nomenclature française partielle. Le contenu attend une relecture médicale identifiée. Aucun asset de Complete Anatomy n’est embarqué. Aucun achat réel n’est activé.
+Le Corps détaillé utilise uniquement BodyParts3D 3.0 (CC BY-SA 2.1 Japon), avec un aperçu léger et les détails issus de la même géométrie. L’Atlas étendu utilise séparément BodyParts3D 4.0 (CC BY 4.0), un supplément nerveux 4.3 et 31 inspections isolées 3.0 (CC BY-SA 2.1 Japon). Les poses des versions ne sont pas superposées. Les modèles et notices restent disponibles sous leurs licences respectives. Les schémas de quiz restent simplifiés ; les corpus 3D sont incomplets et leur nomenclature française partielle. Le contenu attend une relecture médicale identifiée. Aucun asset de Complete Anatomy n’est embarqué. Aucun achat réel n’est activé.

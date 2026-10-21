@@ -7,60 +7,67 @@ import bodypartsManifest from "../data/bodyparts3d-manifest.json";
 import { anatomyStructure } from "../data/anatomy-structures";
 import type { AnatomySystem } from "../data/anatomy-structures";
 import { localizeAnatomyName, anatomyNameHasFrench } from "../data/anatomy-nomenclature";
-import { anatomyMeshBounds, loadAnatomyLayer, matchingAnatomyMeshes, type BodyPartsManifest, type LoadedAnatomyLayer } from "./anatomy-gltf.web";
+import { anatomyInspectionResolution, anatomyMeshBounds, createAnatomyProgressiveLod, loadAnatomyLayer, matchingAnatomyMeshes, type AnatomyLodStatus, type BodyPartsManifest, type LoadedAnatomyLayer } from "./anatomy-gltf.web";
 import { HumanFigure } from "./anatomy-vector";
 import type { AnatomySceneProps } from "./anatomy-scene-types";
 
 export type { AnatomySceneProps } from "./anatomy-scene-types";
-const manifest = bodypartsManifest as unknown as BodyPartsManifest;
+const defaultManifest = bodypartsManifest as unknown as BodyPartsManifest;
 type MaterialSet = THREE.Material | THREE.Material[];
 type World = {
   renderer: THREE.WebGLRenderer; camera: THREE.PerspectiveCamera; scene: THREE.Scene; controls: OrbitControls;
+  bodyPixelRatio: number;
+  lod?: ReturnType<typeof createAnatomyProgressiveLod>;
   layers: Map<string, LoadedAnatomyLayer>; loading: Map<string, Promise<LoadedAnatomyLayer>>; controllers: Set<AbortController>;
   requests: Map<string, AbortController>; detailTouched: Map<string, number>; activeDetailKeys: Set<string>;
   detailMode: boolean; bodyCamera?: { position: THREE.Vector3; target: THREE.Vector3 };
   layer?: LoadedAnatomyLayer; activeLayers: LoadedAnatomyLayer[]; render: () => void; present: () => void;
   fit: (bounds: THREE.Box3, options?: { anterior?: boolean; zoom?: number; animate?: boolean; selection?: boolean }) => void;
   pruneDetails: () => void;
+  settleResolution: () => void;
   fullBounds: () => THREE.Box3;
 };
 
 /** Source anatomy meshes only: no procedural body is substituted for the dataset. */
 export function AnatomyScene(props: AnatomySceneProps) {
-  const { system, view, selectedId, zoom = 1, height = 580, language = "fr", isolate = false, opacity = 1, hiddenIds = [], resetKey = 0, focusSelectionKey = 0, isolatedDetail = false } = props;
+  const manifest = props.sourceManifest ?? defaultManifest;
+  const datasetKey = manifest.datasetId ?? manifest.dataset ?? "bodyparts3d-4.0";
+  const { system, view, selectedId, zoom = 1, height = 580, language = "fr", isolate = false, opacity = 1, hiddenIds = [], resetKey = 0, focusSelectionKey = 0, focusRegionKey = 0, isolatedDetail = false } = props;
   const requiredSystems = [...new Set(props.visibleSystems?.length ? props.visibleSystems : ["skeleton" as AnatomySystem, system])];
   const visibleKey = requiredSystems.slice().sort().join(",");
   const detailSelection = isolatedDetail ? manifest.meshes.filter((entry) => entry.id === selectedId || entry.legacyIds?.includes(selectedId ?? "")) : [];
   const detailKey = detailSelection.map((entry) => entry.id).sort().join(",");
   const host = useRef<HTMLDivElement>(null), tooltip = useRef<HTMLDivElement>(null), orientation = useRef<HTMLDivElement>(null);
   const world = useRef<World | undefined>(undefined), live = useRef(props); live.current = props;
-  const previous = useRef<{ view: string; zoom: number; reset: number; focus: number; system: string } | undefined>(undefined);
+  const previous = useRef<{ view: string; zoom: number; reset: number; focus: number; region: number; system: string } | undefined>(undefined);
   const [contextReady, setContextReady] = useState(false);
   const [status, setStatus] = useState<"loading" | "ready" | "error" | "webgl-error">("loading");
   const [progress, setProgress] = useState(0), [retry, setRetry] = useState(0), [revision, setRevision] = useState(0);
   const [contextAttempt, setContextAttempt] = useState(0);
   const [hoverId, setHoverId] = useState<string | undefined>(undefined), [hoverLabel, setHoverLabel] = useState("");
   const [hoverEnglish, setHoverEnglish] = useState(false);
+  const [lodStatus, setLodStatus] = useState<AnatomyLodStatus>({ pending: 0, loaded: 0, errors: 0 });
   const l = (fr: string, en: string) => language === "fr" ? fr : en;
 
   useEffect(() => {
     const container = host.current;
     if (!container) return;
-    previous.current = undefined;
+    previous.current = undefined; setStatus("loading"); setLodStatus({ pending: 0, loaded: 0, errors: 0 });
     let renderer: THREE.WebGLRenderer;
     try { renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "low-power" }); }
     catch { setStatus("webgl-error"); return; }
     const lowPower = matchMedia("(pointer: coarse)").matches || navigator.hardwareConcurrency <= 4;
+    const adaptiveResolution = manifest.datasetId === "bodyparts3d-3.0-95";
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lowPower ? 1 : 1.5));
     renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.9;
     const canvas = renderer.domElement;
     Object.assign(canvas.style, { width: "100%", height: "100%", display: "block", touchAction: "none", cursor: "grab" });
-    canvas.dataset.testid = "anatomy-webgl-canvas"; canvas.tabIndex = 0; canvas.setAttribute("role", "img"); container.appendChild(canvas);
+    canvas.dataset.testid = "anatomy-webgl-canvas"; canvas.dataset.sourceId = datasetKey; canvas.dataset.resolutionMode = adaptiveResolution ? "body" : "fixed"; canvas.dataset.resolutionPending = "false"; canvas.tabIndex = 0; canvas.setAttribute("role", "img"); container.appendChild(canvas);
     const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(35, 1, 0.005, 40);
     camera.position.set(0, 0.85, 3.3);
     const controls = new OrbitControls(camera, canvas);
     controls.target.set(0, 0.85, 0); controls.enableDamping = false; controls.autoRotate = false;
-    controls.enablePan = true; controls.screenSpacePanning = true; controls.minDistance = 0.025; controls.maxDistance = 10;
+    controls.enablePan = true; controls.screenSpacePanning = true; controls.zoomToCursor = true; controls.minDistance = 0.025; controls.maxDistance = 10;
     controls.minPolarAngle = 0.04; controls.maxPolarAngle = Math.PI - 0.04;
     controls.rotateSpeed = 0.7; controls.zoomSpeed = 0.75; controls.panSpeed = 0.8;
     controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
@@ -93,6 +100,7 @@ export function AnatomyScene(props: AnatomySceneProps) {
     const originals = new Map<THREE.Mesh, MaterialSet>();
     const faded = new Map<THREE.Material, THREE.Material>(), selectedMaterials = new Map<THREE.Material, THREE.Material>(), hoverMaterials = new Map<THREE.Material, THREE.Material>();
     let frame = 0, motion = 0, lastFrame = 0, disposed = false, hovered: string | undefined;
+    let resolutionTimer: ReturnType<typeof setTimeout> | undefined, interacting = false;
     const fullBounds = () => {
       if (value.detailMode && value.activeLayers.length) {
         const bounds = new THREE.Box3(); value.activeLayers.forEach((layer) => bounds.union(layer.bounds)); return bounds;
@@ -110,6 +118,7 @@ export function AnatomyScene(props: AnatomySceneProps) {
         if (renderer.getContext().isContextLost()) { setStatus("webgl-error"); return; }
         lastFrame = at;
         renderer.render(scene, camera);
+        canvas.dataset.pixelRatio = String(renderer.getPixelRatio()); canvas.dataset.bufferPixels = String(canvas.width * canvas.height);
         canvas.dataset.camera = [camera.position.x, camera.position.y, camera.position.z, controls.target.x, controls.target.y, controls.target.z].map((n) => n.toFixed(5)).join(",");
         canvas.dataset.drawCalls = String(renderer.info.render.calls); canvas.dataset.triangles = String(renderer.info.render.triangles);
         const selected = value.activeLayers.flatMap((layer) => matchingAnatomyMeshes(layer, live.current.selectedId)).filter((mesh) => mesh.visible);
@@ -123,6 +132,25 @@ export function AnatomyScene(props: AnatomySceneProps) {
         }
       };
       frame = requestAnimationFrame(draw);
+    };
+    const updateResolution = (moving: boolean) => {
+      if (!adaptiveResolution || disposed || renderer.getContext().isContextLost()) return;
+      const resolution = anatomyInspectionResolution({
+        width: container.clientWidth || 380, height: container.clientHeight || 580,
+        devicePixelRatio: window.devicePixelRatio || 1, bodyPixelRatio: value.bodyPixelRatio,
+        viewHeight: 2 * camera.position.distanceTo(controls.target) * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)),
+        bodyHeight: fullBounds().getSize(new THREE.Vector3()).y, moving, lowPower,
+      });
+      canvas.dataset.resolutionMode = resolution.mode; canvas.dataset.pixelBudget = String(resolution.pixelBudget);
+      if (Math.abs(renderer.getPixelRatio() - resolution.ratio) > 0.001) { renderer.setPixelRatio(resolution.ratio); render(); }
+    };
+    const settleResolution = () => {
+      if (!adaptiveResolution || disposed) return;
+      if (resolutionTimer) clearTimeout(resolutionTimer);
+      updateResolution(true); canvas.dataset.resolutionPending = "true";
+      if (!interacting) resolutionTimer = setTimeout(() => {
+        resolutionTimer = undefined; canvas.dataset.resolutionPending = "false"; updateResolution(false);
+      }, 220);
     };
     const materialFor = (base: THREE.Material, style: "selected" | "hover" | "faded", alpha: number) => {
       const cache = style === "selected" ? selectedMaterials : style === "hover" ? hoverMaterials : faded;
@@ -185,32 +213,40 @@ export function AnatomyScene(props: AnatomySceneProps) {
       };
       motion = requestAnimationFrame(animate);
     };
+    const releaseLayer = (layer: LoadedAnatomyLayer) => {
+      const bases = new Set<THREE.Material>();
+      layer.meshes.forEach((mesh) => {
+        const original = originals.get(mesh);
+        if (original) mesh.material = original;
+        (Array.isArray(mesh.material) ? mesh.material : [mesh.material]).forEach((material) => bases.add(material));
+        originals.delete(mesh);
+      });
+      [faded, selectedMaterials, hoverMaterials].forEach((cache) => bases.forEach((base) => { cache.get(base)?.dispose(); cache.delete(base); }));
+      layer.group.removeFromParent(); layer.dispose();
+    };
     const pruneDetails = () => {
       const inactive = [...value.detailTouched.entries()].filter(([key]) => !value.activeDetailKeys.has(key)).sort((a, b) => a[1] - b[1]);
       for (const [key] of inactive.slice(0, Math.max(0, inactive.length - 12))) {
         const layer = value.layers.get(key);
         if (layer) {
-          const bases = new Set<THREE.Material>();
-          layer.meshes.forEach((mesh) => {
-            const original = originals.get(mesh);
-            if (original) mesh.material = original;
-            (Array.isArray(mesh.material) ? mesh.material : [mesh.material]).forEach((material) => bases.add(material));
-            originals.delete(mesh);
-          });
-          [faded, selectedMaterials, hoverMaterials].forEach((cache) => bases.forEach((base) => { cache.get(base)?.dispose(); cache.delete(base); }));
-          scene.remove(layer.group); layer.dispose(); value.layers.delete(key);
+          releaseLayer(layer); value.layers.delete(key);
         }
         value.detailTouched.delete(key);
       }
     };
-    const value: World = { renderer, scene, camera, controls, layers: new Map(), activeLayers: [], loading: new Map(), controllers: new Set(), requests: new Map(), detailTouched: new Map(), activeDetailKeys: new Set(), detailMode: false, render, present, fit, fullBounds, pruneDetails };
-    world.current = value; controls.addEventListener("change", render);
-    const stopMotion = () => { cancelAnimationFrame(motion); canvas.style.cursor = "grabbing"; };
-    const stopDrag = () => { canvas.style.cursor = hovered ? "pointer" : "grab"; };
+    const value: World = { renderer, bodyPixelRatio: renderer.getPixelRatio(), scene, camera, controls, layers: new Map(), activeLayers: [], loading: new Map(), controllers: new Set(), requests: new Map(), detailTouched: new Map(), activeDetailKeys: new Set(), detailMode: false, render, present, fit, fullBounds, pruneDetails, settleResolution };
+    if (manifest.meshes.some((entry) => entry.lod)) value.lod = createAnatomyProgressiveLod({
+      manifest, camera, canvas, lowPower, getLayers: () => value.activeLayers, getSelectedId: () => live.current.selectedId,
+      enabled: () => !value.detailMode && value.activeLayers.length > 0, changed: present, status: setLodStatus, disposeLayer: releaseLayer,
+    });
+    const cameraChange = () => { settleResolution(); render(); value.lod?.schedule(); };
+    world.current = value; controls.addEventListener("change", cameraChange);
+    const stopMotion = () => { interacting = true; settleResolution(); cancelAnimationFrame(motion); value.lod?.pause(); canvas.style.cursor = "grabbing"; };
+    const stopDrag = () => { interacting = false; settleResolution(); value.lod?.resume(); canvas.style.cursor = hovered ? "pointer" : "grab"; };
     controls.addEventListener("start", stopMotion); controls.addEventListener("end", stopDrag);
     const resize = () => {
       const width = container.clientWidth || 380, h = container.clientHeight || 580;
-      renderer.setSize(width, h, false); camera.aspect = width / h; camera.updateProjectionMatrix(); render();
+      renderer.setSize(width, h, false); camera.aspect = width / h; camera.updateProjectionMatrix(); settleResolution(); render(); value.lod?.schedule();
     };
     const observer = new ResizeObserver(resize); observer.observe(container); resize();
     const raycaster = new THREE.Raycaster(), pointer = new THREE.Vector2();
@@ -273,14 +309,14 @@ export function AnatomyScene(props: AnatomySceneProps) {
     canvas.addEventListener("pointerleave", clearHover); canvas.addEventListener("dblclick", doubleClick); canvas.addEventListener("keydown", keyboard); canvas.addEventListener("webglcontextlost", contextLost);
     setContextReady(true);
     return () => {
-      disposed = true; cancelAnimationFrame(frame); cancelAnimationFrame(motion); observer.disconnect(); controls.removeEventListener("change", render); controls.removeEventListener("start", stopMotion); controls.removeEventListener("end", stopDrag); controls.dispose();
+      disposed = true; if (resolutionTimer) clearTimeout(resolutionTimer); value.lod?.dispose(); cancelAnimationFrame(frame); cancelAnimationFrame(motion); observer.disconnect(); controls.removeEventListener("change", cameraChange); controls.removeEventListener("start", stopMotion); controls.removeEventListener("end", stopDrag); controls.dispose();
       canvas.removeEventListener("pointerdown", pointerDown); canvas.removeEventListener("pointermove", pointerMove); canvas.removeEventListener("pointerup", pointerUp); canvas.removeEventListener("pointercancel", pointerCancel);
       canvas.removeEventListener("pointerleave", clearHover); canvas.removeEventListener("dblclick", doubleClick); canvas.removeEventListener("keydown", keyboard); canvas.removeEventListener("webglcontextlost", contextLost);
       value.controllers.forEach((controller) => controller.abort()); originals.forEach((material, mesh) => { mesh.material = material; }); value.layers.forEach((layer) => layer.dispose());
       [faded, selectedMaterials, hoverMaterials].forEach((cache) => cache.forEach((material) => material.dispose())); outlines.clear(); outlineMaterial.dispose(); shadowGeometry.dispose(); shadowMaterial.dispose(); shadowTexture.dispose(); environment?.dispose();
       renderer.dispose(); renderer.forceContextLoss(); canvas.remove(); if (world.current === value) world.current = undefined;
     };
-  }, [contextAttempt]);
+  }, [contextAttempt, datasetKey]);
 
   useEffect(() => {
     const current = world.current;
@@ -288,6 +324,9 @@ export function AnatomyScene(props: AnatomySceneProps) {
     let active = true;
     if (isolatedDetail && !current.detailMode && !current.bodyCamera) current.bodyCamera = { position: current.camera.position.clone(), target: current.controls.target.clone() };
     current.detailMode = isolatedDetail;
+    // A few isolated surfaces can use a sharper buffer than the dense body.
+    const pixelRatio = isolatedDetail ? Math.min(window.devicePixelRatio || 1, 2) : current.bodyPixelRatio;
+    if (current.renderer.getPixelRatio() !== pixelRatio) current.renderer.setPixelRatio(pixelRatio);
     const detailEntries = detailSelection.map((entry) => ({ entry, detail: manifest.isolatedDetails?.entries.find((detail) => detail.id === entry.id) }));
     const work = isolatedDetail
       ? detailEntries.filter((item) => !!item.detail).map(({ entry, detail }) => ({
@@ -312,6 +351,8 @@ export function AnatomyScene(props: AnatomySceneProps) {
         current.controls.update(); current.render(); current.bodyCamera = undefined;
       } else if (!previous.current) current.fit(current.fullBounds(), { anterior: live.current.view === "anterior", zoom: live.current.zoom ?? 1 });
       current.pruneDetails();
+      current.lod?.schedule();
+      current.settleResolution();
       setStatus("ready"); setRevision((n) => n + 1); live.current.onReady?.({ meshCount: layers.reduce((count, layer) => count + layer.meshes.length, 0), structureIds: [...new Set(layers.flatMap((layer) => [...layer.byId.keys()]))] });
     };
     const loadedBytes = new Map<string, number>();
@@ -346,15 +387,20 @@ export function AnatomyScene(props: AnatomySceneProps) {
     return () => { active = false; };
   // Changing the primary palette after clicking another visible system must
   // preserve the camera and the loaded spatial workspace.
-  }, [visibleKey, isolatedDetail, detailKey, contextReady, retry, contextAttempt]);
+  }, [datasetKey, visibleKey, isolatedDetail, detailKey, contextReady, retry, contextAttempt]);
 
-  useEffect(() => { world.current?.present(); }, [selectedId, isolate, opacity, hiddenIds, revision]);
+  useEffect(() => { world.current?.present(); world.current?.lod?.schedule(); }, [selectedId, isolate, opacity, hiddenIds, revision]);
   useEffect(() => {
     const current = world.current;
     if (!current?.layer || status !== "ready") return;
     const safeZoom = Number.isFinite(zoom) ? THREE.MathUtils.clamp(zoom, 1, 4) : 1, before = previous.current;
-    previous.current = { view, zoom: safeZoom, reset: resetKey, focus: focusSelectionKey, system };
+    previous.current = { view, zoom: safeZoom, reset: resetKey, focus: focusSelectionKey, region: focusRegionKey, system };
     const selection = current.activeLayers.flatMap((layer) => matchingAnatomyMeshes(layer, selectedId));
+    const region = props.focusRegionBounds;
+    if (region && (!before || before.region !== focusRegionKey) && region.min.length === 3 && region.max.length === 3 && [...region.min, ...region.max].every(Number.isFinite)) {
+      const bounds = new THREE.Box3(new THREE.Vector3(...region.min as [number, number, number]), new THREE.Vector3(...region.max as [number, number, number]));
+      if (!bounds.isEmpty()) { current.fit(bounds, { animate: true }); return; }
+    }
     if (before && before.focus !== focusSelectionKey && selection.length) { current.fit(anatomyMeshBounds(selection), { animate: true, selection: true }); return; }
     const changed = !before || before.view !== view || before.zoom !== safeZoom || before.reset !== resetKey;
     if (!changed) return;
@@ -362,14 +408,15 @@ export function AnatomyScene(props: AnatomySceneProps) {
       const size = current.fullBounds().getSize(new THREE.Vector3()), center = anatomyMeshBounds(selection).getCenter(new THREE.Vector3());
       current.fit(new THREE.Box3(center.clone().addScaledVector(size, -0.5), center.clone().addScaledVector(size, 0.5)), { anterior: view === "anterior", zoom: safeZoom });
     } else current.fit(current.fullBounds(), { anterior: view === "anterior", zoom: safeZoom });
-  }, [view, zoom, resetKey, focusSelectionKey, system, revision, status]);
+  }, [view, zoom, resetKey, focusSelectionKey, focusRegionKey, system, revision, status]);
   useEffect(() => {
-    world.current?.renderer.domElement.setAttribute("aria-label", l("Atlas anatomique 3D BodyParts3D. Glissez pour tourner, double-cliquez pour cadrer une structure. Flèches : rotation, plus et moins : zoom, F : cadrer, R : réinitialiser.", "BodyParts3D 3D anatomy atlas. Drag to rotate, double-click to frame a structure. Arrows rotate, plus and minus zoom, F frames, R resets."));
+    world.current?.renderer.domElement.setAttribute("aria-label", l("Atlas anatomique 3D BodyParts3D. Glissez pour tourner. Molette : zoom vers le pointeur. Clic droit ou deux doigts : déplacer. Double-cliquez pour cadrer une structure. Flèches : rotation, plus et moins : zoom, F : cadrer, R : réinitialiser.", "BodyParts3D 3D anatomy atlas. Drag to rotate. Scroll to zoom towards the pointer. Right-drag or use two fingers to pan. Double-click to frame a structure. Arrows rotate, plus and minus zoom, F frames, R resets."));
   }, [language, contextReady]);
 
   const error = status === "error" || status === "webgl-error";
   const fallbackId = anatomyStructure(selectedId ?? "")?.id ?? manifest.meshes.find((entry) => entry.id === selectedId)?.legacyIds?.find((id) => !!anatomyStructure(id));
-  return <div data-testid="anatomy-3d-scene" data-ready={status === "ready" ? "true" : "false"} data-selected-id={selectedId ?? ""} data-source="BodyParts3D"
+  const attributionUrl = manifest.attributionUrl ?? (manifest.datasetId === "bodyparts3d-3.0-95" ? "/anatomy/bodyparts3d-complete/ATTRIBUTION.txt" : "/anatomy/bodyparts3d/ATTRIBUTION.txt");
+  return <div data-testid="anatomy-3d-scene" data-ready={status === "ready" ? "true" : "false"} data-selected-id={selectedId ?? ""} data-source="BodyParts3D" data-source-id={datasetKey}
     data-detail-mode={isolatedDetail ? "true" : "false"} data-detail-ready={isolatedDetail && status === "ready" ? "true" : "false"}
     style={{ position: "relative", height, minHeight: 320, width: "100%", overflow: "hidden", background: "radial-gradient(ellipse at 50% 40%, #382c47 0%, #211a2f 54%, #15101f 100%)" }}>
     <div ref={host} style={{ width: "100%", height: "100%", visibility: error ? "hidden" : "visible" }} />
@@ -386,10 +433,13 @@ export function AnatomyScene(props: AnatomySceneProps) {
     </div>}
     {status === "ready" && <>
       {isolatedDetail && <div data-testid="anatomy-detail-badge" style={{ pointerEvents: "none", position: "absolute", top: 15, left: 12, maxWidth: "calc(100% - 80px)", padding: "7px 10px", borderRadius: 8, background: "#21162cdb", border: "1px solid #756087", color: "#e3d8eb", font: "11px/16px system-ui" }}>{l("Vue isolée détaillée", "Detailed isolated view")} · BodyParts3D 3.0</div>}
+      {!isolatedDetail && (lodStatus.pending > 0 || lodStatus.errors > 0) && <div data-testid="anatomy-progressive-detail-status" role="status" style={{ position: "absolute", top: 15, left: 12, maxWidth: "calc(100% - 80px)", padding: "7px 10px", borderRadius: 8, background: "#21162cdb", border: "1px solid #756087", color: "#e3d8eb", font: "11px/16px system-ui" }}>
+        {lodStatus.pending > 0 ? l("Chargement des détails de la région…", "Loading regional details…") : <>{l("Certains détails sont indisponibles.", "Some details are unavailable.")} <button type="button" onClick={() => world.current?.lod?.retry()} style={{ color: "#d4f48a", background: "none", border: 0, padding: "2px 4px", cursor: "pointer", textDecoration: "underline", font: "inherit" }}>{l("Réessayer", "Retry")}</button></>}
+      </div>}
       <div ref={orientation} aria-hidden="true" style={{ pointerEvents: "none", position: "absolute", right: 15, top: 15, border: "1px solid #7c6b91", borderRadius: 24, width: 38, height: 38, display: "grid", placeItems: "center", color: "#c5b4da", font: "600 10px system-ui" }}>{view === "anterior" ? "AV" : "AR"}</div>
       <div ref={tooltip} role="status" style={{ pointerEvents: "none", position: "absolute", left: 12, top: 12, visibility: hoverId ? "visible" : "hidden", maxWidth: 215, background: "#f2ecfa", border: "1px solid #d4c0ec", borderRadius: 9, padding: "9px 12px", boxShadow: "0 5px 18px #0004", color: "#2d1942", font: "600 12px/17px system-ui", zIndex: 2 }}>{hoverLabel}{hoverEnglish && <div style={{ color: "#786885", fontWeight: 400, fontSize: 10 }}>{l("Nom source (anglais)", "Source name (English)")}</div>}</div>
-      <div style={{ pointerEvents: "none", position: "absolute", bottom: 33, left: 12, right: 12, color: "#b9a8c9", font: "10px/16px system-ui", textAlign: "center" }}>{l("Glissez pour tourner · pincez pour zoomer · double-tap pour cadrer", "Drag to rotate · pinch to zoom · double-tap to frame")}</div>
+      <div style={{ pointerEvents: "none", position: "absolute", bottom: 33, left: 12, right: 12, color: "#b9a8c9", font: "10px/16px system-ui", textAlign: "center" }}>{l("Glisser : tourner · molette/pincer : zoomer · clic droit/deux doigts : déplacer", "Drag: rotate · scroll/pinch: zoom · right-drag/two fingers: pan")}</div>
     </>}
-    <a href="/anatomy/bodyparts3d/ATTRIBUTION.txt" target="_blank" rel="noopener noreferrer" style={{ position: "absolute", bottom: 10, left: 12, right: 12, color: "#9e8aaf", font: "9px/13px system-ui", textAlign: "center", textDecoration: "none" }}>BodyParts3D {isolatedDetail ? "3.0" : "/ Anatomography"} © DBCLS · {l("Sources et licences", "Sources and licenses")}</a>
+    <a href={attributionUrl} target="_blank" rel="noopener noreferrer" style={{ position: "absolute", bottom: 10, left: 12, right: 12, color: "#9e8aaf", font: "9px/13px system-ui", textAlign: "center", textDecoration: "none" }}>BodyParts3D {isolatedDetail || manifest.datasetId === "bodyparts3d-3.0-95" ? "3.0" : "/ Anatomography"} © DBCLS · {l("Sources et licences", "Sources and licenses")}</a>
   </div>;
 }

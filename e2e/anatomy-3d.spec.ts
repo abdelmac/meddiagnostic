@@ -7,6 +7,11 @@ async function nextRenderedFrames(page: Page) {
   await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
 }
 
+async function openExtendedAtlas(page: Page) {
+  await page.getByRole("button", { name: "Explorer le corps humain", exact: true }).click();
+  await page.getByRole("button", { name: "Atlas étendu", exact: true }).click();
+}
+
 function cameraDistance(value: string | null) {
   const coordinates = value?.split(",").map(Number) ?? [];
   expect(coordinates).toHaveLength(6);
@@ -66,7 +71,7 @@ test("anatomy keeps an interactive diagram when WebGL is unavailable", async ({ 
     } as typeof original;
   });
   await page.goto("/?lang=fr");
-  await page.getByRole("button", { name: "Explorer le corps humain", exact: true }).click();
+  await openExtendedAtlas(page);
   await expect(page.getByTestId("anatomy-webgl-fallback")).toBeVisible();
   await expect(page.getByTestId("anatomy-webgl-fallback").getByRole("alert")).toContainText("Le schéma 2D reste accessible.");
   await page.getByRole("button", { name: "Biceps brachial", exact: true }).first().click();
@@ -85,7 +90,7 @@ test("Ippomed: detailed meshes respond to clicks, focus, hide, rotation and a mu
   expect(Math.abs(a!.height - b!.height)).toBeLessThan(2);
   if (info.project.name === "desktop") expect(Math.abs(a!.y - b!.y)).toBeLessThan(2);
   const loadStartedAt = Date.now();
-  await page.getByRole("button", { name: "Explorer le corps humain", exact: true }).click();
+  await openExtendedAtlas(page);
   const scene = page.getByTestId("anatomy-3d-scene");
   await expect(scene).toHaveAttribute("data-ready", "true", { timeout: 60000 });
   await expect(scene).toHaveAttribute("data-source", "BodyParts3D");
@@ -188,7 +193,7 @@ test("anatomy recovers from an unavailable model asset without blocking the 2D c
     } else await route.continue();
   });
   await page.goto("/?lang=fr");
-  await page.getByRole("button", { name: "Explorer le corps humain", exact: true }).click();
+  await openExtendedAtlas(page);
   const fallback = page.getByTestId("anatomy-webgl-fallback");
   await expect(fallback).toBeVisible();
   await expect(fallback.getByRole("alert")).toContainText("Le modèle anatomique n’a pas pu être chargé.");
@@ -231,7 +236,7 @@ test("HD anatomy opens one dense source surface, supports pointer selection and 
   const detail = details!.entries.find((entry) => entry.id === shoulder.id)!;
   expect(detail).toBeDefined();
   await page.goto("/?lang=fr");
-  await page.getByRole("button", { name: "Explorer le corps humain", exact: true }).click();
+  await openExtendedAtlas(page);
   const scene = page.getByTestId("anatomy-3d-scene");
   const canvas = page.getByTestId("anatomy-webgl-canvas");
   await expect(scene).toHaveAttribute("data-ready", "true", { timeout: 60000 });
@@ -242,6 +247,7 @@ test("HD anatomy opens one dense source surface, supports pointer selection and 
   await nextRenderedFrames(page);
   const bodyCamera = await canvas.getAttribute("data-camera");
   const bodyCounters = await renderCounters(canvas);
+  const bodyPixelRatio = await canvas.evaluate((node) => (node as HTMLCanvasElement).width / node.clientWidth);
   await expect(page.getByRole("button", { name: "Détail HD", exact: true })).toBeEnabled();
 
   // A failed detail must remain recoverable without loading another body layer.
@@ -265,6 +271,8 @@ test("HD anatomy opens one dense source surface, supports pointer selection and 
   await expect(fallback).toHaveCount(0);
   await expect(canvas).toHaveAttribute("data-selected-id", shoulder.id);
   await expect.poll(async () => Number(await canvas.getAttribute("data-mesh-count"))).toBe(1);
+  const expectedDetailPixelRatio = await page.evaluate(() => Math.min(window.devicePixelRatio || 1, 2));
+  await expect.poll(() => canvas.evaluate((node) => (node as HTMLCanvasElement).width / node.clientWidth)).toBeCloseTo(expectedDetailPixelRatio, 1);
   await expect.poll(async () => Number(await canvas.getAttribute("data-triangles"))).toBeGreaterThan(shoulder.triangles * 2);
   expect(Number(await canvas.getAttribute("data-triangles"))).toBeGreaterThanOrEqual(detail.triangles);
   await expect(page.getByText(/Vue de détail isolée : référence BodyParts3D 3.0/)).toBeVisible();
@@ -288,14 +296,17 @@ test("HD anatomy opens one dense source surface, supports pointer selection and 
   await page.mouse.move(0, 0);
   await nextRenderedFrames(page);
   await canvas.screenshot({ path: "artifacts/ippomed-3d-shoulder-hd-" + info.project.name + ".png" });
+  const detailCounters = { project: info.project.name, body: bodyCounters, detail: await renderCounters(canvas) };
+  console.log("Anatomy isolated HD render:", JSON.stringify(detailCounters));
   await info.attach("isolated-HD-render-counters", {
-    body: JSON.stringify({ body: bodyCounters, detail: await renderCounters(canvas) }, null, 2), contentType: "application/json",
+    body: JSON.stringify(detailCounters, null, 2), contentType: "application/json",
   });
 
   await page.getByRole("button", { name: "Revenir au corps", exact: true }).click();
   await expect(scene).toHaveAttribute("data-detail-mode", "false");
   await expect(scene).toHaveAttribute("data-ready", "true", { timeout: 60000 });
   await expect(canvas).toHaveAttribute("data-camera", bodyCamera!);
+  await expect.poll(() => canvas.evaluate((node) => (node as HTMLCanvasElement).width / node.clientWidth)).toBeCloseTo(bodyPixelRatio, 1);
   await expect.poll(async () => Number(await canvas.getAttribute("data-mesh-count"))).toBe(bodyCounters.meshes);
   await expect(canvas).toHaveAttribute("data-selected-id", shoulder.id);
   await search.fill("");

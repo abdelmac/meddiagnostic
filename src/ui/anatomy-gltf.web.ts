@@ -12,8 +12,16 @@ export type BodyPartsEntry = {
   elementId?: string;
   legacyIds?: readonly string[];
   bounds?: { min: number[]; max: number[] };
+  defaultVisible?: boolean;
+  triangles?: number;
+  vertexCount?: number;
+  lod?: { url?: string; files?: string[]; bytes: number; triangles: number; vertexCount?: number; sha256?: string };
 };
 export type BodyPartsManifest = {
+  datasetId?: string;
+  dataset?: string;
+  version?: number | string;
+  attributionUrl?: string;
   systems: { id: AnatomySystem; url?: string; files?: string[]; bytes?: number; meshCount?: number }[];
   meshes: BodyPartsEntry[];
   legacyMapping?: Record<string, string[]>;
@@ -138,7 +146,7 @@ export async function loadAnatomyLayer(
       const entry = entries.get(id)!;
       // Keep the genuine skin mesh available for explicit study, while its
       // whole-body envelope must not cover or intercept the internal anatomy.
-      node.userData.contextEnvelope = entry.fmaId === "FMA7163" || /^skin$/i.test(entry.name);
+      node.userData.contextEnvelope = entry.defaultVisible === false || entry.fmaId === "FMA7163" || /^skin$/i.test(entry.name);
       node.geometry.computeBoundingBox(); node.geometry.computeBoundingSphere();
       const color = displayColor(entry);
       const style = (original: THREE.Material) => {
@@ -175,4 +183,160 @@ export function anatomyMeshBounds(meshes: THREE.Mesh[]) {
   const bounds = new THREE.Box3();
   meshes.forEach((mesh) => { bounds.union(new THREE.Box3().setFromObject(mesh)); });
   return bounds;
+}
+
+export type AnatomyLodStatus = { pending: number; loaded: number; errors: number };
+
+/** More samples for an idle close-up, bounded independently of device DPR. */
+export function anatomyInspectionResolution(input: {
+  width: number; height: number; devicePixelRatio: number; bodyPixelRatio: number;
+  viewHeight: number; bodyHeight: number; moving: boolean; lowPower: boolean;
+}) {
+  const pixelBudget = input.lowPower ? 1_500_000 : 3_000_000;
+  const pixelCap = Math.sqrt(pixelBudget / Math.max(1, input.width * input.height));
+  const inspection = input.viewHeight < input.bodyHeight * 0.82;
+  const ratio = Math.min(input.devicePixelRatio, input.moving || !inspection ? input.bodyPixelRatio : 2, pixelCap);
+  return { ratio, pixelBudget, mode: input.moving ? "moving" : inspection ? "inspection" : "body" } as const;
+}
+
+type DetailCacheEntry = { layer: LoadedAnatomyLayer; base: LoadedAnatomyLayer; originals: THREE.Mesh[]; applied: boolean; touched: number; triangles: number };
+
+/** Swap whole source nodes, preserving each LOD's own quantisation transform. */
+export function createAnatomyProgressiveLod(options: {
+  manifest: BodyPartsManifest;
+  camera: THREE.PerspectiveCamera;
+  canvas: HTMLCanvasElement;
+  lowPower: boolean;
+  getLayers: () => LoadedAnatomyLayer[];
+  getSelectedId: () => string | undefined;
+  enabled: () => boolean;
+  changed: () => void;
+  status: (status: AnatomyLodStatus) => void;
+  disposeLayer: (layer: LoadedAnatomyLayer) => void;
+}) {
+  const cache = new Map<string, DetailCacheEntry>(), pending = new Map<string, AbortController>(), failed = new Set<string>();
+  const maxTriangles = options.lowPower ? 1_600_000 : 3_500_000, maxMeshes = options.lowPower ? 14 : 26;
+  const maxResidentTriangles = maxTriangles * 1.4, maxResidentMeshes = maxMeshes + 8;
+  const concurrency = options.lowPower ? 2 : 3;
+  let wanted = new Set<string>(), queue: { entry: BodyPartsEntry; base: LoadedAnatomyLayer }[] = [];
+  let timer: ReturnType<typeof setTimeout> | undefined, disposed = false, paused = false, statusKey = "";
+  const updateStatus = () => {
+    const state = { pending: [...pending.keys()].filter((id) => wanted.has(id)).length + queue.length, loaded: [...cache.values()].filter((item) => item.applied).length, errors: [...failed].filter((id) => wanted.has(id)).length };
+    const key = JSON.stringify(state);
+    options.canvas.dataset.lodPending = String(state.pending); options.canvas.dataset.lodMeshCount = String(state.loaded);
+    options.canvas.dataset.lodTriangles = String([...cache.values()].filter((item) => item.applied).reduce((sum, item) => sum + item.triangles, 0));
+    options.canvas.dataset.lodResidentTriangles = String([...cache.values()].reduce((sum, item) => sum + item.triangles, 0));
+    options.canvas.dataset.lodErrors = String(state.errors);
+    options.canvas.dataset.lodIds = [...cache.entries()].filter(([, item]) => item.applied).map(([id]) => id).sort().join(",");
+    const selected = options.getLayers().flatMap((layer) => matchingAnatomyMeshes(layer, options.getSelectedId())).filter((mesh) => mesh.visible);
+    options.canvas.dataset.selectedLod = selected.length && selected.every((mesh) => mesh.userData.anatomyLod === "high") ? "high" : "base";
+    if (key !== statusKey && !disposed) { statusKey = key; options.status(state); }
+  };
+  const replace = (layer: LoadedAnatomyLayer, remove: THREE.Mesh[], add: THREE.Mesh[], id: string) => {
+    const removed = new Set(remove);
+    layer.meshes = layer.meshes.filter((mesh) => !removed.has(mesh)).concat(add); layer.byId.set(id, add);
+  };
+  const install = (id: string, item: DetailCacheEntry) => {
+    if (item.applied) return false;
+    item.originals.forEach((mesh) => { mesh.visible = false; });
+    item.base.group.add(item.layer.group); item.layer.group.visible = true; item.layer.group.updateMatrixWorld(true);
+    replace(item.base, item.originals, item.layer.meshes, id); item.applied = true; item.touched = performance.now(); return true;
+  };
+  const restore = (id: string, item: DetailCacheEntry) => {
+    if (!item.applied) return false;
+    item.layer.group.removeFromParent(); replace(item.base, item.layer.meshes, item.originals, id); item.applied = false; return true;
+  };
+  const prune = () => {
+    let triangles = [...cache.values()].reduce((sum, item) => sum + item.triangles, 0);
+    const inactive = [...cache.entries()].filter(([id, item]) => !item.applied && !wanted.has(id)).sort((a, b) => a[1].touched - b[1].touched);
+    for (const [id, item] of inactive) {
+      if (cache.size <= maxResidentMeshes && triangles <= maxResidentTriangles) break;
+      cache.delete(id); triangles -= item.triangles; options.disposeLayer(item.layer);
+    }
+  };
+  const pump = () => {
+    if (disposed || paused) return;
+    while (queue.length && pending.size < concurrency) {
+      const next = queue.shift()!;
+      if (!wanted.has(next.entry.id) || cache.has(next.entry.id) || pending.has(next.entry.id) || failed.has(next.entry.id)) continue;
+      const { entry, base } = next, controller = new AbortController(); pending.set(entry.id, controller);
+      const source: BodyPartsManifest = { ...options.manifest, meshes: [entry], systems: [{ id: entry.system, url: entry.lod!.url, files: entry.lod!.files, bytes: entry.lod!.bytes }] };
+      void loadAnatomyLayer(source, entry.system, controller.signal, () => {}).then((layer) => {
+        if (disposed || controller.signal.aborted) { options.disposeLayer(layer); return; }
+        layer.meshes.forEach((mesh) => { mesh.userData.anatomyLod = "high"; });
+        const item: DetailCacheEntry = { layer, base, originals: base.byId.get(entry.id) ?? [], applied: false, touched: performance.now(), triangles: entry.lod!.triangles };
+        cache.set(entry.id, item);
+        if (wanted.has(entry.id) && options.enabled() && !paused && options.getLayers().includes(base)) { install(entry.id, item); options.changed(); }
+        prune();
+      }).catch(() => { if (!disposed && !controller.signal.aborted) failed.add(entry.id); }).finally(() => {
+        if (pending.get(entry.id) === controller) pending.delete(entry.id);
+        if (!disposed) { pump(); updateStatus(); }
+      });
+    }
+    updateStatus();
+  };
+  const refresh = () => {
+    timer = undefined;
+    if (disposed || paused) return;
+    const candidates: { entry: BodyPartsEntry; base: LoadedAnatomyLayer; score: number; chosen: boolean }[] = [];
+    if (options.enabled()) {
+      options.camera.updateMatrixWorld();
+      const frustum = new THREE.Frustum().setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(options.camera.projectionMatrix, options.camera.matrixWorldInverse));
+      const width = options.canvas.clientWidth || 380, height = options.canvas.clientHeight || 580;
+      for (const base of options.getLayers()) {
+        const selected = new Set(matchingAnatomyMeshes(base, options.getSelectedId()).map((mesh) => mesh.userData.structureId as string));
+        for (const [id, meshes] of base.byId) {
+          const entry = base.entries.get(id);
+          if (!entry?.lod || !meshes.some((mesh) => mesh.visible)) continue;
+          const bounds = entry.bounds ? new THREE.Box3(new THREE.Vector3(...entry.bounds.min as [number, number, number]), new THREE.Vector3(...entry.bounds.max as [number, number, number])) : anatomyMeshBounds(meshes);
+          const chosen = selected.has(id);
+          if (!chosen && !frustum.intersectsBox(bounds)) continue;
+          const center = bounds.getCenter(new THREE.Vector3()).project(options.camera);
+          if (!chosen && (center.z > 1 || center.z < -1)) continue;
+          let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+          for (let corner = 0; corner < 8; corner++) {
+            const point = new THREE.Vector3(corner & 1 ? bounds.max.x : bounds.min.x, corner & 2 ? bounds.max.y : bounds.min.y, corner & 4 ? bounds.max.z : bounds.min.z).project(options.camera);
+            minX = Math.min(minX, point.x); maxX = Math.max(maxX, point.x); minY = Math.min(minY, point.y); maxY = Math.max(maxY, point.y);
+          }
+          const pixels = Math.max(Math.min(2.5, maxX - minX) * width / 2, Math.min(2.5, maxY - minY) * height / 2);
+          if (!chosen && pixels < (options.lowPower ? 105 : 95)) continue;
+          const centrality = 1 / (1 + Math.hypot(center.x, center.y));
+          candidates.push({ entry, base, chosen, score: (chosen ? 1_000_000 : 0) + pixels * centrality });
+        }
+      }
+    }
+    candidates.sort((a, b) => b.score - a.score);
+    let triangles = 0;
+    const desired: typeof candidates = [];
+    for (const item of candidates) {
+      const count = item.entry.lod!.triangles;
+      // Explicit study selections take priority, including a large composite
+      // landmark. The normal budget limits its surrounding context, not the
+      // anatomy the learner specifically asked to inspect.
+      if (!item.chosen && (desired.length >= maxMeshes || triangles + count > maxTriangles)) continue;
+      desired.push(item); triangles += count;
+    }
+    wanted = new Set(desired.map((item) => item.entry.id));
+    pending.forEach((controller, id) => {
+      if (!wanted.has(id)) { controller.abort(); pending.delete(id); }
+    });
+    let changed = false;
+    cache.forEach((item, id) => {
+      if (!wanted.has(id) || !options.getLayers().includes(item.base)) changed = restore(id, item) || changed;
+      else { item.touched = performance.now(); changed = install(id, item) || changed; }
+    });
+    queue = desired.filter((item) => !cache.has(item.entry.id) && !pending.has(item.entry.id) && !failed.has(item.entry.id));
+    if (changed) options.changed();
+    prune(); pump(); updateStatus();
+  };
+  return {
+    schedule() { if (disposed) return; if (timer) clearTimeout(timer); timer = setTimeout(refresh, 180); },
+    pause() { paused = true; if (timer) clearTimeout(timer); },
+    resume() { paused = false; if (timer) clearTimeout(timer); timer = setTimeout(refresh, 100); },
+    retry() { failed.clear(); refresh(); },
+    dispose() {
+      disposed = true; if (timer) clearTimeout(timer); pending.forEach((controller) => controller.abort()); queue = [];
+      cache.forEach((item, id) => { restore(id, item); options.disposeLayer(item.layer); }); cache.clear();
+    },
+  };
 }

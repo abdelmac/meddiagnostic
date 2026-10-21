@@ -5,6 +5,7 @@ import type {
 } from "../data/anatomy-structures";
 
 export type AnatomySceneProps = {
+  sourceManifest?: import("./anatomy-gltf.web").BodyPartsManifest;
   system: AnatomySystem;
   view: AnatomyView;
   selectedId?: string;
@@ -20,5 +21,7 @@ export type AnatomySceneProps = {
   hiddenIds?: readonly string[];
   visibleSystems?: readonly AnatomySystem[];
   focusSelectionKey?: number;
+  focusRegionBounds?: { min: number[]; max: number[] };
+  focusRegionKey?: number;
   onReady?: (info: { meshCount: number; structureIds: string[] }) => void;
 };

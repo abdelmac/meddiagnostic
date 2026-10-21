@@ -1,0 +1,8 @@
+BodyParts3D, Copyright(C) 2010-2011 The Database Center for Life Science licensed under CC Attribution-ShareAlike 2.1 Japan
+License: Creative Commons Attribution-ShareAlike 2.1 Japan (CC-BY-SA-2.1-JP)
+https://creativecommons.org/licenses/by-sa/2.1/jp/
+Official source: https://dbarchive.biosciencedbc.jp/data/bodyparts3d/20110915/BodyParts3D_3.0_obj_95.zip
+Official release README and license: https://dbarchive.biosciencedbc.jp/data/bodyparts3d/20110915/README_e.html
+All preview and high GLB files in this directory are adaptations distributed under this same license.
+Adaptations: coherent source 3.0 only; axes and millimetres converted to Y-up, +Z-anterior metres; per-element uniform 16-bit position quantization with measured Euclidean error <=0.02 mm (float positions otherwise); authored normals normalized and encoded as signed 16-bit with measured angular error <1 degree; lossless Meshopt coding and vertex/triangle reordering. High detail retains every source triangle without geometric decimation. Preview alone uses MeshoptSimplifier with a 0.5 mm estimated appearance error limit; neither generated detail nor subdivision is added. Source meshes and missing structures are not invented.
+These art assets have their own license; application code is separate.

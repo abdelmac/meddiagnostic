@@ -668,11 +668,15 @@ const isolatedNotice = isolatedDetails
   : "";
 const manifest = {
   version: 1,
-  dataset: highres ? "BodyParts3D 4.0 + 4.3 peripheral nerves" : "BodyParts3D 4.0",
+  dataset: highres
+    ? "BodyParts3D 4.0 + 4.3 peripheral nerves"
+    : "BodyParts3D 4.0",
   status: "ready",
   source: "https://dbarchive.biosciencedbc.jp/en/bodyparts3d/download.html",
   license: "CC-BY-4.0",
-  licenseScope: highres ? "Base 4.0 GLB files only. nerves-peripheral.glb is separately licensed CC-BY-SA-2.1-JP; see licenses." : "All BodyParts3D 4.0 GLB files.",
+  licenseScope: highres
+    ? "Base 4.0 GLB files only. nerves-peripheral.glb is separately licensed CC-BY-SA-2.1-JP; see licenses."
+    : "All BodyParts3D 4.0 GLB files.",
   licenseUrl: "https://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html",
   attribution,
   licenses: [

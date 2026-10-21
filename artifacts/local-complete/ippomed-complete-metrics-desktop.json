@@ -1,0 +1,30 @@
+{
+  "origin": "http://127.0.0.1:8081",
+  "project": "desktop",
+  "timingScope": "Navigation to interactive preview; HIGH requests held",
+  "previewLoadMs": 1632,
+  "initial": {
+    "meshes": 687,
+    "triangles": 2548718,
+    "drawCalls": 694,
+    "highMeshes": 0,
+    "highTriangles": 0,
+    "residentTriangles": 0
+  },
+  "shoulder": {
+    "meshes": 687,
+    "triangles": 4391650,
+    "drawCalls": 247,
+    "highMeshes": 21,
+    "highTriangles": 3499214,
+    "residentTriangles": 3499214
+  },
+  "final": {
+    "meshes": 687,
+    "triangles": 2803170,
+    "drawCalls": 208,
+    "highMeshes": 26,
+    "highTriangles": 1942862,
+    "residentTriangles": 3474134
+  }
+}

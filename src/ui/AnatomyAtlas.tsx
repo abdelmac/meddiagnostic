@@ -33,15 +33,12 @@ import {
   type AnatomyView,
 } from "../data/anatomy-structures";
 import {
-  anatomyModelManifest,
-  anatomyModelMeshes,
+  atlasCatalog,
   anatomySearchKey,
-  atlasLandmarks,
-  atlasMeshStructures,
-  atlasQuizStructureId,
-  atlasStructure,
+  type AtlasSource,
 } from "../data/anatomy-catalog";
 import { muscleAttachments } from "../data/muscle-attachments";
+import { anatomyRegions, type AnatomyBounds } from "../data/anatomy-regions";
 import type { AnatomyFocus } from "../domain/types";
 import { useI18n } from "../i18n";
 import { Button, Title, Txt, wrap } from "./components";
@@ -55,13 +52,6 @@ const icons = {
   organs: Heart,
   vessels: Network,
 };
-const detailMeshIds = new Set(
-  (
-    anatomyModelManifest as unknown as {
-      isolatedDetails?: { entries: { id: string }[] };
-    }
-  ).isolatedDetails?.entries.map((entry) => entry.id) ?? [],
-);
 const focusLabels = {
   origin: { fr: "Origines", en: "Origins" },
   insertion: { fr: "Insertions", en: "Insertions" },
@@ -80,6 +70,25 @@ export function AnatomyAtlas({
   const { width } = useWindowDimensions();
   const compact = width < 1100;
   const l = (fr: string, en: string) => (language === "fr" ? fr : en);
+  const [sourceId, setSourceId] = useState<AtlasSource>("detailed");
+  const catalog = atlasCatalog(sourceId);
+  const {
+    manifest: anatomyModelManifest,
+    meshes: anatomyModelMeshes,
+    landmarks: atlasLandmarks,
+    structures: atlasMeshStructures,
+    structure: atlasStructure,
+    quizStructureId: atlasQuizStructureId,
+  } = catalog;
+  const detailMeshIds = useMemo(
+    () =>
+      new Set(
+        anatomyModelManifest.isolatedDetails?.entries.map(
+          (entry) => entry.id,
+        ) ?? [],
+      ),
+    [anatomyModelManifest],
+  );
   const initial =
     atlasStructure(initialStructureId ?? "deltoid") ??
     atlasStructure("deltoid")!;
@@ -102,6 +111,9 @@ export function AnatomyAtlas({
   >("overview");
   const [reset, setReset] = useState(0);
   const [focusKey, setFocusKey] = useState(0);
+  const [regionBounds, setRegionBounds] = useState<AnatomyBounds | undefined>();
+  const [regionKey, setRegionKey] = useState(0);
+  const [activeRegion, setActiveRegion] = useState<string | undefined>();
   const [expanded, setExpanded] = useState(false);
   const [sourceError, setSourceError] = useState(false);
   const stage = useRef<React.ComponentRef<typeof View>>(null);
@@ -112,10 +124,19 @@ export function AnatomyAtlas({
   };
   const selected = atlasStructure(selectedId) ?? initial;
   const palette = anatomySystem(system);
+  const regions = useMemo(
+    () => anatomyRegions(anatomyModelManifest.bounds),
+    [anatomyModelManifest],
+  );
   const muscle = selected.legacyId
     ? muscleAttachments[selected.legacyId]
     : undefined;
   const quizId = atlasQuizStructureId(selected.id);
+  const alternateSource: AtlasSource =
+    sourceId === "detailed" ? "extended" : "detailed";
+  const alternateStructure = atlasCatalog(alternateSource).structure(
+    selected.legacyId ?? selected.id,
+  );
   const detailAvailable =
     selected.meshIds.length > 0 &&
     selected.meshIds.every((id) => detailMeshIds.has(id));
@@ -137,7 +158,7 @@ export function AnatomyAtlas({
           : item.system === system &&
             (mode === "3d" || item.views.includes(view)),
       ),
-    [query, system, view, mode, language],
+    [query, system, view, mode, language, sourceId],
   );
   const results = useMemo(
     () =>
@@ -156,7 +177,7 @@ export function AnatomyAtlas({
                 ).includes(query)
               : item.system === system,
           ),
-    [query, system, mode],
+    [query, system, mode, sourceId],
   );
 
   const select = (id: string, fromModel = false) => {
@@ -188,15 +209,48 @@ export function AnatomyAtlas({
   useEffect(() => {
     setResultLimit(48);
   }, [query, system]);
+  const changeSource = (nextSource: AtlasSource) => {
+    if (nextSource === sourceId) return;
+    const nextCatalog = atlasCatalog(nextSource);
+    const next =
+      nextCatalog.structure(selected.legacyId) ??
+      nextCatalog.structures.find((entry) => entry.fmaId === selected.fmaId) ??
+      nextCatalog.landmarks.find(
+        (entry) => entry.system === system && entry.meshIds.length,
+      ) ?? nextCatalog.structures.find((entry) => entry.system === system) ??
+      nextCatalog.structure("deltoid")!;
+    setSourceId(nextSource);
+    setSelectedId(next.id);
+    setSystem(next.system);
+    setDetailMode(false);
+    setHiddenIds([]);
+    setOverlays(["skeleton"]);
+    setZoom(1);
+    setIsolate(false);
+    setOpacity(1);
+    setSearch("");
+    setActiveRegion(undefined);
+    setRegionBounds(undefined);
+    setReset((value) => value + 1);
+  };
   const changeSystem = (nextSystem: AnatomySystem) => {
     setDetailMode(false);
+    setOverlays(nextSystem === "muscles" ? ["skeleton"] : []);
     setSearch("");
     setIsolate(false);
     setOpacity(1);
     const next =
       atlasLandmarks.find(
-        (item) => item.system === nextSystem && item.views.includes(view),
-      ) ?? atlasLandmarks.find((item) => item.system === nextSystem)!;
+        (item) =>
+          item.system === nextSystem &&
+          item.meshIds.length > 0 &&
+          item.views.includes(view),
+      ) ??
+      atlasLandmarks.find(
+        (item) => item.system === nextSystem && item.meshIds.length > 0,
+      ) ??
+      atlasMeshStructures.find((item) => item.system === nextSystem) ??
+      atlasLandmarks.find((item) => item.system === nextSystem)!;
     select(next.id);
   };
   const changeMode = (next: "3d" | "2d") => {
@@ -211,6 +265,8 @@ export function AnatomyAtlas({
     }
   };
   const changeView = (next: AnatomyView) => {
+    setActiveRegion(undefined);
+    setRegionBounds(undefined);
     setView(next);
     setReset((value) => value + 1);
     if (mode === "2d" && !selected.views.includes(next)) {
@@ -227,6 +283,8 @@ export function AnatomyAtlas({
         : [...new Set([...current, ...selected.meshIds])],
     );
   const restore = () => {
+    setActiveRegion(undefined);
+    setRegionBounds(undefined);
     setDetailMode(false);
     setHiddenIds([]);
     setIsolate(false);
@@ -299,7 +357,8 @@ export function AnatomyAtlas({
         }}
       >
         {item.name[language]}
-        {mode === "3d" &&
+        {sourceId === "extended" &&
+        mode === "3d" &&
         item.meshIds.length > 0 &&
         item.meshIds.every((id) => detailMeshIds.has(id))
           ? " · HD"
@@ -337,6 +396,57 @@ export function AnatomyAtlas({
             "Click the body to identify a structure. Isolate it, hide overlying structures and explore its relationships.",
           )}
         </Txt>
+        {mode === "3d" && (
+          <View style={{ gap: 8 }}>
+            <View style={[wrap, { gap: 8 }]}>
+              {(["detailed", "extended"] as const).map((value) => (
+                <Pressable
+                  key={value}
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    value === "detailed"
+                      ? l("Corps détaillé", "Detailed body")
+                      : l("Atlas étendu", "Extended atlas")
+                  }
+                  aria-pressed={sourceId === value}
+                  onPress={() => changeSource(value)}
+                  style={{
+                    paddingHorizontal: 15,
+                    paddingVertical: 11,
+                    minHeight: 43,
+                    borderRadius: 11,
+                    borderWidth: 1,
+                    borderColor: sourceId === value ? "#6418ef" : "#d8cfe5",
+                    backgroundColor: sourceId === value ? "#eee5ff" : "#ffffff",
+                  }}
+                >
+                  <Txt
+                    style={{
+                      color: "#3b2058",
+                      fontSize: 12,
+                      fontWeight: "600",
+                    }}
+                  >
+                    {value === "detailed"
+                      ? l("Corps détaillé", "Detailed body")
+                      : l("Atlas étendu", "Extended atlas")}
+                  </Txt>
+                </Pressable>
+              ))}
+            </View>
+            <Txt muted style={{ fontSize: 11 }}>
+              {sourceId === "detailed"
+                ? l(
+                    "Une même référence pour le corps entier. Les détails d’origine se chargent au zoom et au cadrage. Pour davantage de petites branches nerveuses et vasculaires, choisissez l’atlas étendu.",
+                    "One reference for the whole body. Original details load as you zoom and focus. Choose the extended atlas for more small nerve and vessel branches.",
+                  )
+                : l(
+                    "Un catalogue plus large de structures. Pour explorer une géométrie plus fine dans le corps entier, choisissez le corps détaillé. Les deux références restent séparées.",
+                    "A wider catalogue of structures. Choose the detailed body for finer geometry throughout the body. The two references remain separate.",
+                  )}
+            </Txt>
+          </View>
+        )}
       </View>
       <View
         testID="anatomy-workspace"
@@ -523,6 +633,43 @@ export function AnatomyAtlas({
                 ))}
               </View>
             </View>
+            {mode === "3d" && (
+              <View style={[wrap, { gap: 6 }]}>
+                {regions.map((region) => (
+                  <Pressable
+                    key={region.id}
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      l("Explorer la région : ", "Explore region: ") +
+                      region.name[language]
+                    }
+                    aria-pressed={activeRegion === region.id}
+                    onPress={() => {
+                      setActiveRegion(region.id);
+                      setRegionBounds(region.bounds);
+                      setRegionKey((value) => value + 1);
+                      setDetailMode(false);
+                      setIsolate(false);
+                      revealStage();
+                    }}
+                    style={{
+                      minHeight: 35,
+                      paddingVertical: 8,
+                      paddingHorizontal: 10,
+                      borderRadius: 8,
+                      backgroundColor:
+                        activeRegion === region.id ? "#54416c" : "#2b2135",
+                      borderWidth: 1,
+                      borderColor: "#59416b",
+                    }}
+                  >
+                    <Txt style={{ color: "#e0d0ef", fontSize: 10 }}>
+                      {region.name[language]}
+                    </Txt>
+                  </Pressable>
+                ))}
+              </View>
+            )}
             <View
               ref={stage}
               style={{
@@ -534,6 +681,8 @@ export function AnatomyAtlas({
             >
               {mode === "3d" ? (
                 <AnatomyScene
+                  key={sourceId}
+                  sourceManifest={anatomyModelManifest}
                   system={system}
                   visibleSystems={visibleSystems}
                   view={view}
@@ -547,6 +696,8 @@ export function AnatomyAtlas({
                   hiddenIds={hiddenIds}
                   resetKey={reset}
                   focusSelectionKey={focusKey}
+                  focusRegionBounds={regionBounds}
+                  focusRegionKey={regionKey}
                   language={language}
                 />
               ) : (
@@ -571,6 +722,8 @@ export function AnatomyAtlas({
                     Focus,
                     () => {
                       setFocusKey((value) => value + 1);
+                      setActiveRegion(undefined);
+                      setRegionBounds(undefined);
                       revealStage();
                     },
                     false,
@@ -583,22 +736,25 @@ export function AnatomyAtlas({
                     isolate || detailMode,
                     !selected.meshIds.length || detailMode,
                   )}
-                  {tool(
-                    detailMode
-                      ? l("Revenir au corps", "Back to body")
-                      : l("Détail HD", "HD detail"),
-                    Sparkles,
-                    () => {
-                      setDetailMode((value) => !value);
-                      setIsolate(false);
-                      setHiddenIds((current) =>
-                        current.filter((id) => !selected.meshIds.includes(id)),
-                      );
-                      revealStage();
-                    },
-                    detailMode,
-                    !detailAvailable,
-                  )}
+                  {sourceId === "extended" &&
+                    tool(
+                      detailMode
+                        ? l("Revenir au corps", "Back to body")
+                        : l("Détail HD", "HD detail"),
+                      Sparkles,
+                      () => {
+                        setDetailMode((value) => !value);
+                        setIsolate(false);
+                        setHiddenIds((current) =>
+                          current.filter(
+                            (id) => !selected.meshIds.includes(id),
+                          ),
+                        );
+                        revealStage();
+                      },
+                      detailMode,
+                      !detailAvailable,
+                    )}
                   {tool(
                     hidden
                       ? l("Afficher la structure", "Show structure")
@@ -751,7 +907,10 @@ export function AnatomyAtlas({
             </Title>
             {!!selected.fmaId && (
               <Txt style={{ color: "#a18aae", fontSize: 10 }}>
-                {selected.fmaId} · {selected.id.split("_").at(-1)}
+                {selected.fmaId}
+                {selected.id !== selected.fmaId
+                  ? ` · ${selected.id.split("_").at(-1)}`
+                  : ""}
               </Txt>
             )}
             {language === "fr" && !selected.translated && (
@@ -773,10 +932,28 @@ export function AnatomyAtlas({
               >
                 <Txt style={{ color: "#f0cf9b", fontSize: 11 }}>
                   {l(
-                    "Ce repère n’a pas de maillage 3D dans les données disponibles. Sa fiche et son schéma restent accessibles.",
-                    "No 3D mesh is available for this landmark in the source dataset. Its notes and diagram remain available.",
+                    "Ce repère n’est pas modélisé dans cette référence. Sa fiche et son schéma restent accessibles.",
+                    "This landmark is not modelled in this reference. Its notes and diagram remain available.",
                   )}
                 </Txt>
+                {!!alternateStructure?.meshIds.length && (
+                  <Button
+                    secondary
+                    small
+                    label={
+                      alternateSource === "extended"
+                        ? l(
+                            "Voir dans l’atlas étendu",
+                            "View in extended atlas",
+                          )
+                        : l(
+                            "Voir dans le corps détaillé",
+                            "View in detailed body",
+                          )
+                    }
+                    onPress={() => changeSource(alternateSource)}
+                  />
+                )}
                 <Button
                   secondary
                   small
@@ -1107,8 +1284,10 @@ export function AnatomyAtlas({
               onPress={() =>
                 void Linking.openURL(
                   Platform.OS === "web"
-                    ? "/anatomy/bodyparts3d/ATTRIBUTION.txt"
-                    : "https://medquiz-europe.medcompass-web.workers.dev/anatomy/bodyparts3d/ATTRIBUTION.txt",
+                    ? sourceId === "detailed"
+                      ? "/anatomy/bodyparts3d-complete/ATTRIBUTION.txt"
+                      : "/anatomy/bodyparts3d/ATTRIBUTION.txt"
+                    : `https://medquiz-europe.medcompass-web.workers.dev/anatomy/${sourceId === "detailed" ? "bodyparts3d-complete" : "bodyparts3d"}/ATTRIBUTION.txt`,
                 ).catch(() => setSourceError(true))
               }
               style={{ minHeight: 35, justifyContent: "center" }}
