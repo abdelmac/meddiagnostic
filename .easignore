@@ -1,0 +1,23 @@
+# Keep these rules aligned with .gitignore: EAS must never upload local secrets.
+node_modules/
+.expo/
+dist/
+dist-native/
+dist*/
+.env
+.env.local
+*.log
+coverage/
+test-results/
+playwright-report/
+.wrangler/
+.local/
+.env.*
+!.env.example
+supabase/.temp/
+android/
+ios/
+
+# Diagnostics and source geometry are not native application assets.
+artifacts/
+public/anatomy/

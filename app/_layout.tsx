@@ -43,7 +43,16 @@ function AuthenticatedShell() {
     <StoreProvider>
       <ThemeProvider>
         <StatusBar style="auto" />
-        <Stack screenOptions={{ headerShown: false }} />
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen
+            name="anatomy/index"
+            dangerouslySingular={() => "anatomy-workspace"}
+          />
+          <Stack.Screen
+            name="anatomy/courses"
+            dangerouslySingular={() => "anatomy-courses"}
+          />
+        </Stack>
       </ThemeProvider>
     </StoreProvider>
   );

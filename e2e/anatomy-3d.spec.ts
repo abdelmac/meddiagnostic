@@ -2,14 +2,15 @@ import { test, expect, type Locator, type Page } from "@playwright/test";
 import { questions } from "../src/data/questions";
 import manifest from "../src/data/bodyparts3d-manifest.json";
 import { localizeAnatomyName } from "../src/data/anatomy-nomenclature";
+import { chooseAtlasSource, chooseAtlasSystem, closeAtlasPanel, openAtlasPanel, openImmersiveAtlas, selectAtlasStructure } from "./anatomy-helpers";
 
 async function nextRenderedFrames(page: Page) {
   await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
 }
 
 async function openExtendedAtlas(page: Page) {
-  await page.getByRole("button", { name: "Explorer le corps humain", exact: true }).click();
-  await page.getByRole("button", { name: "Atlas étendu", exact: true }).click();
+  await openImmersiveAtlas(page);
+  await chooseAtlasSource(page, "extended");
 }
 
 function cameraDistance(value: string | null) {
@@ -27,14 +28,10 @@ async function renderCounters(canvas: Locator) {
 }
 
 async function captureAtlasPage(page: Page, project: string) {
-  const viewport = page.viewportSize()!;
-  const workspace = await page.getByTestId("anatomy-workspace").boundingBox();
-  // The application scrolls inside a React Native ScrollView. A taller capture
-  // viewport keeps the complete atlas, its tools and its course list together.
-  await page.setViewportSize({ width: viewport.width, height: Math.ceil(workspace!.height + 700) });
+  await openAtlasPanel(page, "notes");
   await nextRenderedFrames(page);
   await page.screenshot({ path: "artifacts/ippomed-atlas-" + project + ".png", fullPage: true });
-  await page.setViewportSize(viewport);
+  await closeAtlasPanel(page);
   await nextRenderedFrames(page);
 }
 
@@ -74,7 +71,8 @@ test("anatomy keeps an interactive diagram when WebGL is unavailable", async ({ 
   await openExtendedAtlas(page);
   await expect(page.getByTestId("anatomy-webgl-fallback")).toBeVisible();
   await expect(page.getByTestId("anatomy-webgl-fallback").getByRole("alert")).toContainText("Le schéma 2D reste accessible.");
-  await page.getByRole("button", { name: "Biceps brachial", exact: true }).first().click();
+  await selectAtlasStructure(page, "Biceps brachial");
+  await openAtlasPanel(page, "notes");
   await page.getByRole("button", { name: "Origines et insertions", exact: true }).click();
   await expect(page.getByText(/Tubérosité radiale ; l’aponévrose bicipitale/)).toBeVisible();
 });
@@ -108,8 +106,10 @@ test("Ippomed: detailed meshes respond to clicks, focus, hide, rotation and a mu
   const selected = await clickAnatomicalSurface(page, canvas);
   const inspector = page.getByTestId("anatomy-selected-structure");
   await expect(scene).toHaveAttribute("data-ready", "true", { timeout: 60000 });
+  await openAtlasPanel(page, "notes");
   await expect(inspector).toContainText(localizeAnatomyName(selected.name, "fr"));
   await expect(inspector).toContainText(`${selected.fmaId} · ${selected.elementId}`);
+  await closeAtlasPanel(page);
   await canvas.scrollIntoViewIfNeeded();
   const front = await canvas.screenshot();
   const anteriorCamera = await canvas.getAttribute("data-camera");
@@ -131,7 +131,9 @@ test("Ippomed: detailed meshes respond to clicks, focus, hide, rotation and a mu
   const visibleCount = Number(await canvas.getAttribute("data-mesh-count"));
   await page.getByRole("button", { name: "Masquer la structure", exact: true }).click();
   await expect.poll(async () => Number(await canvas.getAttribute("data-mesh-count"))).toBeLessThan(visibleCount);
+  await openAtlasPanel(page, "notes");
   await expect(inspector).toContainText("Structure masquée.");
+  await closeAtlasPanel(page);
   await page.getByRole("button", { name: "Afficher la structure", exact: true }).click();
   await expect.poll(async () => Number(await canvas.getAttribute("data-mesh-count"))).toBe(visibleCount);
   await page.getByRole("button", { name: "Isoler", exact: true }).click();
@@ -146,12 +148,10 @@ test("Ippomed: detailed meshes respond to clicks, focus, hide, rotation and a mu
   await expect.poll(async () => Number(await canvas.getAttribute("data-mesh-count"))).toBe(visibleCount);
 
   // The existing course landmark still opens the same versioned quiz bank.
-  await page.getByRole("button", { name: "Muscles", exact: true }).click();
+  await chooseAtlasSystem(page, "Muscles");
   const shoulder = manifest.meshes.find((mesh) => mesh.name === "acromial part of right deltoid")!;
   expect(shoulder).toBeDefined();
-  const search = page.getByRole("textbox", { name: "Rechercher une structure anatomique", exact: true });
-  await search.fill(shoulder.id);
-  await page.getByRole("button", { name: localizeAnatomyName(shoulder.name, "fr"), exact: true }).click();
+  await selectAtlasStructure(page, localizeAnatomyName(shoulder.name, "fr"), shoulder.id);
   await expect(canvas).toHaveAttribute("data-selected-id", shoulder.id);
   await page.getByRole("button", { name: "Centrer la structure", exact: true }).click();
   await expect.poll(async () => {
@@ -162,8 +162,7 @@ test("Ippomed: detailed meshes respond to clicks, focus, hide, rotation and a mu
   await canvas.scrollIntoViewIfNeeded();
   await canvas.screenshot({ path: "artifacts/ippomed-3d-shoulder-" + info.project.name + ".png" });
   await page.getByRole("button", { name: "Revoir le corps entier", exact: true }).click();
-  await search.fill("");
-  await page.getByRole("button", { name: "Biceps brachial", exact: true }).first().click();
+  await selectAtlasStructure(page, "Biceps brachial");
   await page.getByRole("button", { name: "Attaches", exact: true }).click();
   await expect(inspector.getByText(/Tubérosité radiale ; l’aponévrose bicipitale/)).toBeVisible();
   await expect(inspector).toContainText("aucun point d’insertion approximatif n’est ajouté au modèle");
@@ -200,10 +199,12 @@ test("anatomy recovers from an unavailable model asset without blocking the 2D c
   expect(rejectedRequests).toBeGreaterThan(0);
   await expect(page.getByTestId("anatomy-3d-scene")).toHaveAttribute("data-ready", "false");
   await expect(fallback.getByTestId("anatomy-body-diagram")).toBeVisible();
-  await page.getByRole("button", { name: "Biceps brachial", exact: true }).first().click();
+  await selectAtlasStructure(page, "Biceps brachial");
+  await openAtlasPanel(page, "notes");
   await expect(page.getByTestId("anatomy-selected-structure")).toContainText("Biceps brachial");
   await page.getByRole("button", { name: "Origines et insertions", exact: true }).click();
   await expect(page.getByText(/Tubérosité radiale ; l’aponévrose bicipitale/)).toBeVisible();
+  await closeAtlasPanel(page);
   unavailable = false;
   await fallback.getByRole("button", { name: "Réessayer la 3D", exact: true }).click();
   await expect(page.getByTestId("anatomy-3d-scene")).toHaveAttribute("data-ready", "true", { timeout: 60000 });
@@ -240,9 +241,7 @@ test("HD anatomy opens one dense source surface, supports pointer selection and 
   const scene = page.getByTestId("anatomy-3d-scene");
   const canvas = page.getByTestId("anatomy-webgl-canvas");
   await expect(scene).toHaveAttribute("data-ready", "true", { timeout: 60000 });
-  const search = page.getByRole("textbox", { name: "Rechercher une structure anatomique", exact: true });
-  await search.fill(shoulder.id);
-  await page.getByRole("button", { name: localizeAnatomyName(shoulder.name, "fr"), exact: true }).click();
+  await selectAtlasStructure(page, localizeAnatomyName(shoulder.name, "fr"), shoulder.id);
   await expect(canvas).toHaveAttribute("data-selected-id", shoulder.id);
   await nextRenderedFrames(page);
   const bodyCamera = await canvas.getAttribute("data-camera");
@@ -275,7 +274,7 @@ test("HD anatomy opens one dense source surface, supports pointer selection and 
   await expect.poll(() => canvas.evaluate((node) => (node as HTMLCanvasElement).width / node.clientWidth)).toBeCloseTo(expectedDetailPixelRatio, 1);
   await expect.poll(async () => Number(await canvas.getAttribute("data-triangles"))).toBeGreaterThan(shoulder.triangles * 2);
   expect(Number(await canvas.getAttribute("data-triangles"))).toBeGreaterThanOrEqual(detail.triangles);
-  await expect(page.getByText(/Vue de détail isolée : référence BodyParts3D 3.0/)).toBeVisible();
+  await expect(page.getByText(/Vue (de détail isolée : référence|isolée détaillée ·) BodyParts3D 3.0/)).toBeVisible();
 
   await canvas.scrollIntoViewIfNeeded();
   const bounds = await canvas.boundingBox();
@@ -292,7 +291,7 @@ test("HD anatomy opens one dense source surface, supports pointer selection and 
   }
   expect(hit, "le modèle HD doit répondre à un véritable clic sur sa surface").toBe(true);
   await expect(canvas).toHaveAttribute("data-selected-id", shoulder.id);
-  await expect(page.getByTestId("anatomy-selected-structure")).toContainText(localizeAnatomyName(shoulder.name, "fr"));
+  await expect(page.getByTestId("anatomy-selection-summary")).toContainText(localizeAnatomyName(shoulder.name, "fr"));
   await page.mouse.move(0, 0);
   await nextRenderedFrames(page);
   await canvas.screenshot({ path: "artifacts/ippomed-3d-shoulder-hd-" + info.project.name + ".png" });
@@ -302,14 +301,13 @@ test("HD anatomy opens one dense source surface, supports pointer selection and 
     body: JSON.stringify(detailCounters, null, 2), contentType: "application/json",
   });
 
-  await page.getByRole("button", { name: "Revenir au corps", exact: true }).click();
+  await page.getByRole("button", { name: /^(Revenir au corps|Détail HD)$/, exact: true }).click();
   await expect(scene).toHaveAttribute("data-detail-mode", "false");
   await expect(scene).toHaveAttribute("data-ready", "true", { timeout: 60000 });
   await expect(canvas).toHaveAttribute("data-camera", bodyCamera!);
   await expect.poll(() => canvas.evaluate((node) => (node as HTMLCanvasElement).width / node.clientWidth)).toBeCloseTo(bodyPixelRatio, 1);
   await expect.poll(async () => Number(await canvas.getAttribute("data-mesh-count"))).toBe(bodyCounters.meshes);
   await expect(canvas).toHaveAttribute("data-selected-id", shoulder.id);
-  await search.fill("");
-  await page.getByRole("button", { name: "Droit de l’abdomen", exact: true }).first().click();
-  await expect(page.getByRole("button", { name: "Détail HD", exact: true })).toBeDisabled();
+  await selectAtlasStructure(page, "Droit de l’abdomen");
+  await expect(page.getByRole("button", { name: "Détail HD", exact: true })).toHaveCount(0);
 });

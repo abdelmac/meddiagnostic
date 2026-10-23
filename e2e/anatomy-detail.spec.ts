@@ -2,6 +2,7 @@ import { test, expect, type Locator, type Page } from "@playwright/test";
 import { writeFileSync } from "node:fs";
 import manifest from "../src/data/bodyparts3d-complete-manifest.json";
 import { localizeAnatomyName } from "../src/data/anatomy-nomenclature";
+import { chooseAtlasSource, chooseAtlasSystem, closeAtlasPanel, openAtlasPanel, openImmersiveAtlas, selectAtlasStructure } from "./anatomy-helpers";
 
 const sourceId = "bodyparts3d-3.0-95";
 const highRoute = "**/anatomy/bodyparts3d-complete/high/*.glb";
@@ -12,8 +13,10 @@ async function frames(page: Page) {
 
 async function openDetailedBody(page: Page) {
   await page.goto("/?lang=fr");
-  await page.getByRole("button", { name: "Explorer le corps humain", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Corps détaillé", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await openImmersiveAtlas(page);
+  const layers = await openAtlasPanel(page, "layers");
+  await expect(layers.getByRole("button", { name: "Corps détaillé", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await closeAtlasPanel(page);
   const scene = page.getByTestId("anatomy-3d-scene");
   await expect(scene).toHaveAttribute("data-source-id", sourceId);
   await expect(scene).toHaveAttribute("data-ready", "true", { timeout: 60000 });
@@ -24,10 +27,9 @@ async function openDetailedBody(page: Page) {
 async function selectPhysicalStructure(page: Page, canvas: Locator, id: string) {
   const entry = manifest.meshes.find((mesh) => mesh.id === id)!;
   expect(entry).toBeDefined();
-  await page.getByRole("textbox", { name: "Rechercher une structure anatomique", exact: true }).fill(id);
-  await page.getByRole("button", { name: localizeAnatomyName(entry.name, "fr"), exact: true }).click();
+  await selectAtlasStructure(page, localizeAnatomyName(entry.name, "fr"), id);
   await expect(canvas).toHaveAttribute("data-selected-id", id);
-  await expect(page.getByTestId("anatomy-selected-structure")).toContainText(localizeAnatomyName(entry.name, "fr"));
+  await expect(page.getByTestId("anatomy-selection-summary")).toContainText(localizeAnatomyName(entry.name, "fr"));
   return entry;
 }
 
@@ -45,7 +47,7 @@ async function actualSurfaceClick(page: Page, canvas: Locator) {
     expect(entry).toBeDefined();
     await canvas.click({ position });
     await expect(canvas).toHaveAttribute("data-selected-id", id);
-    await expect(page.getByTestId("anatomy-selected-structure")).toContainText(localizeAnatomyName(entry!.name, "fr"));
+    await expect(page.getByTestId("anatomy-selection-summary")).toContainText(localizeAnatomyName(entry!.name, "fr"));
     return id;
   }
   throw Error("Aucun pixel du modèle détaillé ne répond à un clic anatomique.");
@@ -60,16 +62,10 @@ async function screenshot(page: Page, canvas: Locator, name: string, project: st
 }
 
 async function captureWorkspace(page: Page, project: string) {
-  const viewport = page.viewportSize()!;
-  const workspace = page.getByTestId("anatomy-workspace");
-  const bounds = await workspace.boundingBox();
-  await page.setViewportSize({ width: viewport.width, height: Math.ceil(bounds!.height + 1000) });
-  await workspace.evaluate((node) => {
-    for (let parent = node.parentElement; parent; parent = parent.parentElement) parent.scrollTop = 0;
-  });
+  await openAtlasPanel(page, "notes");
   await frames(page);
   await page.screenshot({ path: `artifacts/ippomed-complete-atlas-${project}.png`, fullPage: true });
-  await page.setViewportSize(viewport);
+  await closeAtlasPanel(page);
   await frames(page);
 }
 
@@ -113,7 +109,7 @@ test("the coherent body stays interactive before HIGH loads and gains detail in 
     await captureWorkspace(page, info.project.name);
     await actualSurfaceClick(page, canvas);
 
-    await page.getByRole("button", { name: "Muscles", exact: true }).click();
+    await chooseAtlasSystem(page, "Muscles");
     const shoulder = await selectPhysicalStructure(page, canvas, "FMA34682");
     await page.getByRole("button", { name: "Centrer la structure", exact: true }).click();
     await page.waitForTimeout(300); // Complete the documented 240 ms camera transition.
@@ -235,17 +231,17 @@ test("failed HIGH keeps the preview usable and absent nerves keep their own sour
   await expect(canvas).toHaveAttribute("data-selected-lod", "high", { timeout: 60000 });
   await expect(scene).toHaveAttribute("data-ready", "true");
 
-  await page.getByRole("textbox", { name: "Rechercher une structure anatomique", exact: true }).fill("médian");
-  await page.getByRole("button", { name: "Nerf médian", exact: true }).click();
+  await selectAtlasStructure(page, "Nerf médian", "médian");
+  await openAtlasPanel(page, "notes");
   const inspector = page.getByTestId("anatomy-selected-structure");
   await expect(inspector).toContainText("Ce repère n’est pas modélisé dans cette référence.");
   await inspector.getByRole("button", { name: "Voir dans l’atlas étendu", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Atlas étendu", exact: true })).toHaveAttribute("aria-pressed", "true");
   await expect(scene).not.toHaveAttribute("data-source-id", sourceId);
   await expect(scene).toHaveAttribute("data-ready", "true", { timeout: 60000 });
   await expect(inspector).toContainText("Nerf médian");
   await expect(inspector).not.toContainText("Ce repère n’est pas modélisé dans cette référence.");
-  await page.getByRole("button", { name: "Corps détaillé", exact: true }).click();
+  await chooseAtlasSource(page, "detailed");
+  await openAtlasPanel(page, "notes");
   await expect(inspector).toContainText("Ce repère n’est pas modélisé dans cette référence.");
   await inspector.getByRole("button", { name: "Voir le schéma 2D", exact: true }).click();
   await expect(page.getByTestId("anatomy-body-diagram")).toHaveAccessibleName(/Nerf médian/);

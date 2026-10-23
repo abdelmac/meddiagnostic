@@ -32,6 +32,10 @@ Les questions, réponses et scores compétitifs sont stockés dans un schéma no
 
 ## Bibliothèque
 
+L’étude du corps dispose d’une page dédiée **`/anatomy`**. La scène occupe l’espace disponible ; recherche, systèmes superposables et fiches se déplient dans des panneaux indépendants. Les commandes sont adaptées au téléphone, au paysage et à la tablette, avec sélection tactile, rotation et pincement. Les cours sont sur `/anatomy/courses` et le lancement d’un quiz conserve l’année, le repère et l’objectif. Le rendu naturel différencie les matières et garde une sélection par contour, sans teinter tout le muscle en jaune.
+
+Le moteur 3D est aussi embarqué dans les applications Android/iOS via un composant DOM Expo local ; les maillages sont chargés progressivement depuis les assets publics. Les profils de compilation APK et stores sont prêts. Les builds signés et la publication dépendent de comptes développeur et ne doivent pas être confondus avec la validation des exports JavaScript ; voir [MOBILE.md](MOBILE.md).
+
 Le mode **Corps détaillé** est désormais proposé par défaut. Ses **934 modèles BodyParts3D 3.0** comportent 26 317 506 triangles : 437 éléments musculaires, 251 osseux et articulaires, 99 nerveux, 56 vasculaires et 91 organes ou autres tissus. Les 10 fichiers d’aperçu (38,25 Mio, 3,30 millions de triangles) permettent de commencer à explorer ; les 934 fichiers de détail (187,73 Mio) remplacent progressivement leurs représentations dans le même corps lorsque l’on zoome ou cadre une région. Les sources, coordonnées et poses sont communes : les détails ne sont plus limités aux 31 inspections isolées de la précédente livraison.
 
 Les cinq raccourcis de vue cadrent tête et cou, thorax, abdomen et bassin, bras et mains, jambes et pieds. Le zoom suit le pointeur ; la sélection garde la priorité de chargement et les détails voisins sont limités pour préserver les ressources de l’appareil. Une erreur de détail conserve la représentation d’aperçu et permet de réessayer. Le cache et les téléchargements devenus inutiles sont gérés pendant la navigation.

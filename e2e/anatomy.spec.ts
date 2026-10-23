@@ -1,14 +1,14 @@
 import { test, expect } from "@playwright/test";
 import { questions } from "../src/data/questions";
+import { chooseAtlasMode, chooseAtlasSystem, closeAtlasPanel, openImmersiveAtlas, searchAtlas, selectAtlasStructure } from "./anatomy-helpers";
 
 test("atlas : corps cliquable, cinq calques, recherche, face/dos, zoom et traduction", async ({ page }, info) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Explorer le corps humain", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Atlas du corps humain", exact: true })).toBeVisible();
+  await openImmersiveAtlas(page);
   const body = page.getByTestId("anatomy-body-diagram");
-  await page.getByRole("button", { name: "Vue 2D", exact: true }).click();
+  await chooseAtlasMode(page, "2d");
   await expect(body).toHaveAccessibleName(/Deltoïde/);
-  await page.getByRole("button", { name: "Muscles", exact: true }).click();
+  await chooseAtlasSystem(page, "Muscles");
   await body.scrollIntoViewIfNeeded();
   const target = await body.evaluate((node) => {
     const svg = node as SVGSVGElement;
@@ -22,32 +22,36 @@ test("atlas : corps cliquable, cinq calques, recherche, face/dos, zoom et traduc
   await page.getByRole("button", { name: "Zoomer sur la structure", exact: true }).click();
   await expect(body).not.toHaveAttribute("viewBox", before!);
   await page.getByRole("button", { name: "Revoir le corps entier", exact: true }).click();
-  await page.getByRole("button", { name: "Nerfs", exact: true }).click();
-  await expect(page.getByTestId("anatomy-workspace").getByRole("button", { name: "Nerf médian", exact: true })).toBeVisible();
-  await page.getByRole("textbox", { name: "Rechercher une structure anatomique", exact: true }).fill("sciatique");
-  await expect(page.getByTestId("anatomy-workspace").getByRole("button", { name: "Nerf médian", exact: true })).toHaveCount(0);
+  await chooseAtlasSystem(page, "Nerfs");
+  let search = await searchAtlas(page, "");
+  await expect(search.getByRole("button", { name: "Nerf médian", exact: true })).toBeVisible();
+  search = await searchAtlas(page, "sciatique");
+  await expect(search.getByRole("button", { name: "Nerf médian", exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "Nerf sciatique", exact: true }).click();
+  await closeAtlasPanel(page);
   await expect(body).toHaveAccessibleName(/postérieure.*Nerf sciatique/);
-  await page.getByRole("textbox", { name: "Rechercher une structure anatomique", exact: true }).fill("");
-  await page.getByRole("button", { name: "Organes", exact: true }).click();
+  await chooseAtlasSystem(page, "Organes");
   await page.getByRole("button", { name: "Face", exact: true }).click();
-  await page.getByRole("button", { name: "Cœur", exact: true }).click();
+  await selectAtlasStructure(page, "Cœur");
   await expect(body).toHaveAccessibleName(/Cœur/);
-  await page.getByRole("button", { name: "Vaisseaux", exact: true }).click();
+  await chooseAtlasSystem(page, "Vaisseaux");
   await expect(body).toHaveAccessibleName(/Aorte/);
-  await page.getByRole("button", { name: "Squelette", exact: true }).click();
+  await chooseAtlasSystem(page, "Squelette");
   await page.getByRole("button", { name: "Dos", exact: true }).click();
   await expect(body).toHaveAccessibleName(/postérieure/);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await body.screenshot({ path: `artifacts/anatomie-corps-${info.project.name}.png` });
   await page.getByRole("button", { name: "English", exact: true }).first().click();
-  await expect(page.getByRole("heading", { name: "Human body atlas", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Leave atlas", exact: true })).toBeVisible();
   await expect(body).toHaveAccessibleName(/posterior view/);
 });
 
 test("anatomie : cours internat, quiz illustré année12, nom masqué et corrigé traduit", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Anatomie", exact: true }).click();
+  await expect(page).toHaveURL(/\/anatomy(?:\?|$)/);
+  await page.getByRole("button", { name: "Cours d’anatomie", exact: true }).click();
+  await expect(page).toHaveURL(/\/anatomy\/courses(?:\?|$)/);
   await page.getByRole("button", { name: "Internat · 7e année et +", exact: true }).click();
   await page.getByRole("button", { name: "Ouvrir le cours", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Le cours essentiel", exact: true })).toBeVisible();

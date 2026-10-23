@@ -1,0 +1,210 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {
+  ANATOMY_ASSET_ORIGIN,
+  ANATOMY_NATIVE_CHANNEL,
+  anatomyNativeAssetUrl,
+  parseAnatomyNativeEvent,
+  parseAnatomyNativeState,
+  type NativeAnatomyState,
+} from "../src/domain/anatomy-native-bridge";
+
+const state: NativeAnatomyState = {
+  version: 1,
+  source: "detailed",
+  system: "muscles",
+  view: "posterior",
+  language: "en",
+  appearance: "natural",
+  selectedId: "FMA13377",
+  zoom: 2.5,
+  height: 580,
+  opacity: 0.35,
+  isolate: true,
+  isolatedDetail: false,
+  hiddenIds: ["FMA7163"],
+  visibleSystems: ["muscles", "skeleton"],
+  resetKey: 2,
+  focusSelectionKey: 3,
+  focusRegionKey: 4,
+  focusRegionBounds: { min: [-0.3, 0.5, -0.2], max: [0.3, 1.5, 0.2] },
+};
+const allowed = new Set(["FMA13377", "FMA13378", "rectus-abdominis"]);
+const envelope = {
+  channel: ANATOMY_NATIVE_CHANNEL,
+  version: 1,
+  source: "detailed",
+};
+
+test("native state preserves study controls across its JSON transport", () => {
+  const parsed = parseAnatomyNativeState(JSON.parse(JSON.stringify(state)));
+  assert.deepEqual(parsed, state);
+  assert.deepEqual(
+    parseAnatomyNativeState({
+      ...state,
+      source: "extended",
+      appearance: "study",
+    })?.source,
+    "extended",
+  );
+  assert.equal(
+    parseAnatomyNativeState({ ...state, height: 120 })?.height,
+    120,
+    "landscape workspace remains valid",
+  );
+});
+
+test("state transport strips unrelated account fields and copies nested state", () => {
+  const input = {
+    ...state,
+    access_token: "not-forwarded",
+    email: "private@example.test",
+    sourceManifest: { assetBaseUrl: "https://attacker.test" },
+  };
+  const parsed = parseAnatomyNativeState(input)!;
+  assert.deepEqual(parsed, state);
+  parsed.hiddenIds.push("FMA13378");
+  parsed.focusRegionBounds!.min[0] = -1;
+  assert.deepEqual(state.hiddenIds, ["FMA7163"]);
+  assert.equal(state.focusRegionBounds!.min[0], -0.3);
+});
+
+test("malformed bounds, numbers, enum and oversized array messages are rejected", () => {
+  for (const patch of [
+    { zoom: Infinity },
+    { zoom: 0 },
+    { height: 119 },
+    { opacity: NaN },
+    { version: 2 },
+    { source: "https://attacker.test" },
+    { system: "all" },
+    { language: "<script>" },
+    { appearance: "external" },
+    { selectedId: "javascript:alert(1)" },
+    { hiddenIds: Array(4001).fill("FMA13377") },
+    { hiddenIds: ["FMA13377", "FMA13377"] },
+    { visibleSystems: [] },
+    { visibleSystems: ["muscles", "muscles"] },
+    { focusRegionKey: -1 },
+    { resetKey: 0.5 },
+    { focusRegionBounds: { min: [0, 0, 0], max: [-1, 1, 1] } },
+    { focusRegionBounds: { min: [0, NaN, 0], max: [1, 1, 1] } },
+  ])
+    assert.equal(
+      parseAnatomyNativeState({ ...state, ...patch }),
+      undefined,
+      JSON.stringify(patch),
+    );
+  assert.equal(parseAnatomyNativeState(null), undefined);
+});
+
+test("selection callbacks require a current catalogue identity and source", () => {
+  assert.deepEqual(
+    parseAnatomyNativeEvent(
+      { ...envelope, type: "select", id: "FMA13377", token: "not-forwarded" },
+      allowed,
+      "detailed",
+    ),
+    { ...envelope, type: "select", id: "FMA13377" },
+  );
+  assert.equal(
+    parseAnatomyNativeEvent(
+      { ...envelope, type: "select", id: "FMA_NOT_REAL" },
+      allowed,
+      "detailed",
+    ),
+    undefined,
+  );
+  assert.equal(
+    parseAnatomyNativeEvent(
+      { ...envelope, type: "select", id: "FMA13377", source: "extended" },
+      allowed,
+      "detailed",
+    ),
+    undefined,
+  );
+  assert.equal(
+    parseAnatomyNativeEvent(
+      { ...envelope, type: "mounted", source: "extended" },
+      allowed,
+      "detailed",
+    ),
+    undefined,
+    "late events cannot affect a replacement dataset",
+  );
+  assert.equal(
+    parseAnatomyNativeEvent(
+      { ...envelope, channel: "other", type: "select", id: "FMA13377" },
+      allowed,
+      "detailed",
+    ),
+    undefined,
+  );
+});
+
+test("ready callbacks only accept bounded real, unique model IDs", () => {
+  const ready = {
+    ...envelope,
+    type: "ready",
+    meshCount: 2,
+    structureIds: ["FMA13377", "FMA13378"],
+  };
+  assert.deepEqual(parseAnatomyNativeEvent(ready, allowed, "detailed"), ready);
+  for (const patch of [
+    { meshCount: 0 },
+    { meshCount: 1 },
+    { meshCount: 10001 },
+    { structureIds: [] },
+    { structureIds: ["FMA13377", "FMA13377"] },
+    { structureIds: ["FMA_DOES_NOT_EXIST"] },
+  ])
+    assert.equal(
+      parseAnatomyNativeEvent({ ...ready, ...patch }, allowed, "detailed"),
+      undefined,
+    );
+});
+
+test("errors expose only fixed public codes", () => {
+  assert.deepEqual(
+    parseAnatomyNativeEvent(
+      {
+        ...envelope,
+        type: "error",
+        code: "renderer",
+        message: "raw private diagnostic",
+      },
+      allowed,
+      "detailed",
+    ),
+    { ...envelope, type: "error", code: "renderer" },
+  );
+  assert.equal(
+    parseAnatomyNativeEvent(
+      { ...envelope, type: "error", code: "raw private diagnostic" },
+      allowed,
+      "detailed",
+    ),
+    undefined,
+  );
+});
+
+test("only relative public GLBs resolve to the pinned HTTPS model host", () => {
+  for (const file of [
+    "/anatomy/bodyparts3d-complete/high/fma13377.glb",
+    "/anatomy/bodyparts3d/muscles-01.glb",
+    "/anatomy/bodyparts3d/details/fma34682-fj1467.glb",
+  ])
+    assert.equal(anatomyNativeAssetUrl(file), ANATOMY_ASSET_ORIGIN + file);
+  for (const value of [
+    "https://attacker.test/x.glb",
+    "//attacker.test/x.glb",
+    "file:///secret.glb",
+    "/anatomy/bodyparts3d/../secret.glb",
+    "/anatomy/bodyparts3d/%2e%2e/secret.glb",
+    "/anatomy/bodyparts3d/x.glb?token=secret",
+    "/anatomy/bodyparts3d//x.glb",
+    "/auth",
+    "/anatomy/bodyparts3d/x.js",
+  ])
+    assert.equal(anatomyNativeAssetUrl(value), undefined, value);
+});

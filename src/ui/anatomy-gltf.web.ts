@@ -2,6 +2,8 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import type { AnatomySystem } from "../data/anatomy-structures";
+import { anatomyTissueProfile, applyAnatomyTissueProfile } from "./anatomy-materials.web";
+import { ANATOMY_ASSET_ORIGIN, anatomyNativeAssetUrl } from "../domain/anatomy-native-bridge";
 
 export type BodyPartsEntry = {
   id: string;
@@ -18,6 +20,7 @@ export type BodyPartsEntry = {
   lod?: { url?: string; files?: string[]; bytes: number; triangles: number; vertexCount?: number; sha256?: string };
 };
 export type BodyPartsManifest = {
+  assetBaseUrl?: string;
   datasetId?: string;
   dataset?: string;
   version?: number | string;
@@ -42,22 +45,6 @@ export type LoadedAnatomyLayer = {
   dispose: () => void;
 };
 
-function displayColor(entry: BodyPartsEntry) {
-  const name = entry.name.toLowerCase();
-  if (entry.system === "skeleton") return /cartilage|disc|meniscus/.test(name) ? "#97aaae" : "#c8bda4";
-  if (entry.system === "muscles") return /tendon|fascia|aponeurosis|retinaculum|ligament/.test(name) ? "#bfb5a3" : "#943c40";
-  if (entry.system === "nerves") return /brain|cerebr|cerebell|thalam|pons|medulla/.test(name) ? "#bfa6a0" : "#e3ca82";
-  if (entry.system === "vessels") return /vein|venous|vena|sinus/.test(name) ? "#607fba" : "#be5055";
-  if (/lung|bronch/.test(name)) return "#bf909b";
-  if (/liver|hepatic/.test(name)) return "#82474e";
-  if (/heart|atrium|ventricle|myocard/.test(name)) return "#aa4854";
-  if (/kidney|renal|spleen/.test(name)) return "#984a59";
-  if (/stomach|intestin|colon|duoden|esophag|jejun|ileum|cecum/.test(name)) return "#b78685";
-  if (/bladder|ureter|uter|ovary|prostate/.test(name)) return "#c3a396";
-  if (/brain|cerebr|cerebell|thalam/.test(name)) return "#bfa6a0";
-  return "#b19aab";
-}
-
 /** Dispose textures as well as materials: GLTFLoader can own ImageBitmaps. */
 export function disposeAnatomyObject(object: THREE.Object3D) {
   const geometries = new Set<THREE.BufferGeometry>();
@@ -81,10 +68,21 @@ export function disposeAnatomyObject(object: THREE.Object3D) {
   object.clear();
 }
 
-async function fetchGLB(url: string, signal: AbortSignal, progress: (loaded: number) => void) {
+export function resolveAnatomyAssetUrl(url: string, assetBaseUrl?: string) {
+  if (assetBaseUrl !== undefined) {
+    if (assetBaseUrl !== ANATOMY_ASSET_ORIGIN) throw new Error("Invalid anatomy asset origin");
+    const permitted = anatomyNativeAssetUrl(url);
+    if (!permitted) throw new Error("Invalid anatomy asset");
+    return new URL(permitted);
+  }
   const resolved = new URL(url, window.location.origin);
   if (resolved.origin !== window.location.origin || !resolved.pathname.endsWith(".glb")) throw new Error("Invalid anatomy asset");
-  const response = await fetch(resolved, { signal, credentials: "same-origin" });
+  return resolved;
+}
+
+async function fetchGLB(url: string, signal: AbortSignal, progress: (loaded: number) => void, assetBaseUrl?: string) {
+  const resolved = resolveAnatomyAssetUrl(url, assetBaseUrl);
+  const response = await fetch(resolved, { signal, credentials: assetBaseUrl === undefined ? "same-origin" : "omit" });
   if (!response.ok) throw new Error("Anatomy asset unavailable");
   if (!response.body) return response.arrayBuffer();
   const reader = response.body.getReader();
@@ -122,9 +120,9 @@ export async function loadAnatomyLayer(
   let completed = 0;
   try {
     for (const file of files) {
-      const buffer = await fetchGLB(file, signal, (loaded) => progress(completed + loaded, entry?.bytes ?? 0));
+      const buffer = await fetchGLB(file, signal, (loaded) => progress(completed + loaded, entry?.bytes ?? 0), manifest.assetBaseUrl);
       if (signal.aborted) throw new DOMException("Aborted", "AbortError");
-      const gltf = await loader.parseAsync(buffer, new URL(".", new URL(file, window.location.origin)).href);
+      const gltf = await loader.parseAsync(buffer, new URL(".", resolveAnatomyAssetUrl(file, manifest.assetBaseUrl)).href);
       if (signal.aborted) { disposeAnatomyObject(gltf.scene); throw new DOMException("Aborted", "AbortError"); }
       group.add(gltf.scene);
       completed += buffer.byteLength; progress(completed, entry?.bytes ?? completed);
@@ -148,17 +146,14 @@ export async function loadAnatomyLayer(
       // whole-body envelope must not cover or intercept the internal anatomy.
       node.userData.contextEnvelope = entry.defaultVisible === false || entry.fmaId === "FMA7163" || /^skin$/i.test(entry.name);
       node.geometry.computeBoundingBox(); node.geometry.computeBoundingSphere();
-      const color = displayColor(entry);
+      const appearance = manifest.datasetId === "bodyparts3d-3.0-95" ? "natural" : "study";
+      const profile = anatomyTissueProfile(entry, appearance);
       const style = (original: THREE.Material) => {
-        const key = `${original.uuid}:${color}`;
+        const key = `${original.uuid}:${profile.id}`;
         let material = colored.get(key);
         if (!material) {
           material = original.clone();
-          if (material instanceof THREE.MeshStandardMaterial) {
-            material.color.set(color);
-            material.roughness = system === "skeleton" ? 0.67 : system === "organs" ? 0.44 : 0.53;
-            material.metalness = 0; material.envMapIntensity = 0.4;
-          }
+          applyAnatomyTissueProfile(material, entry, appearance);
           colored.set(key, material);
         }
         return material;

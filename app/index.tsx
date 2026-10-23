@@ -202,7 +202,7 @@ export default function App() {
   const auth = useAuth();
   const { user } = auth;
   const router = useRouter();
-  const authParams = useLocalSearchParams<{ screen?: string }>();
+  const authParams = useLocalSearchParams<{ screen?: string; practice?: string; year?: string; objective?: string; structure?: string }>();
   const { allowance } = useQuota();
   const reviewRequest = useRef(reservationId());
   const [reviewBusy, setReviewBusy] = useState(false);
@@ -228,6 +228,7 @@ export default function App() {
     choice?: number;
   } | null>(null);
   const [premium, setPremium] = useState(false);
+  const [anatomyOrigin, setAnatomyOrigin] = useState<{ year: number; structure?: string } | null>(null);
   const [notice, setNotice] = useState("");
   useEffect(() => {
     let alive = true;
@@ -275,6 +276,20 @@ export default function App() {
     setRequestedStructure(structureId);
     setConfigure(true);
   };
+  const handledPractice = useRef<string | null>(null);
+  useEffect(() => {
+    if (authParams.practice !== "anatomy") { handledPractice.current = null; return; }
+    if (!ready) return;
+    const request = JSON.stringify([authParams.practice, authParams.year, authParams.objective, authParams.structure]);
+    if (handledPractice.current === request) return;
+    handledPractice.current = request;
+    const year = Math.min(12, Math.max(1, Number(authParams.year) || 1));
+    const focus = ["origin", "insertion", "action", "innervation", "identification"].includes(authParams.objective ?? "") ? authParams.objective as AnatomyFocus : undefined;
+    const structure = typeof authParams.structure === "string" && questions.some((question) => question.diagram?.structureId === authParams.structure) ? authParams.structure : undefined;
+    setAnatomyOrigin({ year, structure });
+    openConfig("anatomie", year, focus, structure);
+    router.setParams({ practice: undefined, year: undefined, objective: undefined, structure: undefined });
+  }, [ready, authParams.practice, authParams.year, authParams.objective, authParams.structure]);
   const startReview = async () => {
     if (reviewBusy) return;
     if (state.active) {
@@ -318,6 +333,7 @@ export default function App() {
   }, [notice]);
   if (!ready) return <Loading />;
   const go = (t: Tab) => {
+    if (t === "Anatomie") { router.navigate("/anatomy"); return; }
     setTab(t);
     setNotice("");
   };
@@ -501,6 +517,7 @@ export default function App() {
               </Pressable>
             </View>
           </View>
+          {anatomyOrigin && <View style={{ paddingHorizontal: desktop ? 36 : 20, paddingVertical: 8 }}><Button small secondary icon={ChevronLeft} label={language === "fr" ? "Retour à l’atlas" : "Back to the atlas"} onPress={() => router.navigate({ pathname: "/anatomy", params: { year: anatomyOrigin.year, ...(anatomyOrigin.structure ? { structure: anatomyOrigin.structure } : {}) } })} /></View>}
           <ScrollView
             contentContainerStyle={{
               padding: desktop ? 36 : 20,

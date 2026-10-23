@@ -6,6 +6,8 @@ L’identité violette et lime reprend l’[emblème fourni](public/brand/ippome
 
 **Anatomie :** le **Corps détaillé** affiche 934 modèles BodyParts3D issus d’une même référence, avec **26,3 millions de triangles disponibles**. Les détails se chargent progressivement dans le corps, au zoom et au cadrage, sans mélanger les poses de différentes versions. Cinq raccourcis de région, sélection directe, rotation, masquage, isolation, transparence et couches superposables accompagnent l’exploration. L’**Atlas étendu** conserve séparément les 2 320 éléments de la précédente version et ses branches nerveuses et vasculaires supplémentaires. Sept parcours accompagnent la révision de la première année à l’internat ; les **140 questions anatomiques bilingues**, dont 98 musculaires, restent accessibles. Voir [le support anatomie, les sources et ses limites](docs/ANATOMIE.md).
 
+L’atlas dispose de sa propre page **`/anatomy`**, avec scène occupant l’espace disponible, panneaux de recherche/couches/fiches et commandes tactiles adaptées au portrait et au paysage. Les cours sont sur `/anatomy/courses` ; les quiz conservent l’année, le repère et l’objectif choisis. Le rendu naturel utilise des matières distinctes et un éclairage neutre ; la sélection garde la couleur du tissu avec un contour fin. Le moteur 3D est également embarqué dans les applications Expo Android/iOS grâce à un composant DOM local, avec téléchargement des géométries depuis le CDN public. Les profils APK, simulateur iOS et stores sont préparés ; voir [MOBILE.md](docs/MOBILE.md) pour les prérequis de compilation et de publication.
+
 Publication statique gratuite sur Cloudflare Workers Static Assets : voir [le guide de déploiement](docs/HEBERGEMENT.md). Le sélecteur FR/EN conserve la progression ; les liens `/?lang=fr` et `/?lang=en` permettent de partager une langue précise.
 
 **Application publique : https://medquiz-europe.medcompass-web.workers.dev**
@@ -38,7 +40,7 @@ npm test
 npm run build:web
 npm run test:e2e
 npm run economics
-npx expo export --platform ios --platform android --output-dir dist-native
+npm run build:native
 ```
 
 Les tests E2E utilisent Google Chrome installé, sur `127.0.0.1:8081`, avec un écran ordinateur et un écran mobile simulé dans Chromium. Ils servent l’export `dist` : reconstruire avant de tester des modifications UI. Pour une consultation locale de cet export : `npm run preview` puis ouvrir http://127.0.0.1:8081.

@@ -5,6 +5,7 @@ import type {
 } from "../data/anatomy-structures";
 
 export type AnatomySceneProps = {
+  appearance?: "natural" | "study";
   sourceManifest?: import("./anatomy-gltf.web").BodyPartsManifest;
   system: AnatomySystem;
   view: AnatomyView;

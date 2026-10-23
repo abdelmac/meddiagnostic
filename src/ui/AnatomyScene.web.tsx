@@ -9,11 +9,13 @@ import type { AnatomySystem } from "../data/anatomy-structures";
 import { localizeAnatomyName, anatomyNameHasFrench } from "../data/anatomy-nomenclature";
 import { anatomyInspectionResolution, anatomyMeshBounds, createAnatomyProgressiveLod, loadAnatomyLayer, matchingAnatomyMeshes, type AnatomyLodStatus, type BodyPartsManifest, type LoadedAnatomyLayer } from "./anatomy-gltf.web";
 import { HumanFigure } from "./anatomy-vector";
+import { applyAnatomyTissueProfile } from "./anatomy-materials.web";
 import type { AnatomySceneProps } from "./anatomy-scene-types";
 
 export type { AnatomySceneProps } from "./anatomy-scene-types";
 const defaultManifest = bodypartsManifest as unknown as BodyPartsManifest;
 type MaterialSet = THREE.Material | THREE.Material[];
+type CameraFitOptions = { anterior?: boolean; zoom?: number; animate?: boolean; selection?: boolean };
 type World = {
   renderer: THREE.WebGLRenderer; camera: THREE.PerspectiveCamera; scene: THREE.Scene; controls: OrbitControls;
   bodyPixelRatio: number;
@@ -22,7 +24,7 @@ type World = {
   requests: Map<string, AbortController>; detailTouched: Map<string, number>; activeDetailKeys: Set<string>;
   detailMode: boolean; bodyCamera?: { position: THREE.Vector3; target: THREE.Vector3 };
   layer?: LoadedAnatomyLayer; activeLayers: LoadedAnatomyLayer[]; render: () => void; present: () => void;
-  fit: (bounds: THREE.Box3, options?: { anterior?: boolean; zoom?: number; animate?: boolean; selection?: boolean }) => void;
+  fit: (bounds: THREE.Box3, options?: CameraFitOptions) => void;
   pruneDetails: () => void;
   settleResolution: () => void;
   fullBounds: () => THREE.Box3;
@@ -32,6 +34,7 @@ type World = {
 export function AnatomyScene(props: AnatomySceneProps) {
   const manifest = props.sourceManifest ?? defaultManifest;
   const datasetKey = manifest.datasetId ?? manifest.dataset ?? "bodyparts3d-4.0";
+  const appearance = props.appearance ?? (manifest.datasetId === "bodyparts3d-3.0-95" ? "natural" : "study");
   const { system, view, selectedId, zoom = 1, height = 580, language = "fr", isolate = false, opacity = 1, hiddenIds = [], resetKey = 0, focusSelectionKey = 0, focusRegionKey = 0, isolatedDetail = false } = props;
   const requiredSystems = [...new Set(props.visibleSystems?.length ? props.visibleSystems : ["skeleton" as AnatomySystem, system])];
   const visibleKey = requiredSystems.slice().sort().join(",");
@@ -59,7 +62,7 @@ export function AnatomyScene(props: AnatomySceneProps) {
     const lowPower = matchMedia("(pointer: coarse)").matches || navigator.hardwareConcurrency <= 4;
     const adaptiveResolution = manifest.datasetId === "bodyparts3d-3.0-95";
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lowPower ? 1 : 1.5));
-    renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.9;
+    renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.95;
     const canvas = renderer.domElement;
     Object.assign(canvas.style, { width: "100%", height: "100%", display: "block", touchAction: "none", cursor: "grab" });
     canvas.dataset.testid = "anatomy-webgl-canvas"; canvas.dataset.sourceId = datasetKey; canvas.dataset.resolutionMode = adaptiveResolution ? "body" : "fixed"; canvas.dataset.resolutionPending = "false"; canvas.tabIndex = 0; canvas.setAttribute("role", "img"); container.appendChild(canvas);
@@ -71,15 +74,15 @@ export function AnatomyScene(props: AnatomySceneProps) {
     controls.minPolarAngle = 0.04; controls.maxPolarAngle = Math.PI - 0.04;
     controls.rotateSpeed = 0.7; controls.zoomSpeed = 0.75; controls.panSpeed = 0.8;
     controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
-    scene.add(new THREE.HemisphereLight(0xeee7f2, 0x39313f, 0.7));
-    const key = new THREE.DirectionalLight(0xffe8d9, 2.35); key.position.set(-2.4, 3.2, 3); scene.add(key);
-    const fill = new THREE.DirectionalLight(0xd8dcf5, 0.55); fill.position.set(2, 1.5, 1); scene.add(fill);
-    const rim = new THREE.DirectionalLight(0xc6b6e0, 1.15); rim.position.set(0.8, 2, -2); scene.add(rim);
+    scene.add(new THREE.HemisphereLight(0xeee9e2, 0x292832, 0.5));
+    const key = new THREE.DirectionalLight(0xfff3e7, 2.15); key.position.set(-2.6, 2.8, 3.6); scene.add(key);
+    const fill = new THREE.DirectionalLight(0xdde5ef, 0.55); fill.position.set(2.3, 1.5, 1.5); scene.add(fill);
+    const rim = new THREE.DirectionalLight(0xe5e9f0, 0.85); rim.position.set(-1.8, 2, -2); scene.add(rim);
     let environment: THREE.WebGLRenderTarget | undefined;
     try {
       const room = new RoomEnvironment(), generator = new THREE.PMREMGenerator(renderer);
       environment = generator.fromScene(room, 0.04, 0.1, 100, { size: lowPower ? 64 : 128 });
-      scene.environment = environment.texture; scene.environmentIntensity = 0.4; room.dispose(); generator.dispose();
+      scene.environment = environment.texture; scene.environmentIntensity = 0.45; room.dispose(); generator.dispose();
     } catch { /* Direct lights remain available on GPUs without environment support. */ }
     const shadowCanvas = document.createElement("canvas"); shadowCanvas.width = shadowCanvas.height = 128;
     const context = shadowCanvas.getContext("2d");
@@ -93,14 +96,25 @@ export function AnatomyScene(props: AnatomySceneProps) {
     const shadow = new THREE.Mesh(shadowGeometry, shadowMaterial); shadow.rotation.x = -Math.PI / 2; shadow.position.y = -0.002; scene.add(shadow);
     const outlines = new THREE.Group(); scene.add(outlines);
     const outlineMaterial = new THREE.ShaderMaterial({
-      uniforms: { color: { value: new THREE.Color("#b6ed29") }, thickness: { value: 0.0013 } },
-      vertexShader: "uniform float thickness; void main(){gl_Position=projectionMatrix*modelViewMatrix*vec4(position+normal*thickness,1.0);}",
-      fragmentShader: "uniform vec3 color; void main(){gl_FragColor=vec4(color,1.0);}", side: THREE.BackSide, depthWrite: false,
+      uniforms: { color: { value: new THREE.Color("#b6ed29") }, width: { value: 1.25 }, viewport: { value: new THREE.Vector2(380, 580) } },
+      // A screen-space shell keeps its width in CSS pixels despite the source
+      // quantisation scale, camera distance and adaptive drawing-buffer DPR.
+      vertexShader: `uniform float width; uniform vec2 viewport;
+        void main(){
+          vec4 clip=projectionMatrix*modelViewMatrix*vec4(position,1.0);
+          vec4 n=projectionMatrix*vec4(normalize(normalMatrix*normal),0.0);
+          vec2 direction=(n.xy*clip.w-clip.xy*n.w)*viewport;
+          direction/=max(length(direction),0.000001);
+          clip.xy+=direction*(2.0*width/viewport)*clip.w;
+          gl_Position=clip;
+        }`,
+      fragmentShader: "uniform vec3 color; void main(){gl_FragColor=vec4(color,1.0);\n#include <colorspace_fragment>\n}", side: THREE.BackSide, depthWrite: false, toneMapped: false,
     });
     const originals = new Map<THREE.Mesh, MaterialSet>();
     const faded = new Map<THREE.Material, THREE.Material>(), selectedMaterials = new Map<THREE.Material, THREE.Material>(), hoverMaterials = new Map<THREE.Material, THREE.Material>();
     let frame = 0, motion = 0, lastFrame = 0, disposed = false, hovered: string | undefined;
     let resolutionTimer: ReturnType<typeof setTimeout> | undefined, interacting = false;
+    let fittedFrame: { bounds: THREE.Box3; options: CameraFitOptions } | undefined;
     const fullBounds = () => {
       if (value.detailMode && value.activeLayers.length) {
         const bounds = new THREE.Box3(); value.activeLayers.forEach((layer) => bounds.union(layer.bounds)); return bounds;
@@ -157,11 +171,12 @@ export function AnatomyScene(props: AnatomySceneProps) {
       let material = cache.get(base);
       if (!material) { material = base.clone(); cache.set(base, material); }
       if (material instanceof THREE.MeshStandardMaterial || material instanceof THREE.MeshBasicMaterial) {
-        if (style === "selected") material.color.copy((base as THREE.MeshStandardMaterial).color).lerp(new THREE.Color("#caeb70"), 0.5);
-        if (style === "hover") material.color.copy((base as THREE.MeshStandardMaterial).color).lerp(new THREE.Color("#c1a7fc"), 0.3);
+        material.color.copy((base as THREE.MeshStandardMaterial).color);
+        if (style === "hover") material.color.lerp(new THREE.Color("#e5dcf2"), 0.08);
       }
       if (material instanceof THREE.MeshStandardMaterial) {
-        material.emissive.set(style === "selected" ? "#28400b" : style === "hover" ? "#291e40" : "#000000"); material.emissiveIntensity = style === "faded" ? 0 : 0.15;
+        material.roughness = (base as THREE.MeshStandardMaterial).roughness; material.envMapIntensity = (base as THREE.MeshStandardMaterial).envMapIntensity;
+        material.emissive.set(0x000000); material.emissiveIntensity = 0;
       }
       material.opacity = style === "faded" ? base.opacity * alpha : 1; material.transparent = material.opacity < 1; material.depthWrite = material.opacity >= 0.6;
       return material;
@@ -174,6 +189,9 @@ export function AnatomyScene(props: AnatomySceneProps) {
       canvas.dataset.meshCount = "0";
       if (!meshes.length) { render(); return; }
       const current = live.current, selected = new Set(value.activeLayers.flatMap((layer) => matchingAnatomyMeshes(layer, current.selectedId))), hidden = new Set(value.detailMode ? [] : current.hiddenIds ?? []);
+      const currentAppearance = current.appearance ?? (manifest.datasetId === "bodyparts3d-3.0-95" ? "natural" : "study");
+      canvas.dataset.appearance = currentAppearance; canvas.dataset.materialModel = "standard-pbr"; canvas.dataset.outlineWidth = String(outlineMaterial.uniforms.width!.value);
+      const tissueProfiles = new Set<string>(), selectedColors = new Set<string>();
       const alpha = !value.detailMode && Number.isFinite(current.opacity) ? THREE.MathUtils.clamp(current.opacity!, 0.08, 1) : 1;
       meshes.forEach((mesh) => {
         const id = mesh.userData.structureId as string, aliases = mesh.userData.legacyIds as readonly string[], chosen = selected.has(mesh);
@@ -181,6 +199,12 @@ export function AnatomyScene(props: AnatomySceneProps) {
           && (value.detailMode || !current.isolate || !selected.size || chosen) && (!mesh.userData.contextEnvelope || chosen);
         if (!originals.has(mesh)) originals.set(mesh, mesh.material);
         const base = originals.get(mesh)!;
+        const entry = value.activeLayers.find((layer) => layer.entries.has(id))?.entries.get(id);
+        (Array.isArray(base) ? base : [base]).forEach((material) => {
+          if (entry) applyAnatomyTissueProfile(material, entry, currentAppearance);
+          if (mesh.visible && material.userData.anatomyTissue) tissueProfiles.add(material.userData.anatomyTissue as string);
+          if (chosen && mesh.visible && material instanceof THREE.MeshStandardMaterial) selectedColors.add(material.color.getHexString());
+        });
         // The isolated inspection already contains only the chosen anatomy;
         // retain its natural tissue colour so light reveals the real relief.
         const style = chosen && !value.detailMode ? "selected" : hovered === id ? "hover" : alpha < 1 ? "faded" : undefined;
@@ -189,10 +213,12 @@ export function AnatomyScene(props: AnatomySceneProps) {
           const shell = new THREE.Mesh(mesh.geometry, outlineMaterial); shell.matrixAutoUpdate = false; shell.matrix.copy(mesh.matrixWorld); outlines.add(shell);
         }
       });
+      canvas.dataset.tissueProfiles = [...tissueProfiles].sort().join(","); canvas.dataset.selectedMaterialColor = [...selectedColors].sort().join(",");
       canvas.dataset.selectedId = current.selectedId ?? ""; canvas.dataset.meshCount = String(meshes.filter((mesh) => mesh.visible).length); render();
     };
-    const fit = (bounds: THREE.Box3, options: { anterior?: boolean; zoom?: number; animate?: boolean; selection?: boolean } = {}) => {
+    const fit = (bounds: THREE.Box3, options: CameraFitOptions = {}) => {
       if (bounds.isEmpty()) return;
+      if (adaptiveResolution) fittedFrame = { bounds: bounds.clone(), options: { ...options } };
       cancelAnimationFrame(motion);
       const target = bounds.getCenter(new THREE.Vector3()), size = bounds.getSize(new THREE.Vector3()), tangent = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
       if (options.selection) {
@@ -241,12 +267,15 @@ export function AnatomyScene(props: AnatomySceneProps) {
     });
     const cameraChange = () => { settleResolution(); render(); value.lod?.schedule(); };
     world.current = value; controls.addEventListener("change", cameraChange);
-    const stopMotion = () => { interacting = true; settleResolution(); cancelAnimationFrame(motion); value.lod?.pause(); canvas.style.cursor = "grabbing"; };
+    const stopMotion = () => { fittedFrame = undefined; interacting = true; settleResolution(); cancelAnimationFrame(motion); value.lod?.pause(); canvas.style.cursor = "grabbing"; };
     const stopDrag = () => { interacting = false; settleResolution(); value.lod?.resume(); canvas.style.cursor = hovered ? "pointer" : "grab"; };
     controls.addEventListener("start", stopMotion); controls.addEventListener("end", stopDrag);
     const resize = () => {
       const width = container.clientWidth || 380, h = container.clientHeight || 580;
-      renderer.setSize(width, h, false); camera.aspect = width / h; camera.updateProjectionMatrix(); settleResolution(); render(); value.lod?.schedule();
+      (outlineMaterial.uniforms.viewport!.value as THREE.Vector2).set(width, h);
+      renderer.setSize(width, h, false); camera.aspect = width / h; camera.updateProjectionMatrix();
+      if (fittedFrame) fit(fittedFrame.bounds, { ...fittedFrame.options, animate: false });
+      settleResolution(); render(); value.lod?.schedule();
     };
     const observer = new ResizeObserver(resize); observer.observe(container); resize();
     const raycaster = new THREE.Raycaster(), pointer = new THREE.Vector2();
@@ -302,7 +331,7 @@ export function AnatomyScene(props: AnatomySceneProps) {
       else if (event.key.toLowerCase() === "r") { event.preventDefault(); fit(fullBounds(), { anterior: true }); return; }
       else if (event.key.toLowerCase() === "f" && value.activeLayers.length) { event.preventDefault(); fit(anatomyMeshBounds(value.activeLayers.flatMap((layer) => matchingAnatomyMeshes(layer, live.current.selectedId))), { animate: true, selection: true }); return; }
       else return;
-      event.preventDefault(); cancelAnimationFrame(motion); camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(sphere)); controls.update(); render();
+      event.preventDefault(); fittedFrame = undefined; cancelAnimationFrame(motion); camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(sphere)); controls.update(); render();
     };
     const contextLost = (event: Event) => { event.preventDefault(); cancelAnimationFrame(motion); setStatus("webgl-error"); };
     canvas.addEventListener("pointerdown", pointerDown); canvas.addEventListener("pointermove", pointerMove); canvas.addEventListener("pointerup", pointerUp); canvas.addEventListener("pointercancel", pointerCancel);
@@ -389,7 +418,7 @@ export function AnatomyScene(props: AnatomySceneProps) {
   // preserve the camera and the loaded spatial workspace.
   }, [datasetKey, visibleKey, isolatedDetail, detailKey, contextReady, retry, contextAttempt]);
 
-  useEffect(() => { world.current?.present(); world.current?.lod?.schedule(); }, [selectedId, isolate, opacity, hiddenIds, revision]);
+  useEffect(() => { world.current?.present(); world.current?.lod?.schedule(); }, [selectedId, isolate, opacity, hiddenIds, appearance, revision]);
   useEffect(() => {
     const current = world.current;
     if (!current?.layer || status !== "ready") return;
@@ -418,7 +447,7 @@ export function AnatomyScene(props: AnatomySceneProps) {
   const attributionUrl = manifest.attributionUrl ?? (manifest.datasetId === "bodyparts3d-3.0-95" ? "/anatomy/bodyparts3d-complete/ATTRIBUTION.txt" : "/anatomy/bodyparts3d/ATTRIBUTION.txt");
   return <div data-testid="anatomy-3d-scene" data-ready={status === "ready" ? "true" : "false"} data-selected-id={selectedId ?? ""} data-source="BodyParts3D" data-source-id={datasetKey}
     data-detail-mode={isolatedDetail ? "true" : "false"} data-detail-ready={isolatedDetail && status === "ready" ? "true" : "false"}
-    style={{ position: "relative", height, minHeight: 320, width: "100%", overflow: "hidden", background: "radial-gradient(ellipse at 50% 40%, #382c47 0%, #211a2f 54%, #15101f 100%)" }}>
+    style={{ position: "relative", height, minHeight: Math.min(320, height), width: "100%", overflow: "hidden", background: "radial-gradient(ellipse at 48% 38%, #2b3039 0%, #1b1e26 54%, #111219 100%)" }}>
     <div ref={host} style={{ width: "100%", height: "100%", visibility: error ? "hidden" : "visible" }} />
     {status === "loading" && <div role="status" style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", gap: 12, alignItems: "center", justifyContent: "center", background: "#191321d9", color: "#e1d7ee", font: "13px system-ui" }}>
       <div>{isolatedDetail ? l("Chargement du détail anatomique…", "Loading the detailed anatomy…") : l("Chargement des maillages anatomiques…", "Loading anatomical meshes…")}</div><div role="progressbar" aria-label={l("Chargement du modèle anatomique", "Loading the anatomy model")} aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} style={{ width: 160, height: 3, borderRadius: 4, background: "#493b5b", overflow: "hidden" }}><div style={{ width: `${Math.max(3, progress)}%`, height: "100%", background: "#b4ec28" }} /></div><div style={{ color: "#ac9bbc", fontSize: 11 }}>{progress > 0 ? `${progress}%` : isolatedDetail ? "BodyParts3D 3.0" : "BodyParts3D"}</div>
@@ -429,7 +458,7 @@ export function AnatomyScene(props: AnatomySceneProps) {
         if (status === "webgl-error") { setStatus("loading"); setContextAttempt((n) => n + 1); }
         else setRetry((n) => n + 1);
       }} style={{ display: "block", margin: "0 auto 12px", border: "1px solid #8f79ac", background: "#342642", color: "#fff", borderRadius: 8, padding: "9px 16px", cursor: "pointer" }}>{l("Réessayer la 3D", "Retry 3D")}</button>
-      {fallbackId ? <View style={{ backgroundColor: "#f3f6f1", borderRadius: 10 }}><HumanFigure system={anatomyStructure(fallbackId)!.system} view={view} selectedId={fallbackId} onSelect={live.current.onSelect} zoom={zoom} height={height - 110} language={language} targetOnly={isolate} /></View> : <Text style={{ color: "#bfaed1", fontSize: 12, textAlign: "center", paddingTop: 20 }}>{l("Choisissez la vue 2D pour consulter les schémas disponibles.", "Choose the 2D view to see the available diagrams.")}</Text>}
+      {fallbackId ? <View style={{ backgroundColor: "#f3f6f1", borderRadius: 10 }}><HumanFigure system={anatomyStructure(fallbackId)!.system} view={view} selectedId={fallbackId} onSelect={live.current.onSelect} zoom={zoom} height={Math.max(100, height - 110)} language={language} targetOnly={isolate} /></View> : <Text style={{ color: "#bfaed1", fontSize: 12, textAlign: "center", paddingTop: 20 }}>{l("Choisissez la vue 2D pour consulter les schémas disponibles.", "Choose the 2D view to see the available diagrams.")}</Text>}
     </div>}
     {status === "ready" && <>
       {isolatedDetail && <div data-testid="anatomy-detail-badge" style={{ pointerEvents: "none", position: "absolute", top: 15, left: 12, maxWidth: "calc(100% - 80px)", padding: "7px 10px", borderRadius: 8, background: "#21162cdb", border: "1px solid #756087", color: "#e3d8eb", font: "11px/16px system-ui" }}>{l("Vue isolée détaillée", "Detailed isolated view")} · BodyParts3D 3.0</div>}

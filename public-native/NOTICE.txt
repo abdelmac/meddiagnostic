@@ -1,0 +1,12 @@
+Ippomed native DOM renderer
+
+This small public folder is selected with EXPO_PUBLIC_FOLDER=public-native for
+native builds. Do not copy the anatomy GLBs here: public geometry is downloaded
+on demand from the pinned HTTPS anatomy asset host.
+
+BodyParts3D source notices, license links and per-file provenance are published
+alongside those models at /anatomy/bodyparts3d/ and
+/anatomy/bodyparts3d-complete/ on the application's public host.
+
+The renderer and its manifests are bundled with the application, together with
+the Three.js and Meshoptimizer code used to render the original meshes.
