@@ -1,8 +1,10 @@
 # Keep these rules aligned with .gitignore: EAS must never upload local secrets.
+.git/
 node_modules/
 .expo/
 dist/
 dist-native/
+artifacts/native/
 dist*/
 .env
 .env.local

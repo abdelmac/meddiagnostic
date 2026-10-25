@@ -2,6 +2,7 @@ node_modules/
 .expo/
 dist/
 dist-native/
+artifacts/native/
 .env
 .env.local
 *.log

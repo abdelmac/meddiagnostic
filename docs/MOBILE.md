@@ -2,7 +2,7 @@
 
 Ippomed utilise Expo SDK 58 pour ses applications natives. Les écrans et la navigation restent natifs ; l’atlas 3D utilise notre moteur Three.js embarqué dans un composant DOM local. Il ne charge pas le site ou une page de connexion distante dans une WebView. Cette architecture est prise en charge par [Expo DOM](https://docs.expo.dev/guides/dom-components/) et son module `@expo/dom-webview`, déjà fourni par le SDK. `expo-dev-client` est installé pour le profil de développement.
 
-Les identifiants techniques existants sont conservés : `fr.medquiz.app` sur Android et iOS, schéma de liens `medquiz`, nom affiché Ippomed. Aucun identifiant de projet EAS fictif n’a été ajouté. Il faudra lier le véritable projet Expo du propriétaire avant un premier build cloud.
+Les identifiants techniques existants sont conservés : `fr.medquiz.app` sur Android et iOS, schéma de liens `medquiz`, nom affiché Ippomed. Depuis le **23 octobre 2026**, la session Expo/EAS est connectée au compte `hikmamif` et le projet est lié à [`@hikmamif/medquiz`](https://expo.dev/accounts/hikmamif/projects/medquiz), UUID `4e62f61a-560f-4030-81de-514b26120b00`. Les champs `owner` et `extra.eas.projectId` correspondent au projet réel du propriétaire.
 
 ## Atlas 3D natif
 
@@ -12,7 +12,7 @@ Le moteur, ses manifestes et le décodeur Meshopt sont inclus dans l’applicati
 
 Le [contrat validé](../src/domain/anatomy-native-bridge.ts) borne les nombres, tableaux et régions, refuse les identifiants de sélection absents du catalogue et les événements d’une autre référence, et ne transmet que les champs nécessaires au rendu. Les retours tardifs d’une instance remplacée sont ignorés. Aucun jeton, compte, cookie ou secret serveur n’est envoyé au composant DOM. Le pont général vers les modules Expo est désactivé ; les liens internes à la scène sont bloqués et les crédits restent accessibles depuis l’interface de l’application.
 
-`EXPO_PUBLIC_FOLDER=public-native` sélectionne un petit dossier public pour les exports et builds mobiles. Sans ce réglage, Expo DOM pourrait copier les volumineuses géométries publiques dans le binaire alors qu’elles sont téléchargées à la demande. Le fichier [.easignore](../.easignore) reprend les exclusions de `.gitignore` et exclut aussi les modèles publics et les captures de diagnostic. Les manifestes importés depuis `src/data` et le logo utilisé par l’application restent inclus.
+`EXPO_PUBLIC_FOLDER=public-native` sélectionne un petit dossier public pour les exports et builds mobiles. Sans ce réglage, Expo DOM pourrait copier les volumineuses géométries publiques dans le binaire alors qu’elles sont téléchargées à la demande. Le fichier [.easignore](../.easignore) reprend les exclusions de `.gitignore` et exclut aussi les modèles publics, les captures de diagnostic et, depuis le 23 octobre, `.git/`. Le dossier `artifacts/native/` est exclu par `.gitignore` et `.easignore` : les APK téléchargés ne sont ni versionnés ni renvoyés dans les sources des builds suivants. Les manifestes importés depuis `src/data` et le logo utilisé par l’application restent inclus.
 
 ## Vérifier les exports
 
@@ -53,31 +53,59 @@ Les profils de [eas.json](../eas.json) sont prêts :
 | `preview`     | APK installable directement | Application pour simulateur                |
 | `production`  | AAB pour Google Play        | Binaire appareil pour App Store/TestFlight |
 
-Après connexion au véritable compte Expo et association au projet du propriétaire :
+La connexion et la liaison au projet sont réalisées. Le profil `preview` sélectionne explicitement l’environnement EAS `preview`. Les variables `EXPO_PUBLIC_SUPABASE_URL` et `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` sont configurées séparément dans `preview` et `production`. Leurs valeurs ont ensuite été relues et comparées aux valeurs attendues dans les deux environnements, sans les afficher.
 
-```sh
-npx eas-cli@latest login --device
-npx eas-cli@latest init
-npx eas-cli@latest build --platform android --profile preview
+Le premier [build Android preview](https://expo.dev/accounts/hikmamif/projects/medquiz/builds/9bd2f3a3-766c-41ce-88b8-7b6985c8deba), identifiant `9bd2f3a3-766c-41ce-88b8-7b6985c8deba`, a **réussi le 23 octobre 2026 à 22 h 12, heure de Paris** (`20:12:13.980Z`). Le bundling JavaScript et la compilation Gradle sont terminés. L’**[APK Android est disponible au téléchargement](https://expo.dev/artifacts/eas/_FzzRT9I_lFqAnkNMkxyx4ok3cmgGWAu2Oct-wMS4sw.apk)**. EAS a généré la clé de signature dans le cloud et signé le build Android. Aucune installation sur téléphone physique n’est encore validée et l’application n’est pas publiée sur Google Play.
+
+Le contrôle Expo Doctor du build cloud compte **19 vérifications réussies sur 20**. Le seul échec concerne les cinq correctifs du SDK déjà documentés plus haut ; il n’a pas empêché la production de l’APK. Ces mises à jour et les essais sur appareil restent à traiter.
+
+L’APK téléchargé se trouve dans `artifacts/native/ippomed-android-0.1.0-preview-1.apk` : **102 425 952 octets** (environ 102,4 Mo), SHA-256 `f952331fbe6577161d4335d62c0759a82873f2f6cea10dd9b1a829f89b07fd0e`. L’inspection confirme le manifeste binaire avec le package `fr.medquiz.app`, le DEX, le bytecode Hermes et le moteur anatomique DOM embarqué. Aucun GLB, OBJ ou ZIP n’est embarqué. Le bloc de signature APK v2 est présent et structurellement valide ; sa présence ne constitue pas une vérification cryptographique indépendante.
+
+Les huit fichiers extraits (assets et manifeste, 9 690 367 octets) ont été contrôlés contre les trois secrets serveur connus : aucune détection. Les bibliothèques natives sont restées compressées et aucun contenu APK n’a été exécuté. La preuve privée est conservée dans `.local/eas-apk-audit/f952331fbe657716-e458551e/inspection.json`. Les deux tests de configuration mobile passent après la mise à jour des exclusions.
+
+Pour un prochain build, vérifier d’abord le quota disponible, puis exécuter la commande depuis la racine du projet. Ce sous-processus PowerShell limite les variables de copie au seul lancement EAS :
+
+```powershell
+powershell -NoProfile -Command {
+    $env:EAS_NO_VCS = "1"
+    $env:EAS_PROJECT_ROOT = (Get-Location).Path
+    npx.cmd eas-cli@latest build --platform android --profile preview --non-interactive --no-wait
+}
 ```
 
-Les builds de production se demandent séparément, une fois les comptes des stores et leurs signatures disponibles :
+`EAS_NO_VCS=1` évite le clone Git temporaire et son pack d’environ 396 Mo ; `EAS_PROJECT_ROOT` fixe explicitement la racine copiée. Les exclusions `.easignore` continuent de s’appliquer. Le contrôle de l’archive effective du 23 octobre compte **192 fichiers pour 7,46 Mo**, et l’archive compressée envoyée à EAS pèse environ **2,7 Mo**. Aucun `.git`, `.env`, `.local`, GLB ou OBJ n’y est présent. L’audit ne détecte aucun des trois secrets connus et les deux tests de configuration mobile passent. Ce mode retire les métadonnées de commit du build ; il ne modifie pas le dépôt Git local.
+
+Les builds de production utilisent un profil séparé. La signature iPhone reste à préparer.
+
+Pour préparer la signature iPhone, le propriétaire peut lancer cette commande dans son terminal et se connecter directement à Apple, sans partager d’identifiant secret ni de code de vérification dans le chat :
+
+```sh
+npx eas-cli@latest credentials:configure-build --platform ios --profile production
+```
+
+Une fois les signatures prêtes :
 
 ```sh
 npx eas-cli@latest build --platform android --profile production
 npx eas-cli@latest build --platform ios --profile production
 ```
 
-Les variables publiques de connexion utilisées par l’application doivent être définies dans l’environnement EAS correspondant ; `.env` est volontairement exclu des envois. Ne pas utiliser une clé serveur ou un mot de passe de base de données dans une variable `EXPO_PUBLIC_*`. Les identifiants de signature et de soumission se gèrent via EAS et les consoles des stores, sans les ajouter au dépôt. Le [guide officiel EAS Build](https://docs.expo.dev/build/setup/) décrit l’association du projet et les signatures.
+Les variables publiques de connexion doivent être définies séparément dans chaque environnement EAS utilisé ; `preview` et `production` sont configurés ici, et `development` reste à renseigner s’il est utilisé. `.env` est volontairement exclu des envois. Ne pas utiliser une clé serveur ou un mot de passe de base de données dans une variable `EXPO_PUBLIC_*`. Les identifiants de signature et de soumission se gèrent via EAS et les consoles des stores, sans les ajouter au dépôt. Le [guide officiel EAS Build](https://docs.expo.dev/build/setup/) décrit l’association du projet et les signatures.
 
-Le propriétaire confirme déjà disposer des comptes **Apple Developer et Google Play**. Leur accès depuis cette session et leur association au projet EAS restent à réaliser. Au contrôle du **21 octobre 2026**, `expo whoami` et `eas whoami` indiquaient une session non connectée ; aucun `EXPO_TOKEN` n’était fourni. La connexion EAS par navigateur, notamment `login --device`, évite de demander un mot de passe dans le chat. Java et `adb` n’étaient pas disponibles dans le PATH de cette machine Windows. Aucun build cloud, achat, certificat ou dépôt sur un store n’a été exécuté. Un build iOS pour simulateur s’utilise sur un Mac ; Windows peut vérifier l’export JavaScript iOS mais ne peut pas exécuter le simulateur Apple.
+Le propriétaire confirme déjà disposer des comptes **Apple Developer et Google Play**. Leur accès depuis cette session et leur association aux consoles des stores restent à réaliser. Le contrôle du **21 octobre 2026** indiquait encore une session Expo/EAS déconnectée ; cet état historique est remplacé par la connexion et le premier build Android réussi du **23 octobre**. La connexion s’effectue par navigateur, sans mot de passe partagé dans le chat. Java et `adb` n’étaient pas disponibles dans le PATH de cette machine Windows au contrôle initial. Aucun achat ni dépôt sur un store n’a été exécuté. Aucun build iOS signé ni certificat Apple n’est validé ici. Un build iOS pour simulateur s’utilise sur un Mac ; Windows peut vérifier l’export JavaScript iOS mais ne peut pas exécuter le simulateur Apple.
 
 ## Budget et publication
 
-Le plan [EAS Free](https://expo.dev/pricing) annonce actuellement 15 builds Android et 15 builds iOS par mois, avec une file d’attente de faible priorité. Les quotas et conditions sont à vérifier au moment du lancement d’un build ; aucun forfait payant n’est activé ici.
+Le compte `hikmamif` est confirmé sur le plan **[EAS Free](https://expo.dev/pricing)** au **23 octobre 2026**. Juste avant le lancement, la consommation vérifiée était de **0/15 builds Android** et **0/30 builds au total**. Le contrôle réalisé **après le build réussi** indique **1/15 builds Android**, **0/15 builds iOS** et **1/30 builds au total**. Le coût estimé reste **nul**, sans abonnement récurrent ni dépassement facturé. Le build a utilisé la file gratuite ; aucun forfait payant n’est activé. Vérifier le quota courant avant toute nouvelle construction :
+
+```sh
+npx eas-cli@latest account:usage hikmamif --json --non-interactive
+```
+
+Le plan Free bloque les nouvelles constructions au plafond. Le budget du projet reste fixé à **0 €** ; aucune montée en gamme ni construction payante n’a été activée.
 
 Les inscriptions ordinaires aux stores ont leurs propres frais : [Google Play](https://support.google.com/googleplay/android-developer/answer/6112435?hl=en) demande **25 USD une fois**, et l’[Apple Developer Program](https://developer.apple.com/programs/enroll/) **99 USD par an**, avec variations locales et éventuelles exonérations Apple pour les organismes éligibles. Ces montants sont fournis pour contexte ; les comptes existants du propriétaire doivent être utilisés, sans nouvel achat automatique.
 
 Les abonnements actuels utilisent Stripe pour le web. **StoreKit et Google Play Billing ne sont pas encore intégrés** dans cette version native ; les achats réels restent désactivés. Les exports réussis ne valident donc pas encore un parcours d’achat dans les stores.
 
-Les essais sur appareils, les signatures, les accès App Store Connect/Play Console et la validation des parcours de compte et d’abonnement restent nécessaires avant une soumission. Les exports ne signifient pas que l’application est déjà publiée ou acceptée par Apple ou Google.
+Les essais sur appareils, les signatures Apple, les accès App Store Connect/Play Console et la validation des parcours de compte et d’abonnement restent nécessaires avant une soumission. L’APK signé ne valide pas encore l’installation ou le fonctionnement sur téléphone. Les exports et le build Android réussi ne signifient pas que l’application est déjà publiée ou acceptée par Apple ou Google.

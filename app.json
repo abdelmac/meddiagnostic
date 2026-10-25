@@ -5,7 +5,11 @@
     "slug": "medquiz",
     "scheme": "medquiz",
     "version": "0.1.0",
-    "platforms": ["ios", "android", "web"],
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
     "orientation": "default",
     "userInterfaceStyle": "automatic",
     "ios": {
@@ -13,7 +17,10 @@
       "bundleIdentifier": "fr.medquiz.app",
       "buildNumber": "1",
       "infoPlist": {
-        "CFBundleLocalizations": ["fr", "en"]
+        "CFBundleLocalizations": [
+          "fr",
+          "en"
+        ]
       }
     },
     "android": {
@@ -31,6 +38,20 @@
       "name": "Ippomed — Comprendre pour mieux soigner",
       "favicon": "./public/brand/ippomed-emblem.png"
     },
-    "plugins": ["expo-router", "expo-status-bar"]
+    "plugins": [
+      "expo-router",
+      "expo-status-bar"
+    ],
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "4e62f61a-560f-4030-81de-514b26120b00"
+      }
+    },
+    "owner": "hikmamif"
   }
 }

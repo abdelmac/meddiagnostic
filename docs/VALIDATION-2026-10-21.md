@@ -2,6 +2,8 @@
 
 La première section décrit la version Ippomed actuellement publiée. Les suivantes conservent les contrôles des publications précédentes du jour. Le rapport historique [VALIDATION.md](VALIDATION.md) ne décrit plus les capacités actuelles des comptes et du serveur.
 
+**Mise à jour du 23 octobre :** la version web décrite ici reste publiée. L’état natif a avancé depuis ce rapport : Expo est connecté et le premier APK Android est compilé, téléchargé et contrôlé. Voir [MOBILE.md](MOBILE.md) pour le lien d’installation, les vérifications et les étapes iOS encore nécessaires.
+
 ## Atlas immersif, rendu naturel et préparation Android/iOS
 
 Version web Cloudflare : **`73c9720e-6308-45b6-8dc6-9707489fbe06`**. Page dédiée : <https://medquiz-europe.medcompass-web.workers.dev/anatomy>. Cours : <https://medquiz-europe.medcompass-web.workers.dev/anatomy/courses>. Bundle de l’atlas : `index-9f6356b3b33feb269101b02954f8bef2.js` ; bundle partagé : `__common-83ad8cf84d31056e077a3785b362e4e5.js`. Douze fichiers web nouveaux ou modifiés ont été publiés sur le même hébergement ; aucune géométrie ni formule payante n’a été ajoutée.
