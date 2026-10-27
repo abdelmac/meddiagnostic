@@ -38,6 +38,7 @@ type World = {
 export function AnatomyScene(props: AnatomySceneProps) {
   const manifest = props.sourceManifest ?? defaultManifest;
   const datasetKey = manifest.datasetId ?? manifest.dataset ?? "bodyparts3d-4.0";
+  const sourceLabel = manifest.dataset ?? "BodyParts3D";
   const appearance = props.appearance ?? (manifest.meshes.some((entry) => entry.lod) ? "natural" : "study");
   const { system, view, selectedId, zoom = 1, height = 580, language = "fr", isolate = false, opacity = 1, hiddenIds = [], resetKey = 0, focusSelectionKey = 0, focusRegionKey = 0, isolatedDetail = false } = props;
   const requiredSystems = [...new Set(props.visibleSystems?.length ? props.visibleSystems : ["skeleton" as AnatomySystem, system])];
@@ -526,20 +527,20 @@ export function AnatomyScene(props: AnatomySceneProps) {
     } else current.fit(current.fullBounds(), { anterior: view === "anterior", zoom: safeZoom });
   }, [view, zoom, resetKey, focusSelectionKey, focusRegionKey, system, revision, status]);
   useEffect(() => {
-    world.current?.renderer.domElement.setAttribute("aria-label", l("Atlas anatomique 3D BodyParts3D. Glissez pour tourner. Molette : zoom vers le pointeur. Clic droit ou deux doigts : déplacer. Double-cliquez pour cadrer une structure. Flèches : rotation, plus et moins : zoom, F : cadrer, R : réinitialiser.", "BodyParts3D 3D anatomy atlas. Drag to rotate. Scroll to zoom towards the pointer. Right-drag or use two fingers to pan. Double-click to frame a structure. Arrows rotate, plus and minus zoom, F frames, R resets."));
+    world.current?.renderer.domElement.setAttribute("aria-label", l(`Atlas anatomique 3D ${sourceLabel}. Glissez pour tourner. Molette : zoom vers le pointeur. Clic droit ou deux doigts : déplacer. Double-cliquez pour cadrer une structure. Flèches : rotation, plus et moins : zoom, F : cadrer, R : réinitialiser.`, `${sourceLabel} 3D anatomy atlas. Drag to rotate. Scroll to zoom towards the pointer. Right-drag or use two fingers to pan. Double-click to frame a structure. Arrows rotate, plus and minus zoom, F frames, R resets.`));
     const entry = hoverId ? world.current?.activeLayers.find(layer => layer.byId.has(hoverId))?.entries.get(hoverId) : undefined;
     if (entry) { setHoverLabel(localizeAnatomyName(entry.name, language)); setHoverEnglish(language === "fr" && !anatomyNameHasFrench(entry.name)); }
-  }, [language, contextReady, hoverId, revision]);
+  }, [language, contextReady, hoverId, revision, sourceLabel]);
 
   const error = status === "error" || status === "webgl-error";
   const fallbackId = anatomyStructure(selectedId ?? "")?.id ?? manifest.meshes.find((entry) => entry.id === selectedId)?.legacyIds?.find((id) => !!anatomyStructure(id));
   const attributionUrl = manifest.attributionUrl ?? (manifest.datasetId === "bodyparts3d-3.0-95" ? "/anatomy/bodyparts3d-complete/ATTRIBUTION.txt" : "/anatomy/bodyparts3d/ATTRIBUTION.txt");
-  return <div data-testid="anatomy-3d-scene" data-ready={status === "ready" ? "true" : "false"} data-selected-id={selectedId ?? ""} data-source="BodyParts3D" data-source-id={datasetKey}
+  return <div data-testid="anatomy-3d-scene" data-ready={status === "ready" ? "true" : "false"} data-selected-id={selectedId ?? ""} data-source={sourceLabel} data-source-id={datasetKey}
     data-detail-mode={isolatedDetail ? "true" : "false"} data-detail-ready={isolatedDetail && status === "ready" ? "true" : "false"}
     style={{ position: "relative", height, minHeight: Math.min(320, height), width: "100%", overflow: "hidden", background: "radial-gradient(ellipse at 48% 38%, #2b3039 0%, #1b1e26 54%, #111219 100%)" }}>
     <div ref={host} style={{ width: "100%", height: "100%", visibility: error ? "hidden" : "visible" }} />
     {status === "loading" && <div role="status" style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", gap: 12, alignItems: "center", justifyContent: "center", background: "#191321d9", color: "#e1d7ee", font: "13px system-ui" }}>
-      <div>{isolatedDetail ? l("Chargement du détail anatomique…", "Loading the detailed anatomy…") : l("Chargement des maillages anatomiques…", "Loading anatomical meshes…")}</div><div role="progressbar" aria-label={l("Chargement du modèle anatomique", "Loading the anatomy model")} aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} style={{ width: 160, height: 3, borderRadius: 4, background: "#493b5b", overflow: "hidden" }}><div style={{ width: `${Math.max(3, progress)}%`, height: "100%", background: "#b4ec28" }} /></div><div style={{ color: "#ac9bbc", fontSize: 11 }}>{progress > 0 ? `${progress}%` : isolatedDetail ? "BodyParts3D 3.0" : "BodyParts3D"}</div>
+      <div>{isolatedDetail ? l("Chargement du détail anatomique…", "Loading the detailed anatomy…") : l("Chargement des maillages anatomiques…", "Loading anatomical meshes…")}</div><div role="progressbar" aria-label={l("Chargement du modèle anatomique", "Loading the anatomy model")} aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} style={{ width: 160, height: 3, borderRadius: 4, background: "#493b5b", overflow: "hidden" }}><div style={{ width: `${Math.max(3, progress)}%`, height: "100%", background: "#b4ec28" }} /></div><div style={{ color: "#ac9bbc", fontSize: 11 }}>{progress > 0 ? `${progress}%` : sourceLabel}</div>
     </div>}
     {error && <div data-testid="anatomy-webgl-fallback" style={{ position: "absolute", inset: 0, overflowY: "auto", padding: 14 }}>
       <div role="alert" style={{ color: "#e1d7ee", font: "12px/19px system-ui", textAlign: "center", maxWidth: 400, margin: "0 auto 12px" }}>{status === "webgl-error" ? l("La 3D est indisponible sur cet appareil. Le schéma 2D reste accessible.", "3D is unavailable on this device. The 2D diagram remains available.") : l("Le modèle anatomique n’a pas pu être chargé. Vérifiez votre connexion ou réessayez.", "The anatomy model could not be loaded. Check your connection or try again.")}</div>
@@ -558,6 +559,6 @@ export function AnatomyScene(props: AnatomySceneProps) {
       <div ref={tooltip} role="status" style={{ pointerEvents: "none", position: "absolute", left: 12, top: 12, visibility: hoverId ? "visible" : "hidden", maxWidth: 215, background: "#f2ecfa", border: "1px solid #d4c0ec", borderRadius: 9, padding: "9px 12px", boxShadow: "0 5px 18px #0004", color: "#2d1942", font: "600 12px/17px system-ui", zIndex: 2 }}>{hoverLabel}{hoverEnglish && <div style={{ color: "#786885", fontWeight: 400, fontSize: 10 }}>{l("Nom source (anglais)", "Source name (English)")}</div>}</div>
       <div style={{ pointerEvents: "none", position: "absolute", bottom: 33, left: 12, right: 12, color: "#b9a8c9", font: "10px/16px system-ui", textAlign: "center" }}>{l("Glisser : tourner · molette/pincer : zoomer · clic droit/deux doigts : déplacer", "Drag: rotate · scroll/pinch: zoom · right-drag/two fingers: pan")}</div>
     </>}
-    <a href={attributionUrl} target="_blank" rel="noopener noreferrer" style={{ position: "absolute", bottom: 10, left: 12, right: 12, color: "#9e8aaf", font: "9px/13px system-ui", textAlign: "center", textDecoration: "none" }}>BodyParts3D {isolatedDetail || manifest.datasetId === "bodyparts3d-3.0-95" ? "3.0" : "/ Anatomography"} © DBCLS · {l("Sources et licences", "Sources and licenses")}</a>
+    <a href={attributionUrl} title={manifest.attribution} target="_blank" rel="noopener noreferrer" style={{ position: "absolute", bottom: 10, left: 12, right: 12, color: "#9e8aaf", font: "9px/13px system-ui", textAlign: "center", textDecoration: "none" }}>{isolatedDetail ? "BodyParts3D 3.0" : sourceLabel} · {l("Sources et licences", "Sources and licenses")}</a>
   </div>;
 }

@@ -1,18 +1,18 @@
 {
-  "origin": "https://medquiz-europe.medcompass-web.workers.dev",
+  "origin": "http://127.0.0.1:8081",
   "project": "desktop",
-  "datasetId": "bodyparts3d-4.3",
+  "datasetId": "z-anatomy-neurovascular",
   "data": {
     "picked": {
-      "id": "FMA10951_FJ3441",
+      "id": "ZA_6c6f0050b01ebe5d",
       "worldPoint": [
-        -0.01475039222758391,
-        1.220846235752106,
-        0.024942821154616192
+        -0.009467127169364086,
+        1.102185606956482,
+        0.01698409265515216
       ],
       "actualTouch": false
     },
-    "excludedArterial": 602,
-    "excludedVenous": 885
+    "excludedArterial": 247,
+    "excludedVenous": 442
   }
 }

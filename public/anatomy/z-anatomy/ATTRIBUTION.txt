@@ -1,0 +1,70 @@
+Z-Anatomy — Gauthier Kervyn and contributors; underlying BodyParts3D — Database Center for Life Science and Kousaku Okubo.
+
+PUBLICATION APPROVED BY THE OWNER ? CC BY-SA 4.0 adaptation, with the upstream component credits and applicable terms below retained.
+
+Source: https://github.com/Z-Anatomy/Models-of-human-anatomy
+
+Pinned commit: caf0f6078f2a0ac9e65e81dce042d5a30b65d0f0
+
+Pinned Blender source SHA-256: 9f08a17ea0115fed80b2a73ecdf0a1bc2ab2f6956f37c593ce23d513ea35afcd
+
+General model adaptation licence: Creative Commons Attribution-ShareAlike 4.0 International (https://creativecommons.org/licenses/by-sa/4.0/). Underlying BodyParts3D attribution/licence and component exceptions remain applicable.
+
+https://github.com/Z-Anatomy/Models-of-human-anatomy/blob/caf0f6078f2a0ac9e65e81dce042d5a30b65d0f0/License.txt
+
+
+
+The owner explicitly approved publication of this atlas and the application code under CC BY-SA 4.0 on 2026-10-28. This follows the upstream author's stated position that the independent viewer's code also be shared. The release source code is available at: https://medquiz-europe.medcompass-web.workers.dev/source/ippomed-source-2026-10-28.zip
+
+Author position: https://github.com/Z-Anatomy/Models-of-human-anatomy/issues/12
+
+Model pack discussion: https://github.com/Z-Anatomy/Models-of-human-anatomy/issues/13
+
+The owner's approval does not assert additional personal permission from source contributors or certify complete component provenance. Conservative source-component exclusions remain in effect; this is not a blanket legal-clearance certificate.
+
+
+
+Upstream component credits and stated terms (including excluded exceptions, which are not relicensed by this notice):
+
+Z-Anatomy adaptation: CC-BY-SA-4.0
+Z-Anatomy — The libre 3D atlas of anatomy; Gauthier Kervyn and contributors
+https://github.com/Z-Anatomy/Models-of-human-anatomy/blob/caf0f6078f2a0ac9e65e81dce042d5a30b65d0f0/License.txt
+General licence does not override the stated exceptions below.
+
+Underlying BodyParts3D identified by Z-Anatomy: CC-BY-SA-2.1-JP
+BodyParts3D — The Database Center for Life Science; Kousaku Okubo
+https://github.com/Z-Anatomy/Models-of-human-anatomy/blob/caf0f6078f2a0ac9e65e81dce042d5a30b65d0f0/License.txt
+This is the older base identified by Z-Anatomy, separate from the existing original BodyParts3D 4.3 layer.
+
+Cranial Nerves and Foramina: CC-BY-4.0
+University of Dundee, CAHID; Sophia Lappe
+https://github.com/Z-Anatomy/Models-of-human-anatomy/blob/caf0f6078f2a0ac9e65e81dce042d5a30b65d0f0/License.txt
+https://sketchfab.com/3d-models/cranial-nerves-and-foramina-a9358ee7a6dd4ea18a3622114405a4c7
+Source page also credits BodyParts3D. Exact imported object mapping not supplied by Z-Anatomy.
+
+Anatomy of the Inner Ear: CC-BY-NC-SA-4.0
+University of Dundee School of Medicine
+https://github.com/Z-Anatomy/Models-of-human-anatomy/blob/caf0f6078f2a0ac9e65e81dce042d5a30b65d0f0/License.txt
+https://sketchfab.com/3d-models/anatomy-of-the-inner-ear-f80bda64666c4b8aaac8f63b7b82a0a0
+Original page describes tympanic membrane, facial nerve, ossicles, vestibular system and a referenced vestibulocochlear nerve. Therefore a four-name filter is not proof of full NC exclusion.
+
+Kidney: CC-BY-NC-4.0
+Lissie Cowley
+https://github.com/Z-Anatomy/Models-of-human-anatomy/blob/caf0f6078f2a0ac9e65e81dce042d5a30b65d0f0/License.txt
+Original model URL and exact included-object mapping unresolved. Ten explicit renal objects are withheld conservatively; their individual provenance is not asserted as proven.
+
+Brainder and White matter: unresolved upstream component terms; conservatively excluded
+Listed upstream as University of Washington
+https://github.com/Z-Anatomy/Models-of-human-anatomy/blob/caf0f6078f2a0ac9e65e81dce042d5a30b65d0f0/License.txt
+174 geometry-bearing objects have Brain/Brain-Inner/White matter material, including mixed Interlobar sulci. These are withheld. The separate Brainder website attributes models to A. Winkler under CC BY-SA 3.0, but correspondence to these exact source objects is not proven.
+
+
+
+Excluded physical objects: 206 for licence/provenance review, 59 technical exclusions. Full decisions and source evidence are recorded in manifest.json. Source definitions, Wikipedia text, translations and upstream application code were not copied or executed.
+
+
+
+Adaptation: evaluated source world coordinates converted once from Blender Z-up metres to Y-up metres, bilateral object transforms retained, reflected winding corrected. HIGH retains every evaluated source triangle. Every valid nonzero authored corner normal is retained before explicitly bounded quantization and lossless compression/reordering; the exactly zero source-normal exception is documented below. Preview alone is simplified with a 0.5 mm estimated appearance error limit. Missing anatomy, trajectories, fibres and radii are never generated.
+
+
+Authored normal exception: 230 exactly zero source corner normals in 10 objects were undefined in the source. Only these lighting normals were derived from their incident source triangle faces. Every nonzero authored normal, source position and source triangle remains unchanged before bounded encoding. Source normal-array SHA-256 and repaired corner indices are recorded per object in manifest.json.

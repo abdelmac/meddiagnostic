@@ -12,6 +12,7 @@ import {
   parseAnatomyNativeEvent,
   parseAnatomyNativeState,
   validAnatomyBridgeId,
+  anatomySourceForDataset,
   type NativeAnatomyState,
 } from "../domain/anatomy-native-bridge";
 import AnatomySceneDOM from "./AnatomyScene.dom";
@@ -33,8 +34,7 @@ const counter = (value: number | undefined) =>
 export function AnatomyScene(props: AnatomySceneProps) {
   const manifest =
     props.sourceManifest ?? (defaultManifest as unknown as BodyPartsManifest);
-  const source =
-    manifest.datasetId === "bodyparts3d-3.0-95" ? "detailed" : "extended";
+  const source = anatomySourceForDataset(manifest.datasetId);
   const physicalIds = useMemo(
     () => new Set(manifest.meshes.map((mesh) => mesh.id)),
     [manifest],
@@ -90,15 +90,15 @@ export function AnatomyScene(props: AnatomySceneProps) {
     isolate: props.isolate ?? false,
     isolatedDetail: props.isolatedDetail ?? false,
     hiddenIds: [
-      ...new Set((props.hiddenIds ?? []).filter(validAnatomyBridgeId)),
-    ].slice(0, 4000),
+      ...new Set((props.hiddenIds ?? []).filter(id => validAnatomyBridgeId(id) && allowedIds.has(id))),
+    ],
     excludedIds: [
       ...new Set(
         (props.excludedIds ?? []).filter(
           (id) => validAnatomyBridgeId(id) && physicalIds.has(id),
         ),
       ),
-    ].slice(0, 4000),
+    ],
     representationIds,
     visibleSystems: [
       ...new Set(

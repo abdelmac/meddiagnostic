@@ -28,6 +28,7 @@ export type BodyPartsManifest = {
   datasetId?: string;
   dataset?: string;
   version?: number | string;
+  attribution?: string;
   attributionUrl?: string;
   systems: { id: AnatomySystem; url?: string; files?: string[]; bytes?: number; meshCount?: number }[];
   meshes: BodyPartsEntry[];
@@ -105,7 +106,7 @@ async function fetchGLB(url: string, signal: AbortSignal, progress: (loaded: num
   return buffer.buffer;
 }
 
-/** Load only the requested layer. Every anatomical mesh keeps its FMA identity. */
+/** Load only the requested layer, preserving each source object's identity. */
 export async function loadAnatomyLayer(
   manifest: BodyPartsManifest,
   system: AnatomySystem,

@@ -16,9 +16,11 @@
     "test": "tsx --test tests/*.test.ts",
     "test:e2e": "playwright test",
     "preview": "node scripts/serve.mjs",
+    "preview:anatomy:build": "node scripts/preview-z-anatomy.mjs build",
+    "preview:anatomy": "node scripts/preview-z-anatomy.mjs serve",
     "economics": "tsx scripts/economics.ts",
     "check:i18n": "tsx scripts/audit-i18n.ts",
-    "deploy:web": "npm run build:web && npx --yes wrangler@4.151.1 deploy"
+    "deploy:web": "node scripts/check-anatomy-publication.mjs && npm run build:web && node scripts/check-anatomy-publication.mjs && npx --yes wrangler@4.151.1 deploy"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",

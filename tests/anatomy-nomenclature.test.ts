@@ -46,6 +46,13 @@ test("les noms inconnus ne subissent aucune traduction partielle ou transformati
   }
 });
 
+test("les objets sans nom anatomique restent explicitement non nommés dans les deux langues", () => {
+  const source = "Unnamed source structure ZA_0123456789abcdef";
+  assert.equal(localizeAnatomyName(source, "fr"), "Structure non nommée dans la source (ZA_0123456789abcdef)");
+  assert.equal(localizeAnatomyName(source, "en"), source);
+  assert.equal(anatomyNameHasFrench(source), true);
+});
+
 test("le lexique couvre les familles de structures sans inventer de description", () => {
   const sources = ["sternocleidomastoid", "orbicularis oculi", "zygomaticus major", "sartorius", "gracilis", "gluteus maximus", "gastrocnemius", "tibialis anterior", "soleus", "frontal bone", "scaphoid bone", "calcaneus", "urinary bladder", "spinal cord", "inferior vena cava", "common carotid artery", "vagus nerve"];
   for (const source of sources) {

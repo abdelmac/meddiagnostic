@@ -444,6 +444,7 @@ export function AnatomyStudyWorkspace({
                       label={entry.name[language]}
                       Icon={systemIcons[entry.id]}
                       active={system === entry.id}
+                      disabled={!atlas.systemAvailable(entry.id)}
                       onPress={() => atlas.changeSystem(entry.id)}
                     />
                   ))}
@@ -461,7 +462,7 @@ export function AnatomyStudyWorkspace({
                       l("Superposer ", "Overlay ") + entry.name[language]
                     }
                     aria-pressed={atlas.visibleSystems.includes(entry.id)}
-                    disabled={entry.id === system}
+                    disabled={entry.id === system || !atlas.systemAvailable(entry.id)}
                     onPress={() =>
                       atlas.setOverlays((current) =>
                         current.includes(entry.id)
@@ -495,7 +496,7 @@ export function AnatomyStudyWorkspace({
                   </Txt>
                 )}
               </View>
-              {sourceId === "extended" && mode === "3d" && (
+              {atlas.sourceInfo.networks && mode === "3d" && (
                 <View style={{ gap: 8 }}>
                   <Txt style={styles.eyebrow}>
                     {l("ARTÈRES ET VEINES", "ARTERIES AND VEINS")}
@@ -521,13 +522,13 @@ export function AnatomyStudyWorkspace({
                   </View>
                   <Txt style={{ color: "#a9a5b8", fontSize: 11 }}>
                     {l("Modèles d’artères", "Artery models")} :{" "}
-                    {atlas.quickViewCounts.arteries}
+                    {atlas.currentViewCounts.arteries}
                     {" · "}
                     {l("Modèles de veines", "Vein models")} :{" "}
-                    {atlas.quickViewCounts.veins}
+                    {atlas.currentViewCounts.veins}
                     {" · "}
                     {l("Modèles nerveux", "Nervous models")} :{" "}
-                    {atlas.quickViewCounts.nerves}
+                    {atlas.currentViewCounts.nerves}
                   </Txt>
                   {atlas.quickView === "bones" && (
                     <Txt style={{ color: "#a9a5b8", fontSize: 11 }}>
@@ -771,7 +772,7 @@ export function AnatomyStudyWorkspace({
                       setPanel(null);
                     }}
                   />
-                  {sourceId === "extended" && atlas.detailAvailable && (
+                  {atlas.detailAvailable && (
                     <Action
                       label={
                         atlas.detailMode
@@ -789,30 +790,19 @@ export function AnatomyStudyWorkspace({
                   {l("RÉFÉRENCE ANATOMIQUE", "ANATOMY REFERENCE")}
                 </Txt>
                 <View style={styles.wrap}>
-                  {(["extended", "detailed"] as const).map((value) => (
+                  {atlas.sourceOptions.map((option) => (
                     <Action
-                      key={value}
-                      label={
-                        value === "detailed"
-                          ? l("Corps détaillé", "Detailed body")
-                          : l("Corps complet", "Whole body")
-                      }
-                      Icon={value === "detailed" ? Activity : Network}
-                      active={sourceId === value}
-                      onPress={() => atlas.changeSource(value)}
+                      key={option.id}
+                      label={option.name[language]}
+                      Icon={option.id === "detailed" ? Activity : Network}
+                      active={sourceId === option.id}
+                      disabled={!option.available}
+                      onPress={() => atlas.changeSource(option.id)}
                     />
                   ))}
                 </View>
                 <Txt style={{ color: "#a9a5b8", fontSize: 11 }}>
-                  {sourceId === "detailed"
-                    ? l(
-                        "Reliefs détaillés, chargés progressivement dans le même corps.",
-                        "Fine surfaces, loaded progressively within the same body.",
-                      )
-                    : l(
-                        "Nerfs, artères, veines et formes osseuses dans une même référence BodyParts3D 4.3. La couverture dépend des structures disponibles dans cette source.",
-                        "Nerves, arteries, veins and bone shapes within one BodyParts3D 4.3 reference. Coverage depends on the structures available in this source.",
-                      )}
+                  {atlas.sourceInfo.description[language]}
                 </Txt>
               </View>
               <View style={styles.wrap}>
@@ -1190,7 +1180,7 @@ export function AnatomyStudyWorkspace({
                 setPanel(null);
               }}
             />
-            {sourceId === "extended" && atlas.detailAvailable && (
+            {atlas.detailAvailable && (
               <Action
                 label={
                   atlas.detailMode

@@ -1,66 +1,50 @@
 {
-  "origin": "https://medquiz-europe.medcompass-web.workers.dev",
+  "origin": "http://127.0.0.1:8081",
   "project": "mobile-web",
-  "datasetId": "bodyparts3d-4.3",
+  "datasetId": "z-anatomy-neurovascular",
   "data": [
     {
       "name": "Nerfs",
       "arteries": 0,
       "veins": 0,
-      "camera": "0.00000,0.86487,3.46684,0.00000,0.86487,0.00000",
-      "section": "{\"axis\":\"axial\",\"position\":0.5,\"inverted\":false,\"normal\":[0,1,0],\"constant\":-0.8648706078529358}",
+      "camera": "0.00000,0.87148,-3.49597,0.00000,0.87148,-0.00135",
+      "section": "{\"axis\":\"axial\",\"position\":0.5,\"inverted\":false,\"normal\":[0,1,0],\"constant\":-0.8714788502111332}",
       "hiddenIds": [
-        "FMA34680_FJ1468",
-        "FMA34681_FJ1468M",
-        "FMA34682_FJ1467",
-        "FMA34683_FJ1467M",
-        "FMA34684_FJ1513",
-        "FMA34685_FJ1513M"
+        "ZA_252b39f05350ea70",
+        "ZA_c85282deea82f19d"
       ]
     },
     {
       "name": "Artères",
-      "arteries": 885,
+      "arteries": 425,
       "veins": 0,
-      "camera": "0.00000,0.86487,3.46684,0.00000,0.86487,0.00000",
-      "section": "{\"axis\":\"axial\",\"position\":0.5,\"inverted\":false,\"normal\":[0,1,0],\"constant\":-0.8648706078529358}",
+      "camera": "0.00000,0.87148,-3.49597,0.00000,0.87148,-0.00135",
+      "section": "{\"axis\":\"axial\",\"position\":0.5,\"inverted\":false,\"normal\":[0,1,0],\"constant\":-0.8714788502111332}",
       "hiddenIds": [
-        "FMA34680_FJ1468",
-        "FMA34681_FJ1468M",
-        "FMA34682_FJ1467",
-        "FMA34683_FJ1467M",
-        "FMA34684_FJ1513",
-        "FMA34685_FJ1513M"
+        "ZA_252b39f05350ea70",
+        "ZA_c85282deea82f19d"
       ]
     },
     {
       "name": "Veines",
       "arteries": 0,
-      "veins": 602,
-      "camera": "0.00000,0.86487,3.46684,0.00000,0.86487,0.00000",
-      "section": "{\"axis\":\"axial\",\"position\":0.5,\"inverted\":false,\"normal\":[0,1,0],\"constant\":-0.8648706078529358}",
+      "veins": 230,
+      "camera": "0.00000,0.87148,-3.49597,0.00000,0.87148,-0.00135",
+      "section": "{\"axis\":\"axial\",\"position\":0.5,\"inverted\":false,\"normal\":[0,1,0],\"constant\":-0.8714788502111332}",
       "hiddenIds": [
-        "FMA34680_FJ1468",
-        "FMA34681_FJ1468M",
-        "FMA34682_FJ1467",
-        "FMA34683_FJ1467M",
-        "FMA34684_FJ1513",
-        "FMA34685_FJ1513M"
+        "ZA_252b39f05350ea70",
+        "ZA_c85282deea82f19d"
       ]
     },
     {
       "name": "Os",
       "arteries": 0,
       "veins": 0,
-      "camera": "0.00000,0.86487,3.46684,0.00000,0.86487,0.00000",
-      "section": "{\"axis\":\"axial\",\"position\":0.5,\"inverted\":false,\"normal\":[0,1,0],\"constant\":-0.8648706078529358}",
+      "camera": "0.00000,0.87148,-3.49597,0.00000,0.87148,-0.00135",
+      "section": "{\"axis\":\"axial\",\"position\":0.5,\"inverted\":false,\"normal\":[0,1,0],\"constant\":-0.8714788502111332}",
       "hiddenIds": [
-        "FMA34680_FJ1468",
-        "FMA34681_FJ1468M",
-        "FMA34682_FJ1467",
-        "FMA34683_FJ1467M",
-        "FMA34684_FJ1513",
-        "FMA34685_FJ1513M"
+        "ZA_252b39f05350ea70",
+        "ZA_c85282deea82f19d"
       ]
     }
   ]

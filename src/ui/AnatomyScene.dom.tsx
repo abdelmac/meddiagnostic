@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo } from "react";
 import type { DOMProps } from "expo/dom";
 import detailedManifest from "../data/bodyparts3d-complete-manifest.json";
 import extendedManifest from "../data/bodyparts3d-manifest.json";
+import comprehensiveManifest from "../data/z-anatomy-manifest.json";
 import {
   ANATOMY_ASSET_ORIGIN,
   ANATOMY_NATIVE_CHANNEL,
@@ -49,7 +50,7 @@ export default function AnatomySceneDOM({ state: input, onEvent }: Props) {
   const manifest = useMemo(
     () =>
       ({
-        ...(source === "detailed" ? detailedManifest : extendedManifest),
+        ...({ detailed: detailedManifest, extended: extendedManifest, comprehensive: comprehensiveManifest }[source]),
         assetBaseUrl: ANATOMY_ASSET_ORIGIN,
       }) as unknown as BodyPartsManifest,
     [source],

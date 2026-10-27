@@ -134,12 +134,16 @@ export function AnatomyInspector({
           )}
         </Txt>
       )}
-      {!!selected.fmaId && (
+      {!selected.landmark && (
         <Txt style={{ color: "#a18aae", fontSize: 10 }}>
-          {selected.fmaId}
-          {selected.id !== selected.fmaId
-            ? ` · ${selected.id.split("_").at(-1)}`
-            : ""}
+          {selected.id.startsWith("ZA_")
+            ? `${selected.id}${selected.fmaId ? ` · ${selected.fmaId}` : ""}`
+            : `${selected.fmaId ?? selected.id}${selected.fmaId && selected.id !== selected.fmaId ? ` · ${selected.id.split("_").at(-1)}` : ""}`}
+        </Txt>
+      )}
+      {!!selected.sourceName && selected.sourceName !== selected.name.en && (
+        <Txt style={{ color: "#a18aae", fontSize: 10 }}>
+          {l("Nom source", "Source name")} : {selected.sourceName}
         </Txt>
       )}
       {!!selected.representationGroup && (
@@ -150,8 +154,8 @@ export function AnatomyInspector({
       {language === "fr" && !selected.translated && (
         <Txt style={{ color: "#c4b0d3", fontSize: 11 }}>
           {l(
-            "Nom de la source en anglais ; traduction spécialisée à compléter.",
-            "Original English source term.",
+            "Nom de la source ; traduction spécialisée à compléter.",
+            "Original source term; specialist translation pending.",
           )}
         </Txt>
       )}
@@ -175,7 +179,9 @@ export function AnatomyInspector({
               secondary
               small
               label={
-                alternateSource === "extended"
+                alternateSource === "comprehensive"
+                  ? l("Voir dans l’atlas neurovasculaire", "View in neurovascular atlas")
+                  : alternateSource === "extended"
                   ? l("Voir dans le corps complet", "View in whole body")
                   : l("Voir dans le corps détaillé", "View in detailed body")
               }
@@ -509,8 +515,7 @@ export function AnatomyStructureSearch({
         }}
       >
         {item.name[language]}
-        {sourceId === "extended" &&
-        mode === "3d" &&
+        {mode === "3d" &&
         item.meshIds.length > 0 &&
         item.meshIds.every((id) => detailMeshIds.has(id))
           ? " · HD"
@@ -551,8 +556,8 @@ export function AnatomyStructureSearch({
             "Search for an anatomical structure",
           )}
           placeholder={l(
-            "Muscle, nerf, os, organe ou identifiant FMA…",
-            "Muscle, nerve, bone, organ or FMA identifier…",
+            "Muscle, nerf, os, organe ou identifiant source…",
+            "Muscle, nerve, bone, organ or source identifier…",
           )}
           placeholderTextColor="#a38bb4"
           value={search}
@@ -624,10 +629,7 @@ export function AnatomyStructureSearch({
         }}
       >
         <Txt style={{ color: "#a88fb9", fontSize: 10 }}>
-          {l(
-            "Maillages : BodyParts3D · Database Center for Life Science (DBCLS). Adaptation et compression pour Ippomed.",
-            "Meshes: BodyParts3D · Database Center for Life Science (DBCLS). Adapted and compressed for Ippomed.",
-          )}
+          {anatomyModelManifest.attribution}
         </Txt>
         <Pressable
           accessibilityRole="link"
@@ -638,10 +640,8 @@ export function AnatomyStructureSearch({
           onPress={() =>
             void Linking.openURL(
               Platform.OS === "web"
-                ? sourceId === "detailed"
-                  ? "/anatomy/bodyparts3d-complete/ATTRIBUTION.txt"
-                  : "/anatomy/bodyparts3d/ATTRIBUTION.txt"
-                : `https://medquiz-europe.medcompass-web.workers.dev/anatomy/${sourceId === "detailed" ? "bodyparts3d-complete" : "bodyparts3d"}/ATTRIBUTION.txt`,
+                ? atlas.sourceAttributionUrl
+                : new URL(atlas.sourceAttributionUrl, "https://medquiz-europe.medcompass-web.workers.dev").href,
             ).catch(() => setSourceError(true))
           }
           style={{ minHeight: 35, justifyContent: "center" }}

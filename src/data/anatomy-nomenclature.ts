@@ -1,6 +1,6 @@
 /**
- * Display names for English FMA labels distributed with BodyParts3D.
- * This dictionary never changes FMA IDs, source names or source geometry.
+ * Display names for English anatomical labels in the source catalogues.
+ * This dictionary never changes source IDs, original names or geometry.
  * Unrecognised labels stay in English rather than receiving a guessed name.
  */
 type Language = "fr" | "en";
@@ -342,11 +342,13 @@ function normalized(sourceName: string): string {
 }
 
 export function anatomyNameHasFrench(sourceName: string): boolean {
-  return !!frenchName(normalized(sourceName));
+  return /^Unnamed source structure ZA_[a-f0-9]{16}$/.test(sourceName) || !!frenchName(normalized(sourceName));
 }
 
 export function localizeAnatomyName(sourceName: string, language: Language): string {
   if (language === "en") return sourceName;
+  const unnamed = /^Unnamed source structure (ZA_[a-f0-9]{16})$/.exec(sourceName);
+  if (unnamed) return `Structure non nommée dans la source (${unnamed[1]})`;
   const translated = frenchName(normalized(sourceName));
   if (!translated) return sourceName;
   return translated.fr.charAt(0).toUpperCase() + translated.fr.slice(1);

@@ -218,8 +218,7 @@ export function AnatomyAtlas({
         }}
       >
         {item.name[language]}
-        {sourceId === "extended" &&
-        mode === "3d" &&
+        {mode === "3d" &&
         item.meshIds.length > 0 &&
         item.meshIds.every((id) => detailMeshIds.has(id))
           ? " · HD"
@@ -287,25 +286,24 @@ export function AnatomyAtlas({
         {mode === "3d" && (
           <View style={{ gap: 8 }}>
             <View style={[wrap, { gap: 8 }]}>
-              {(["extended", "detailed"] as const).map((value) => (
+              {atlas.sourceOptions.map((option) => (
                 <Pressable
-                  key={value}
+                  key={option.id}
                   accessibilityRole="button"
-                  accessibilityLabel={
-                    value === "detailed"
-                      ? l("Corps détaillé", "Detailed body")
-                      : l("Corps complet", "Whole body")
-                  }
-                  aria-pressed={sourceId === value}
-                  onPress={() => changeSource(value)}
+                  accessibilityLabel={option.name[language]}
+                  accessibilityState={{ disabled: !option.available }}
+                  disabled={!option.available}
+                  aria-pressed={sourceId === option.id}
+                  onPress={() => changeSource(option.id)}
                   style={{
                     paddingHorizontal: 15,
                     paddingVertical: 11,
                     minHeight: 43,
                     borderRadius: 11,
                     borderWidth: 1,
-                    borderColor: sourceId === value ? "#6418ef" : "#d8cfe5",
-                    backgroundColor: sourceId === value ? "#eee5ff" : "#ffffff",
+                    borderColor: sourceId === option.id ? "#6418ef" : "#d8cfe5",
+                    backgroundColor: sourceId === option.id ? "#eee5ff" : "#ffffff",
+                    opacity: option.available ? 1 : 0.45,
                   }}
                 >
                   <Txt
@@ -315,23 +313,13 @@ export function AnatomyAtlas({
                       fontWeight: "600",
                     }}
                   >
-                    {value === "detailed"
-                      ? l("Corps détaillé", "Detailed body")
-                      : l("Corps complet", "Whole body")}
+                    {option.name[language]}
                   </Txt>
                 </Pressable>
               ))}
             </View>
             <Txt muted style={{ fontSize: 11 }}>
-              {sourceId === "detailed"
-                ? l(
-                    "Les détails d’origine se chargent au zoom et au cadrage. Le corps complet propose séparément les nerfs, vaisseaux et os de BodyParts3D 4.3.",
-                    "Original details load as you zoom and focus. The whole body separately provides the nerves, vessels and bones from BodyParts3D 4.3.",
-                  )
-                : l(
-                    "Nerfs, artères, veines et formes osseuses dans une même référence BodyParts3D 4.3. Les deux références restent séparées, avec leurs limites de couverture.",
-                    "Nerves, arteries, veins and bone shapes within one BodyParts3D 4.3 reference. The two references remain separate, with their coverage limits.",
-                  )}
+              {atlas.sourceInfo.description[language]}
             </Txt>
           </View>
         )}
@@ -377,7 +365,7 @@ export function AnatomyAtlas({
             >
               IPPOMED ATLAS
             </Txt>
-            <Txt style={{ color: "#aa94bd", fontSize: 10 }}>BodyParts3D</Txt>
+            <Txt style={{ color: "#aa94bd", fontSize: 10 }}>{anatomyModelManifest.dataset}</Txt>
           </View>
           <View style={{ flexDirection: "row", gap: 5 }}>
             {(["3d", "2d"] as const).map((value) => (
@@ -440,6 +428,8 @@ export function AnatomyAtlas({
                   key={entry.id}
                   accessibilityRole="button"
                   accessibilityLabel={entry.name[language]}
+                  accessibilityState={{ disabled: !atlas.systemAvailable(entry.id) }}
+                  disabled={!atlas.systemAvailable(entry.id)}
                   aria-pressed={system === entry.id}
                   onPress={() => changeSystem(entry.id)}
                   style={{
@@ -629,7 +619,7 @@ export function AnatomyAtlas({
                     isolate || detailMode,
                     !selected.meshIds.length || detailMode,
                   )}
-                  {sourceId === "extended" &&
+                  {!!anatomyModelManifest.isolatedDetails?.entries.length &&
                     tool(
                       detailMode
                         ? l("Revenir au corps", "Back to body")
@@ -699,9 +689,9 @@ export function AnatomyAtlas({
                         }
                         accessibilityState={{
                           checked: visibleSystems.includes(entry.id),
-                          disabled: entry.id === system,
+                          disabled: entry.id === system || !atlas.systemAvailable(entry.id),
                         }}
-                        disabled={entry.id === system}
+                        disabled={entry.id === system || !atlas.systemAvailable(entry.id)}
                         onPress={() =>
                           setOverlays((current) =>
                             current.includes(entry.id)

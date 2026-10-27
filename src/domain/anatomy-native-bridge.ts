@@ -13,7 +13,11 @@ export const ANATOMY_ASSET_ORIGIN =
   "https://medquiz-europe.medcompass-web.workers.dev";
 export const ANATOMY_NATIVE_CHANNEL = "ippomed.anatomy";
 export const ANATOMY_NATIVE_VERSION = 1;
-export type NativeAnatomySource = "detailed" | "extended";
+export type NativeAnatomySource = "detailed" | "extended" | "comprehensive";
+export const ANATOMY_NATIVE_MAX_IDS = 10000;
+export const anatomySourceForDataset = (datasetId: string | undefined): NativeAnatomySource =>
+  datasetId === "z-anatomy-neurovascular" ? "comprehensive"
+    : datasetId === "bodyparts3d-3.0-95" ? "detailed" : "extended";
 export type NativeAnatomyBounds = { min: number[]; max: number[] };
 export type NativeAnatomyState = {
   version: 1;
@@ -57,7 +61,7 @@ const key = (value: unknown): value is number =>
   finite(value, 0, Number.MAX_SAFE_INTEGER) && Number.isInteger(value);
 export const validAnatomyBridgeId = (value: unknown): value is string =>
   typeof value === "string" && /^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,95}$/.test(value);
-const ids = (value: unknown, maximum = 4000): value is string[] =>
+const ids = (value: unknown, maximum = ANATOMY_NATIVE_MAX_IDS): value is string[] =>
   Array.isArray(value) &&
   value.length <= maximum &&
   value.every(validAnatomyBridgeId) &&
@@ -84,7 +88,7 @@ export function parseAnatomyNativeState(
   if (
     !object(value) ||
     value.version !== 1 ||
-    (value.source !== "detailed" && value.source !== "extended") ||
+    (value.source !== "detailed" && value.source !== "extended" && value.source !== "comprehensive") ||
     !isSystem(value.system) ||
     (value.view !== "anterior" && value.view !== "posterior") ||
     (value.language !== "fr" && value.language !== "en") ||
@@ -224,7 +228,7 @@ export function parseAnatomyNativeEvent(
     value.type === "ready" &&
     key(value.meshCount) &&
     value.meshCount > 0 &&
-    value.meshCount <= 10000 &&
+    value.meshCount <= ANATOMY_NATIVE_MAX_IDS &&
     ids(value.structureIds) &&
     value.structureIds.length > 0 &&
     value.meshCount >= value.structureIds.length &&
@@ -241,7 +245,7 @@ export function parseAnatomyNativeEvent(
 /** Only our pinned public model directories are valid remote resources. */
 export function anatomyNativeAssetUrl(value: string): string | undefined {
   if (
-    !/^\/anatomy\/(bodyparts3d|bodyparts3d-complete)\/[a-zA-Z0-9_./-]+\.glb$/.test(
+    !/^\/anatomy\/(bodyparts3d|bodyparts3d-complete|z-anatomy)\/[a-zA-Z0-9_./-]+\.glb$/.test(
       value,
     ) ||
     value.includes("..") ||

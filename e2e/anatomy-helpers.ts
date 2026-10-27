@@ -35,9 +35,10 @@ export async function openAtlasPanel(page: Page, panel: "search" | "layers" | "n
   return page.getByTestId("anatomy-study-panel");
 }
 
-export async function chooseAtlasSource(page: Page, source: "detailed" | "extended") {
+export async function chooseAtlasSource(page: Page, source: "detailed" | "extended" | "comprehensive") {
   const panel = await openAtlasPanel(page, "layers");
-  await panel.getByRole("button", { name: source === "detailed" ? /^(Corps détaillé|Detailed body)$/ : /^(Corps complet|Whole body)$/ }).click();
+  const names = { detailed: /^(Corps détaillé|Detailed body)$/, extended: /^(Corps complet|Whole body)$/, comprehensive: /^(Atlas neurovasculaire|Neurovascular atlas)$/ };
+  await panel.getByRole("button", { name: names[source] }).click();
   await closeAtlasPanel(page);
 }
 

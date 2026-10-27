@@ -9,12 +9,15 @@ import {
 } from "@playwright/test";
 import { writeFileSync } from "node:fs";
 import sourceData from "../src/data/bodyparts3d-manifest.json";
+import { atlasCatalog, atlasSources, defaultAtlasSource, type AtlasSource } from "../src/data/anatomy-catalog";
 import {
   anatomyNameHasFrench,
   localizeAnatomyName,
 } from "../src/data/anatomy-nomenclature";
 import {
   closeAtlasPanel,
+  chooseAtlasSource,
+  chooseAtlasSystem,
   openAtlasPanel,
   selectAtlasStructure,
   waitForAtlasSteady,
@@ -22,20 +25,23 @@ import {
 
 type SourceMesh = {
   id: string;
-  fmaId: string;
+  fmaId?: string;
   elementId: string;
   name: string;
   system: string;
   sourceVersion: string;
+  source?: { originalName?: string };
   vascularKind?: "artery" | "vein" | "other";
   representationGroup?: string;
   representationDefault?: boolean;
   lod?: { triangles: number; bytes: number };
 };
-const manifest = sourceData as unknown as {
+type SourceManifest = {
   datasetId: string;
   meshes: SourceMesh[];
 };
+const bodyPartsManifest = sourceData as unknown as SourceManifest;
+const manifest = atlasCatalog(defaultAtlasSource).manifest as unknown as SourceManifest;
 const arterialIds = manifest.meshes
   .filter((mesh) => mesh.system === "vessels" && mesh.vascularKind === "artery")
   .map((mesh) => mesh.id);
@@ -43,12 +49,15 @@ const venousIds = manifest.meshes
   .filter((mesh) => mesh.system === "vessels" && mesh.vascularKind === "vein")
   .map((mesh) => mesh.id);
 const sourceById = new Map(manifest.meshes.map((mesh) => [mesh.id, mesh]));
+const bodyPartsById = new Map(bodyPartsManifest.meshes.map((mesh) => [mesh.id, mesh]));
+const neuralIds = manifest.meshes.filter(mesh => mesh.system === "nerves").map(mesh => mesh.id);
 
-async function openBody(page: Page) {
+async function openBody(page: Page, source: AtlasSource = defaultAtlasSource) {
   await page.goto("/anatomy?lang=fr");
+  if (source !== defaultAtlasSource) await chooseAtlasSource(page, source);
   const scene = page.getByTestId("anatomy-3d-scene");
   const canvas = page.getByTestId("anatomy-webgl-canvas");
-  await expect(scene).toHaveAttribute("data-source-id", manifest.datasetId);
+  await expect(scene).toHaveAttribute("data-source-id", atlasCatalog(source).manifest.datasetId!);
   await expect(scene).toHaveAttribute("data-ready", "true", { timeout: 60000 });
   await closeAtlasPanel(page);
   await waitForAtlasSteady(canvas);
@@ -156,7 +165,7 @@ async function record(page: Page, info: TestInfo, name: string, data: unknown) {
   const value = {
     origin: new URL(page.url()).origin,
     project: info.project.name,
-    datasetId: manifest.datasetId,
+    datasetId: await page.getByTestId("anatomy-webgl-canvas").getAttribute("data-source-id"),
     data,
   };
   writeFileSync(
@@ -170,15 +179,17 @@ test("whole body defaults to one coherent source and network shortcuts preserve 
 }, info) => {
   test.setTimeout(210000);
   expect(manifest.meshes.length).toBeGreaterThan(3000);
-  expect(manifest.meshes.every((mesh) => mesh.sourceVersion === "4.3")).toBe(
+  expect(manifest.meshes.every((mesh) => defaultAtlasSource === "comprehensive"
+    ? mesh.id.startsWith("ZA_") && !!mesh.source?.originalName
+    : mesh.sourceVersion === "4.3")).toBe(
     true,
   );
-  expect(arterialIds.length).toBeGreaterThan(800);
-  expect(venousIds.length).toBeGreaterThan(500);
+  expect(arterialIds.length).toBeGreaterThan(defaultAtlasSource === "comprehensive" ? 400 : 800);
+  expect(venousIds.length).toBeGreaterThan(defaultAtlasSource === "comprehensive" ? 200 : 500);
   const { canvas } = await openBody(page);
   let panel = await openAtlasPanel(page, "layers");
   await expect(
-    panel.getByRole("button", { name: "Corps complet", exact: true }),
+    panel.getByRole("button", { name: atlasSources[defaultAtlasSource].name.fr, exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
   await closeAtlasPanel(page);
   await page
@@ -186,6 +197,8 @@ test("whole body defaults to one coherent source and network shortcuts preserve 
     .click();
   const hidden = await canvas.getAttribute("data-hidden-ids");
   expect(JSON.parse(hidden!)).not.toHaveLength(0);
+  const hiddenIds = new Set(JSON.parse(hidden!) as string[]);
+  const visibleNerves = neuralIds.filter(id => !hiddenIds.has(id)).length;
   panel = await openAtlasPanel(page, "layers");
   await panel
     .getByRole("button", { name: "Coupe anatomique", exact: true })
@@ -213,7 +226,7 @@ test("whole body defaults to one coherent source and network shortcuts preserve 
     expect(veins).toBe(name === "Veines" ? venousIds.length : 0);
     await expect(canvas).toHaveAttribute(
       "data-visible-nerves",
-      name === "Nerfs" ? "403" : "0",
+      name === "Nerfs" ? String(visibleNerves) : "0",
     );
     if (name === "Nerfs") {
       await expect(canvas).toHaveAttribute("data-visible-skeleton", "0");
@@ -226,7 +239,7 @@ test("whole body defaults to one coherent source and network shortcuts preserve 
       expect(
         Number(await canvas.getAttribute("data-visible-skeleton")),
       ).toBeGreaterThan(0);
-      await expect(canvas).toHaveAttribute("data-visible-nerves", "403");
+      await expect(canvas).toHaveAttribute("data-visible-nerves", String(visibleNerves));
       await expect(canvas).toHaveAttribute("data-camera", camera!);
       await expect(canvas).toHaveAttribute("data-section", section!);
       await expect(canvas).toHaveAttribute("data-hidden-ids", hidden!);
@@ -298,7 +311,7 @@ test("whole body defaults to one coherent source and network shortcuts preserve 
       .click();
     await closeAtlasPanel(page);
     await waitForAtlasSteady(canvas);
-    await expect(canvas).toHaveAttribute("data-visible-nerves", "403");
+    await expect(canvas).toHaveAttribute("data-visible-nerves", String(neuralIds.length));
     await expect(canvas).toHaveAttribute("data-visible-skeleton", "0");
     expect(
       (await page.getByTestId("anatomy-study-stage").boundingBox())!.height /
@@ -335,7 +348,7 @@ test("global search reveals a vein during an arterial subset and real picks cann
   );
   const vein = manifest.meshes.find(
     (mesh) =>
-      mesh.vascularKind === "vein" && /^inferior vena cava$/i.test(mesh.name),
+      mesh.vascularKind === "vein" && /^inferior vena cava(?: \((?:abdominal|thoracic) part\))?$/i.test(mesh.name),
   )!;
   await physicalSelection(page, canvas, vein);
   await waitForAtlasSteady(canvas);
@@ -386,8 +399,8 @@ test("true spinal cord and high-detail bone shapes retain their physical identit
   context,
 }, info) => {
   test.setTimeout(180000);
-  const { canvas } = await openBody(page);
-  const cord = manifest.meshes.find(
+  const { canvas } = await openBody(page, "extended");
+  const cord = bodyPartsManifest.meshes.find(
     (mesh) => mesh.elementId === "FJ4426" && mesh.fmaId === "FMA242005",
   )!;
   expect(cord).toBeDefined();
@@ -400,7 +413,7 @@ test("true spinal cord and high-detail bone shapes retain their physical identit
     .click();
   await waitForAtlasSteady(canvas);
   await expect(canvas).toHaveAttribute("data-selected-lod", "high");
-  await expect(canvas).toHaveAttribute("data-source-id", manifest.datasetId);
+  await expect(canvas).toHaveAttribute("data-source-id", bodyPartsManifest.datasetId);
   await page.screenshot({
     path: `artifacts/ippomed-networks-spinal-cord-${info.project.name}.png`,
   });
@@ -417,8 +430,8 @@ test("true spinal cord and high-detail bone shapes retain their physical identit
   );
   await expect(canvas).toHaveAttribute("data-selected-id", cord.id);
   await expect(canvas).toHaveAttribute("data-camera", cordCamera!);
-  await quickView(page, canvas, "Os");
-  const bone = manifest.meshes.find(
+  await chooseAtlasSystem(page, "Squelette");
+  const bone = bodyPartsManifest.meshes.find(
     (mesh) => mesh.system === "skeleton" && /^left humerus$/i.test(mesh.name),
   )!;
   expect(bone).toBeDefined();
@@ -431,7 +444,7 @@ test("true spinal cord and high-detail bone shapes retain their physical identit
     .click();
   await waitForAtlasSteady(canvas);
   await expect(canvas).toHaveAttribute("data-selected-lod", "high");
-  await expect(canvas).toHaveAttribute("data-source-id", manifest.datasetId);
+  await expect(canvas).toHaveAttribute("data-source-id", bodyPartsManifest.datasetId);
   expect(
     Number(await canvas.getAttribute("data-lod-triangles")),
   ).toBeGreaterThanOrEqual(bone.lod!.triangles);
@@ -469,9 +482,9 @@ test("bone source variants display one surface at a time and dissection never su
   context,
 }, info) => {
   test.setTimeout(180000);
-  const { canvas } = await openBody(page);
-  await quickView(page, canvas, "Os");
-  const femora = manifest.meshes.filter((mesh) =>
+  const { canvas } = await openBody(page, "extended");
+  await chooseAtlasSystem(page, "Squelette");
+  const femora = bodyPartsManifest.meshes.filter((mesh) =>
     ["FJ3259", "FJ6370"].includes(mesh.elementId),
   );
   expect(femora).toHaveLength(2);
@@ -485,7 +498,7 @@ test("bone source variants display one surface at a time and dissection never su
   expect(alternate.representationGroup).toBe(preferred.representationGroup);
   const group = preferred.representationGroup!;
   const groups = new Set(
-    manifest.meshes.map((mesh) => mesh.representationGroup).filter(Boolean),
+    bodyPartsManifest.meshes.map((mesh) => mesh.representationGroup).filter(Boolean),
   );
   expect(groups.size).toBe(84);
   const visibleRepresentations = async () => {
@@ -500,7 +513,7 @@ test("bone source variants display one surface at a time and dissection never su
         "Alternative source surfaces must never be superimposed",
       ).toBeLessThanOrEqual(1);
       for (const id of ids)
-        expect(sourceById.get(id)?.representationGroup).toBe(key);
+        expect(bodyPartsById.get(id)?.representationGroup).toBe(key);
     }
     return value;
   };
@@ -547,7 +560,7 @@ test("bone source variants display one surface at a time and dissection never su
       ),
     ).toContain(alternate.id);
     await expect(canvas).toHaveAttribute("data-camera", camera!);
-    const unrelated = manifest.meshes.find(
+    const unrelated = bodyPartsManifest.meshes.find(
       (mesh) =>
         mesh.system === "skeleton" &&
         /^left humerus$/i.test(mesh.name) &&

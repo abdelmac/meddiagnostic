@@ -1,5 +1,6 @@
 import manifestData from "./bodyparts3d-manifest.json";
 import completeManifestData from "./bodyparts3d-complete-manifest.json";
+import neurovascularManifestData from "./z-anatomy-manifest.json";
 import {
   anatomyStructure,
   anatomyStructures,
@@ -47,12 +48,13 @@ export const anatomyQuickViews = [
 
 export type AnatomyMesh = {
   id: string;
-  fmaId: string;
+  fmaId?: string;
   elementId: string;
   representationId: string;
   representationGroup?: string;
   representationDefault?: boolean;
   name: string;
+  source?: { originalName?: string };
   system: AnatomySystem;
   legacyIds: string[];
   bounds?: { min: number[]; max: number[] };
@@ -67,8 +69,37 @@ export type AnatomyMesh = {
     vertexCount: number;
   };
 };
-export type AtlasSource = "detailed" | "extended";
+export const atlasSourceIds = ["comprehensive", "extended", "detailed"] as const;
+export type AtlasSource = (typeof atlasSourceIds)[number];
+export const atlasSources = {
+  comprehensive: {
+    name: { fr: "Atlas neurovasculaire", en: "Neurovascular atlas" },
+    description: {
+      fr: "Nerfs et réseaux vasculaires dans une référence anatomique distincte. La couverture dépend des modèles réellement disponibles.",
+      en: "Nerves and vascular networks within a separate anatomical reference. Coverage depends on the models actually available.",
+    },
+    networks: true,
+  },
+  extended: {
+    name: { fr: "Corps complet", en: "Whole body" },
+    description: {
+      fr: "Nerfs, artères, veines et formes osseuses dans la référence BodyParts3D 4.3, avec ses limites de couverture.",
+      en: "Nerves, arteries, veins and bone shapes within the BodyParts3D 4.3 reference, with its coverage limits.",
+    },
+    networks: true,
+  },
+  detailed: {
+    name: { fr: "Corps détaillé", en: "Detailed body" },
+    description: {
+      fr: "Reliefs détaillés BodyParts3D 3.0, chargés progressivement dans leur propre corps.",
+      en: "Detailed BodyParts3D 3.0 surfaces, loaded progressively within their own body.",
+    },
+    networks: false,
+  },
+} as const;
 export type AtlasManifest = {
+  status?: string;
+  publicationStatus?: string;
   datasetId?: string;
   dataset: string;
   source: string;
@@ -128,11 +159,12 @@ const quizStructures = new Set(
     .map((q) => q.diagram?.structureId)
     .filter(Boolean),
 );
-function makeCatalog(data: unknown) {
+export function createAtlasCatalog(data: unknown) {
   const manifest = data as AtlasManifest;
   const meshes: AnatomyMesh[] = manifest.meshes.map((mesh) => ({
     ...mesh,
-    fmaId: mesh.fmaId ?? mesh.id.match(/^FMA\d+/)?.[0] ?? mesh.id,
+    fmaId: /^FMA\d+$/.test(mesh.fmaId ?? "")
+      ? mesh.fmaId : mesh.id.match(/^FMA\d+(?=_|$)/)?.[0],
     elementId: mesh.elementId ?? mesh.id,
     representationId: mesh.representationId ?? mesh.id,
   }));
@@ -175,14 +207,14 @@ function makeCatalog(data: unknown) {
       name: { fr: localizeAnatomyName(mesh.name, "fr"), en: mesh.name },
       region: notes?.region ?? system.name,
       summary: notes?.summary ?? {
-        fr: "Structure identifiée dans le jeu de données anatomiques BodyParts3D. Explorez sa forme et ses rapports avec les structures voisines.",
-        en: "Identified structure from the BodyParts3D anatomical dataset. Explore its shape and relationships with neighbouring structures.",
+        fr: `Structure identifiée dans la référence ${manifest.dataset}. Explorez sa forme et ses rapports avec les structures voisines.`,
+        en: `Identified structure from the ${manifest.dataset} reference. Explore its shape and relationships with neighbouring structures.`,
       },
       views: ["anterior", "posterior"],
       sources: notes?.sources ?? [modelSource],
       meshIds: [mesh.id],
       legacyId,
-      sourceName: mesh.name,
+      sourceName: mesh.source?.originalName ?? mesh.name,
       translated: anatomyNameHasFrench(mesh.name),
       landmark: false,
       fmaId: mesh.fmaId,
@@ -211,10 +243,27 @@ function makeCatalog(data: unknown) {
   };
 }
 const catalogs = {
-  detailed: makeCatalog(completeManifestData),
-  extended: makeCatalog(manifestData),
+  comprehensive: createAtlasCatalog(neurovascularManifestData),
+  detailed: createAtlasCatalog(completeManifestData),
+  extended: createAtlasCatalog(manifestData),
 };
 export const atlasCatalog = (source: AtlasSource) => catalogs[source];
+/** Publication-pending data can only be exposed by an explicit local build. */
+export function anatomySourceAvailable(
+  manifest: Pick<AtlasManifest, "status" | "publicationStatus" | "meshes">,
+  options: { privatePreview?: boolean } = {},
+) {
+  return manifest.status === "ready" && manifest.meshes.length > 0
+    && (manifest.publicationStatus === undefined || manifest.publicationStatus === "approved"
+      || (manifest.publicationStatus === "private-preview-pending-approval" && options.privatePreview === true));
+}
+export const atlasSourceAvailable = (source: AtlasSource) =>
+  anatomySourceAvailable(catalogs[source].manifest, {
+    privatePreview: process.env.EXPO_PUBLIC_Z_ANATOMY_PRIVATE_PREVIEW === "1",
+  });
+export const defaultNetworkSource: AtlasSource = atlasSourceAvailable("comprehensive")
+  ? "comprehensive" : "extended";
+export const defaultAtlasSource = defaultNetworkSource;
 // Compatibility for consumers of the original extended atlas.
 export const anatomyModelManifest = catalogs.extended.manifest;
 export const anatomyModelMeshes = catalogs.extended.meshes;

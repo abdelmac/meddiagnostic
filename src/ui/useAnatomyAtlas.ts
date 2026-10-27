@@ -14,6 +14,11 @@ import {
 } from "../data/anatomy-structures";
 import {
   atlasCatalog,
+  atlasSourceAvailable,
+  atlasSourceIds,
+  atlasSources,
+  defaultAtlasSource,
+  defaultNetworkSource,
   anatomyExcludedVesselIds,
   anatomyQuickViews,
   anatomySearchKey,
@@ -40,7 +45,7 @@ export function useAnatomyAtlas({
   const { width } = useWindowDimensions();
   const compact = width < 1100;
   const l = (fr: string, en: string) => (language === "fr" ? fr : en);
-  const [sourceId, setSourceId] = useState<AtlasSource>("extended");
+  const [sourceId, setSourceId] = useState<AtlasSource>(defaultAtlasSource);
   const catalog = atlasCatalog(sourceId);
   const {
     manifest: anatomyModelManifest,
@@ -60,13 +65,18 @@ export function useAnatomyAtlas({
     [anatomyModelManifest],
   );
   const initial =
-    atlasStructure(initialStructureId ?? "deltoid") ??
-    atlasStructure("deltoid")!;
+    (initialStructureId ? atlasStructure(initialStructureId) : undefined) ??
+    [atlasStructure(sourceId === "comprehensive" ? "sciatic-nerve" : "deltoid"), ...atlasLandmarks.filter(item => item.system === "nerves"), ...atlasLandmarks]
+      .find(item => item && item.meshIds.length > 0) ??
+    atlasMeshStructures[0] ?? atlasStructure("deltoid")!;
   const [system, setSystem] = useState<AnatomySystem>(initial.system);
   const [view, setView] = useState<AnatomyView>(initial.views[0]!);
   const [selectedId, setSelectedId] = useState(initial.id);
   const [mode, setMode] = useState<"3d" | "2d">("3d");
-  const [overlays, setOverlays] = useState<AnatomySystem[]>(["skeleton"]);
+  const [overlays, setOverlays] = useState<AnatomySystem[]>(
+    initial.system !== "nerves" && anatomyModelManifest.systems.some(item => item.id === "skeleton" && item.files.length)
+      ? ["skeleton"] : [],
+  );
   const [vascularFilter, setVascularFilter] =
     useState<AnatomyVascularFilter>("all");
   const [representationIds, setRepresentationIds] = useState<string[]>([]);
@@ -147,11 +157,23 @@ export function useAnatomyAtlas({
     ? muscleAttachments[selected.legacyId]
     : undefined;
   const quizId = atlasQuizStructureId(selected.id);
-  const alternateSource: AtlasSource =
-    sourceId === "detailed" ? "extended" : "detailed";
-  const alternateStructure = atlasCatalog(alternateSource).structure(
-    selected.legacyId ?? selected.id,
-  );
+  const alternate = atlasSourceIds
+    .filter(id => id !== sourceId && atlasSourceAvailable(id))
+    .map(id => {
+      const other = atlasCatalog(id);
+      const structure = other.structure(selected.legacyId ?? selected.id)
+        ?? (selected.fmaId ? other.structures.find(item => item.fmaId === selected.fmaId) : undefined);
+      return { id, structure };
+    })
+    .find(candidate => candidate.structure?.meshIds.length);
+  const alternateSource: AtlasSource = alternate?.id ?? defaultNetworkSource;
+  const alternateStructure = alternate?.structure;
+  const sourceOptions = atlasSourceIds.map(id => ({ id, ...atlasSources[id], available: atlasSourceAvailable(id) }));
+  const sourceInfo = atlasSources[sourceId];
+  const sourceAttributionUrl = anatomyModelManifest.attributionUrl
+    ?? `/anatomy/${sourceId === "detailed" ? "bodyparts3d-complete" : sourceId === "comprehensive" ? "z-anatomy" : "bodyparts3d"}/ATTRIBUTION.txt`;
+  const systemAvailable = (id: AnatomySystem) => mode === "2d"
+    || anatomyModelManifest.systems.some(item => item.id === id && item.files.length > 0);
   const detailAvailable =
     selected.meshIds.length > 0 &&
     selected.meshIds.every((id) => detailMeshIds.has(id));
@@ -164,7 +186,7 @@ export function useAnatomyAtlas({
     [anatomyModelMeshes, vascularFilter],
   );
   const quickViewCounts = useMemo(() => {
-    const wholeBody = atlasCatalog("extended").meshes;
+    const wholeBody = atlasCatalog(defaultNetworkSource).meshes;
     return Object.fromEntries(
       anatomyQuickViews.map((entry) => [
         entry.id,
@@ -177,8 +199,13 @@ export function useAnatomyAtlas({
       ]),
     ) as Record<AnatomyQuickView, number>;
   }, []);
+  const currentViewCounts = useMemo(() => Object.fromEntries(
+    anatomyQuickViews.map(entry => [entry.id, anatomyModelMeshes.filter(mesh =>
+      mesh.system === entry.system && (entry.vascularFilter === "all" || mesh.vascularKind === entry.vascularFilter),
+    ).length]),
+  ) as Record<AnatomyQuickView, number>, [anatomyModelMeshes]);
   const quickView: AnatomyQuickView | undefined =
-    sourceId !== "extended" || mode !== "3d"
+    sourceId !== defaultNetworkSource || mode !== "3d"
       ? undefined
       : system === "nerves"
         ? "nerves"
@@ -219,9 +246,11 @@ export function useAnatomyAtlas({
                     " " +
                     item.name.en +
                     " " +
+                    (item.sourceName ?? "") +
+                    " " +
                     item.id +
                     " " +
-                    item.fmaId,
+                    (item.fmaId ?? ""),
                 ).includes(query)
               : item.system === system &&
                 (item.system !== "vessels" ||
@@ -294,15 +323,19 @@ export function useAnatomyAtlas({
     setResultLimit(48);
   }, [query, system, vascularFilter]);
   const changeSource = (nextSource: AtlasSource) => {
-    if (nextSource === sourceId) return;
+    if (nextSource === sourceId || !atlasSourceAvailable(nextSource)) return;
     const nextCatalog = atlasCatalog(nextSource);
+    const mapped = nextCatalog.structure(selected.legacyId);
+    const mappedSystemAvailable = mapped && (mode === "2d" || (mapped.meshIds.length > 0 && nextCatalog.manifest.systems.some(item => item.id === mapped.system && item.files.length)));
     const next =
-      nextCatalog.structure(selected.legacyId) ??
-      nextCatalog.structures.find((entry) => entry.fmaId === selected.fmaId) ??
+      (mappedSystemAvailable ? mapped : undefined) ??
+      (selected.fmaId ? nextCatalog.structures.find((entry) => entry.fmaId === selected.fmaId && entry.meshIds.length) : undefined) ??
       nextCatalog.landmarks.find(
         (entry) => entry.system === system && entry.meshIds.length,
       ) ??
       nextCatalog.structures.find((entry) => entry.system === system) ??
+      nextCatalog.landmarks.find(entry => entry.meshIds.length) ??
+      nextCatalog.structures[0] ??
       nextCatalog.structure("deltoid")!;
     setSourceId(nextSource);
     setAppearance(nextSource === "detailed" ? "natural" : "study");
@@ -313,7 +346,7 @@ export function useAnatomyAtlas({
     setDetailMode(false);
     setSection(undefined);
     setHiddenIds([]);
-    setOverlays(["skeleton"]);
+    setOverlays(next.system !== "nerves" && nextCatalog.manifest.systems.some(item => item.id === "skeleton" && item.files.length) ? ["skeleton"] : []);
     setZoom(1);
     setIsolate(false);
     setOpacity(1);
@@ -323,8 +356,9 @@ export function useAnatomyAtlas({
     setReset((value) => value + 1);
   };
   const changeSystem = (nextSystem: AnatomySystem) => {
+    if (!systemAvailable(nextSystem)) return;
     setDetailMode(false);
-    setOverlays(nextSystem === "muscles" ? ["skeleton"] : []);
+    setOverlays(nextSystem === "muscles" && anatomyModelManifest.systems.some(item => item.id === "skeleton" && item.files.length) ? ["skeleton"] : []);
     setSearch("");
     setIsolate(false);
     setOpacity(1);
@@ -344,7 +378,7 @@ export function useAnatomyAtlas({
     setVascularFilter("all");
   };
   const changeVascularFilter = (nextFilter: AnatomyVascularFilter) => {
-    if (sourceId !== "extended") return;
+    if (!atlasSources[sourceId].networks) return;
     const matches = (item: typeof selected) =>
       item.system === "vessels" &&
       item.meshIds.length > 0 &&
@@ -364,7 +398,7 @@ export function useAnatomyAtlas({
   };
   const showQuickView = (id: AnatomyQuickView) => {
     const preset = anatomyQuickViews.find((entry) => entry.id === id)!;
-    const nextCatalog = atlasCatalog("extended");
+    const nextCatalog = atlasCatalog(defaultNetworkSource);
     const matches = (item: typeof selected) =>
       item.system === preset.system &&
       item.meshIds.length > 0 &&
@@ -374,13 +408,13 @@ export function useAnatomyAtlas({
       nextCatalog.landmarks.find(matches) ??
       nextCatalog.structures.find(matches);
     if (!next) return;
-    const changingSource = sourceId !== "extended";
-    setSourceId("extended");
+    const changingSource = sourceId !== defaultNetworkSource;
+    setSourceId(defaultNetworkSource);
     setMode("3d");
     setSystem(preset.system);
     setSelectedId(next.id);
     setVascularFilter(preset.vascularFilter);
-    setOverlays(preset.system === "vessels" ? ["skeleton"] : []);
+    setOverlays(preset.system === "vessels" && nextCatalog.manifest.systems.some(item => item.id === "skeleton" && item.files.length) ? ["skeleton"] : []);
     setDetailMode(false);
     setIsolate(false);
     setOpacity(1);
@@ -448,6 +482,10 @@ export function useAnatomyAtlas({
     compact,
     l,
     sourceId,
+    sourceOptions,
+    sourceInfo,
+    sourceAttributionUrl,
+    systemAvailable,
     setSourceId,
     catalog,
     anatomyModelManifest,
@@ -522,6 +560,7 @@ export function useAnatomyAtlas({
     changeVascularFilter,
     quickView,
     quickViewCounts,
+    currentViewCounts,
     showQuickView,
     hidden,
     query,

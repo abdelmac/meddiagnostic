@@ -1,5 +1,5 @@
 {
-  "origin": "https://medquiz-europe.medcompass-web.workers.dev",
+  "origin": "http://127.0.0.1:8081",
   "project": "mobile-web",
   "datasetId": "bodyparts3d-4.3",
   "data": {
@@ -16,9 +16,9 @@
     "picked": {
       "id": "FMA23131_FJ3262",
       "worldPoint": [
-        0.1910638002053891,
-        1.2609761953353882,
-        -0.025168700572996285
+        0.19106380020538918,
+        1.2610512233611746,
+        -0.03885718559322853
       ],
       "actualTouch": true
     }

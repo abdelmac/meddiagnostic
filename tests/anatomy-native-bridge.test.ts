@@ -3,7 +3,9 @@ import assert from "node:assert/strict";
 import {
   ANATOMY_ASSET_ORIGIN,
   ANATOMY_NATIVE_CHANNEL,
+  ANATOMY_NATIVE_MAX_IDS,
   anatomyNativeAssetUrl,
+  anatomySourceForDataset,
   parseAnatomyNativeEvent,
   parseAnatomyNativeState,
   type NativeAnatomyState,
@@ -57,6 +59,24 @@ test("native state preserves study controls across its JSON transport", () => {
   );
 });
 
+test("a comprehensive atlas transports more than four thousand source models without truncation", () => {
+  const sourceIds = Array.from({ length: 5520 }, (_, index) => `ZA_${index.toString(16).padStart(16, "0")}`);
+  const input = { ...state, source: "comprehensive", selectedId: sourceIds.at(-1), hiddenIds: sourceIds, excludedIds: sourceIds, representationIds: sourceIds };
+  const parsed = parseAnatomyNativeState(JSON.parse(JSON.stringify(input)))!;
+  assert.equal(parsed.source, "comprehensive");
+  for (const field of ["hiddenIds", "excludedIds", "representationIds"] as const) {
+    assert.equal(parsed[field].length, 5520);
+    assert.equal(parsed[field].at(-1), sourceIds.at(-1));
+    assert.notEqual(parsed[field], sourceIds);
+  }
+  const ready = { ...envelope, source: "comprehensive", type: "ready", meshCount: 5520, structureIds: sourceIds };
+  assert.deepEqual(parseAnatomyNativeEvent(ready, new Set(sourceIds), "comprehensive"), ready);
+  assert.equal(parseAnatomyNativeEvent({ ...ready, source: "extended" }, new Set(sourceIds), "comprehensive"), undefined);
+  assert.equal(anatomySourceForDataset("z-anatomy-neurovascular"), "comprehensive");
+  assert.equal(anatomySourceForDataset("bodyparts3d-3.0-95"), "detailed");
+  assert.equal(anatomySourceForDataset("bodyparts3d-4.3"), "extended");
+});
+
 test("state transport strips unrelated account fields and copies nested state", () => {
   const input = {
     ...state,
@@ -88,7 +108,7 @@ test("layer subsets remain separate from dissection and support older native sta
     "FMA13378",
     ["../private"],
     ["FMA13378", "FMA13378"],
-    Array.from({ length: 4001 }, (_, index) => `FMA${index}`),
+    Array.from({ length: ANATOMY_NATIVE_MAX_IDS + 1 }, (_, index) => `FMA${index}`),
   ])
     assert.equal(parseAnatomyNativeState({ ...state, excludedIds }), undefined);
 });
@@ -115,7 +135,7 @@ test("physical representation preferences survive JSON without sharing or forwar
     "FMA13378",
     ["../private"],
     ["FMA13378", "FMA13378"],
-    Array.from({ length: 4001 }, (_, index) => `FMA${index}`),
+    Array.from({ length: ANATOMY_NATIVE_MAX_IDS + 1 }, (_, index) => `FMA${index}`),
   ])
     assert.equal(
       parseAnatomyNativeState({ ...state, representationIds }),
@@ -201,7 +221,7 @@ test("malformed bounds, numbers, enum and oversized array messages are rejected"
     { language: "<script>" },
     { appearance: "external" },
     { selectedId: "javascript:alert(1)" },
-    { hiddenIds: Array(4001).fill("FMA13377") },
+    { hiddenIds: Array(ANATOMY_NATIVE_MAX_IDS + 1).fill("FMA13377") },
     { hiddenIds: ["FMA13377", "FMA13377"] },
     { visibleSystems: [] },
     { visibleSystems: ["muscles", "muscles"] },
@@ -313,6 +333,8 @@ test("only relative public GLBs resolve to the pinned HTTPS model host", () => {
     "/anatomy/bodyparts3d-complete/high/fma13377.glb",
     "/anatomy/bodyparts3d/muscles-01.glb",
     "/anatomy/bodyparts3d/details/fma34682-fj1467.glb",
+    "/anatomy/z-anatomy/preview/nerves-01.glb",
+    "/anatomy/z-anatomy/high/za_0123456789abcdef.glb",
   ])
     assert.equal(anatomyNativeAssetUrl(file), ANATOMY_ASSET_ORIGIN + file);
   for (const value of [
@@ -325,6 +347,9 @@ test("only relative public GLBs resolve to the pinned HTTPS model host", () => {
     "/anatomy/bodyparts3d//x.glb",
     "/auth",
     "/anatomy/bodyparts3d/x.js",
+    "/anatomy/z-anatomy/../secret.glb",
+    "/anatomy/z-anatomy/%2e%2e/secret.glb",
+    "/anatomy/z-anatomy/x.glb?token=private",
   ])
     assert.equal(anatomyNativeAssetUrl(value), undefined, value);
 });

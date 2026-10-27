@@ -1,6 +1,6 @@
 import { expect, test, type CDPSession, type Locator, type Page } from "@playwright/test";
 import { questions } from "../src/data/questions";
-import { closeAtlasPanel, openAtlasPanel, searchAtlas } from "./anatomy-helpers";
+import { chooseAtlasSource, chooseAtlasSystem, closeAtlasPanel, openAtlasPanel, searchAtlas } from "./anatomy-helpers";
 
 async function touch(session: CDPSession, type: "touchStart" | "touchMove" | "touchEnd", points: { id: number; x: number; y: number }[]) {
   await session.send("Input.dispatchTouchEvent", { type, touchPoints: points.map((point) => ({ ...point, radiusX: 3, radiusY: 3, force: 1 })) });
@@ -31,6 +31,11 @@ async function actualTouchSelection(page: Page, canvas: Locator, session: CDPSes
 test("immersive atlas gives the body the viewport, scrolls panels separately and accepts rotation and pinch", async ({ page, context }, info) => {
   test.setTimeout(180000);
   await page.goto("/anatomy?lang=fr");
+  await chooseAtlasSource(page, "extended");
+  await chooseAtlasSystem(page, "Muscles");
+  const initialLayers = await openAtlasPanel(page, "layers");
+  await initialLayers.getByRole("button", { name: "Rendu naturel", exact: true }).click();
+  await closeAtlasPanel(page);
   const workspace = page.getByTestId("anatomy-study-workspace");
   const stage = page.getByTestId("anatomy-study-stage");
   const canvas = page.getByTestId("anatomy-webgl-canvas");

@@ -1,14 +1,17 @@
 import { test, expect } from "@playwright/test";
 import { questions } from "../src/data/questions";
-import { chooseAtlasMode, chooseAtlasSystem, closeAtlasPanel, openImmersiveAtlas, searchAtlas, selectAtlasStructure } from "./anatomy-helpers";
+import { chooseAtlasMode, chooseAtlasSource, chooseAtlasSystem, closeAtlasPanel, openImmersiveAtlas, searchAtlas, selectAtlasStructure } from "./anatomy-helpers";
 
 test("atlas : corps cliquable, cinq calques, recherche, face/dos, zoom et traduction", async ({ page }, info) => {
   await page.goto("/");
   await openImmersiveAtlas(page);
+  await chooseAtlasSource(page, "extended");
+  await chooseAtlasSystem(page, "Muscles");
   const body = page.getByTestId("anatomy-body-diagram");
   await chooseAtlasMode(page, "2d");
   await expect(body).toHaveAccessibleName(/Deltoïde/);
   await chooseAtlasSystem(page, "Muscles");
+  await page.getByRole("button", { name: "Face", exact: true }).click();
   await body.scrollIntoViewIfNeeded();
   const target = await body.evaluate((node) => {
     const svg = node as SVGSVGElement;

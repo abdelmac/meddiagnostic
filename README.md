@@ -18,6 +18,14 @@ La [page de connexion et d’inscription](https://medquiz-europe.medcompass-web.
 
 **Livraison du 21 octobre 2026 :** 170 questions de démonstration bilingues (30 cliniques et 140 anatomiques), séries quotidiennes de révision avec semaine, record et paliers, comptes e-mail, gratuit limité à 3 sessions de 10 questions par jour, compétition à deux avec timer et classements par année, bibliothèque documentaire et 64 questions originales bilingues en brouillon. Les intégrations Google PKCE et Premium Stripe sont codées ; Google et les paiements restent désactivés faute d’identifiants de configuration. Les tarifs prévus restent **5 € par mois ou 25 € par an**. Le SMTP par défaut reste limité aux adresses invitées. Voir [les fonctionnalités et limites](docs/FONCTIONNALITES.md), [Google](GOOGLE-AUTH.md) et [Stripe](STRIPE.md). L’administration éditoriale et la validation médicale restent à organiser.
 
+## Licence et code source
+
+Le **code original d’Ippomed** est sous **CC BY-SA 4.0**, avec l’autorisation explicite du propriétaire du projet le 28 octobre 2026. Attribution : **Ippomed contributors**. Voir le [texte officiel intégral](LICENSE) et les [attributions, périmètres et exceptions](NOTICE.md).
+
+Le [dépôt du projet](https://github.com/abdelmac/meddiagnostic) est déjà public. Le code exact de cette release est préparé pour être distribué dans [ippomed-source-2026-10-28.zip](https://medquiz-europe.medcompass-web.workers.dev/source/ippomed-source-2026-10-28.zip), avec une empreinte SHA-256 séparée lors du déploiement. L’archive et le nouvel atlas ne sont pas déclarés en ligne avant vérification de leur publication.
+
+Les dépendances, médias, logos et modèles tiers conservent leurs droits et licences propres. Les notices des corpus BodyParts3D, notamment CC BY-SA 2.1 Japan lorsqu’elle s’applique, restent inchangées. La nouvelle adaptation Z-Anatomy est autorisée pour publication avec ses notices et exclusions prudentes ; elle contient 3 642 objets, dont 425 artériels et 230 veineux. Voir le [rapport neurovasculaire, ses vérifications et ses limites de provenance](docs/ANATOMIE-NEUROVASCULAIRE-2026-10-27.md).
+
 ## Installation et lancement
 
 Node.js 22.13+ (v24.19 utilisée ici), npm et Git. Sous PowerShell avec scripts désactivés, utiliser `npm.cmd` et `npx.cmd`.

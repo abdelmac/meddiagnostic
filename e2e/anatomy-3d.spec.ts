@@ -11,6 +11,10 @@ async function nextRenderedFrames(page: Page) {
 async function openExtendedAtlas(page: Page) {
   await openImmersiveAtlas(page);
   await chooseAtlasSource(page, "extended");
+  await chooseAtlasSystem(page, "Muscles");
+  const panel = await openAtlasPanel(page, "layers");
+  await panel.getByRole("button", { name: "Rendu naturel", exact: true }).click();
+  await closeAtlasPanel(page);
 }
 
 function cameraDistance(value: string | null) {
@@ -91,7 +95,7 @@ test("Ippomed: detailed meshes respond to clicks, focus, hide, rotation and a mu
   await openExtendedAtlas(page);
   const scene = page.getByTestId("anatomy-3d-scene");
   await expect(scene).toHaveAttribute("data-ready", "true", { timeout: 60000 });
-  await expect(scene).toHaveAttribute("data-source", "BodyParts3D");
+  await expect(scene).toHaveAttribute("data-source", manifest.dataset);
   const canvas = page.getByTestId("anatomy-webgl-canvas");
   const version = await canvas.evaluate((node) => {
     const gl = (node as HTMLCanvasElement).getContext("webgl2");
