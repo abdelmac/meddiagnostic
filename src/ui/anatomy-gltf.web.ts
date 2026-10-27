@@ -4,11 +4,15 @@ import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import type { AnatomySystem } from "../data/anatomy-structures";
 import { anatomyTissueProfile, applyAnatomyTissueProfile } from "./anatomy-materials.web";
 import { ANATOMY_ASSET_ORIGIN, anatomyNativeAssetUrl } from "../domain/anatomy-native-bridge";
+import { anatomySectionIntersectsBounds, type AnatomySectionPlane } from "../domain/anatomy-section";
 
 export type BodyPartsEntry = {
   id: string;
   name: string;
   system: AnatomySystem;
+  vascularKind?: "artery" | "vein" | "other";
+  representationGroup?: string;
+  representationDefault?: boolean;
   representationId?: string;
   fmaId?: string;
   elementId?: string;
@@ -146,7 +150,7 @@ export async function loadAnatomyLayer(
       // whole-body envelope must not cover or intercept the internal anatomy.
       node.userData.contextEnvelope = entry.defaultVisible === false || entry.fmaId === "FMA7163" || /^skin$/i.test(entry.name);
       node.geometry.computeBoundingBox(); node.geometry.computeBoundingSphere();
-      const appearance = manifest.datasetId === "bodyparts3d-3.0-95" ? "natural" : "study";
+      const appearance = manifest.meshes.some((item) => item.lod) ? "natural" : "study";
       const profile = anatomyTissueProfile(entry, appearance);
       const style = (original: THREE.Material) => {
         const key = `${original.uuid}:${profile.id}`;
@@ -182,7 +186,7 @@ export function anatomyMeshBounds(meshes: THREE.Mesh[]) {
 
 export type AnatomyLodStatus = { pending: number; loaded: number; errors: number };
 
-/** More samples for an idle close-up, bounded independently of device DPR. */
+/** More samples for any idle view, bounded independently of device DPR. */
 export function anatomyInspectionResolution(input: {
   width: number; height: number; devicePixelRatio: number; bodyPixelRatio: number;
   viewHeight: number; bodyHeight: number; moving: boolean; lowPower: boolean;
@@ -190,7 +194,7 @@ export function anatomyInspectionResolution(input: {
   const pixelBudget = input.lowPower ? 1_500_000 : 3_000_000;
   const pixelCap = Math.sqrt(pixelBudget / Math.max(1, input.width * input.height));
   const inspection = input.viewHeight < input.bodyHeight * 0.82;
-  const ratio = Math.min(input.devicePixelRatio, input.moving || !inspection ? input.bodyPixelRatio : 2, pixelCap);
+  const ratio = Math.min(input.devicePixelRatio, input.moving ? input.bodyPixelRatio : 2, pixelCap);
   return { ratio, pixelBudget, mode: input.moving ? "moving" : inspection ? "inspection" : "body" } as const;
 }
 
@@ -204,6 +208,7 @@ export function createAnatomyProgressiveLod(options: {
   lowPower: boolean;
   getLayers: () => LoadedAnatomyLayer[];
   getSelectedId: () => string | undefined;
+  getSectionPlane?: () => AnatomySectionPlane | undefined;
   enabled: () => boolean;
   changed: () => void;
   status: (status: AnatomyLodStatus) => void;
@@ -274,6 +279,8 @@ export function createAnatomyProgressiveLod(options: {
     timer = undefined;
     if (disposed || paused) return;
     const candidates: { entry: BodyPartsEntry; base: LoadedAnatomyLayer; score: number; chosen: boolean }[] = [];
+    const sectionPlane = options.getSectionPlane?.();
+    let sectionSkipped = 0;
     if (options.enabled()) {
       options.camera.updateMatrixWorld();
       const frustum = new THREE.Frustum().setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(options.camera.projectionMatrix, options.camera.matrixWorldInverse));
@@ -284,6 +291,7 @@ export function createAnatomyProgressiveLod(options: {
           const entry = base.entries.get(id);
           if (!entry?.lod || !meshes.some((mesh) => mesh.visible)) continue;
           const bounds = entry.bounds ? new THREE.Box3(new THREE.Vector3(...entry.bounds.min as [number, number, number]), new THREE.Vector3(...entry.bounds.max as [number, number, number])) : anatomyMeshBounds(meshes);
+          if (!anatomySectionIntersectsBounds(sectionPlane, { min: bounds.min.toArray(), max: bounds.max.toArray() })) { sectionSkipped++; continue; }
           const chosen = selected.has(id);
           if (!chosen && !frustum.intersectsBox(bounds)) continue;
           const center = bounds.getCenter(new THREE.Vector3()).project(options.camera);
@@ -301,6 +309,7 @@ export function createAnatomyProgressiveLod(options: {
       }
     }
     candidates.sort((a, b) => b.score - a.score);
+    options.canvas.dataset.lodSectionSkipped = String(sectionSkipped);
     let triangles = 0;
     const desired: typeof candidates = [];
     for (const item of candidates) {

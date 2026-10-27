@@ -1,5 +1,5 @@
 /**
- * Display names for the English FMA labels distributed with BodyParts3D 4.0.
+ * Display names for English FMA labels distributed with BodyParts3D.
  * This dictionary never changes FMA IDs, source names or source geometry.
  * Unrecognised labels stay in English rather than receiving a guessed name.
  */
@@ -108,6 +108,7 @@ group("bone", "f", {
 
 group("organ", "m", {
   brain: "encéphale", cerebrum: "cerveau", cerebellum: "cervelet", brainstem: "tronc cérébral", "brain stem": "tronc cérébral",
+  "neural tissue of spinal cord": "tissu nerveux de la moelle spinale",
   midbrain: "mésencéphale", pons: "pont", thalamus: "thalamus", hypothalamus: "hypothalamus", hippocampus: "hippocampe", caudate: "noyau caudé",
   putamen: "putamen", "globus pallidus": "pallidum", "caudate nucleus": "noyau caudé", "corpus callosum": "corps calleux",
   heart: "cœur", atrium: "atrium", ventricle: "ventricule", lung: "poumon", liver: "foie", stomach: "estomac", pancreas: "pancréas",

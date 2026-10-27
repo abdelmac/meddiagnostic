@@ -8,6 +8,7 @@
     },
     "preview": {
       "distribution": "internal",
+      "autoIncrement": true,
       "environment": "preview",
       "env": { "EXPO_PUBLIC_FOLDER": "public-native" },
       "android": { "buildType": "apk" },

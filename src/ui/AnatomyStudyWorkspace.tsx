@@ -1,14 +1,22 @@
-import React, { useCallback, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useFocusEffect } from "expo-router";
 import {
   BackHandler,
   Image,
   Platform,
+  PanResponder,
   Pressable,
   ScrollView,
   StyleSheet,
   View,
   useWindowDimensions,
+  type ViewProps,
 } from "react-native";
 import {
   Activity,
@@ -29,12 +37,15 @@ import {
   RotateCcw,
   Search,
   Sparkles,
+  Scissors,
   Sun,
+  Undo2,
   X,
   Zap,
   type LucideIcon,
 } from "lucide-react-native";
 import { anatomySystems } from "../data/anatomy-structures";
+import { anatomyQuickViews } from "../data/anatomy-catalog";
 import type { AnatomyFocus } from "../domain/types";
 import { useI18n } from "../i18n";
 import { AnatomyInspector, AnatomyStructureSearch } from "./anatomy-panels";
@@ -51,6 +62,179 @@ const systemIcons = {
   organs: Heart,
   vessels: Network,
 };
+
+/** Native touch, assistive actions and web keyboard all edit the same plane. */
+function SectionPositionControl({
+  value,
+  onChange,
+  label,
+  decreaseLabel,
+  increaseLabel,
+  onDragChange,
+}: {
+  value: number;
+  onChange: (value: number) => void;
+  label: string;
+  decreaseLabel: string;
+  increaseLabel: string;
+  onDragChange: (dragging: boolean) => void;
+}) {
+  const trackWidth = useRef(1);
+  const trackPageOrigin = useRef(0);
+  const current = useRef({ value, onChange, onDragChange });
+  current.current = { value, onChange, onDragChange };
+  useEffect(() => () => current.current.onDragChange(false), []);
+  const setPosition = (next: number) => {
+    if (Number.isFinite(next))
+      current.current.onChange(Math.max(0, Math.min(1, next)));
+  };
+  const responder = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponder: (_, gesture) =>
+          Math.abs(gesture.dx) > Math.abs(gesture.dy) &&
+          Math.abs(gesture.dx) > 3,
+        onPanResponderGrant: (event) => {
+          current.current.onDragChange(true);
+          const { pageX, locationX } = event.nativeEvent;
+          trackPageOrigin.current = pageX - locationX;
+          setPosition((pageX - trackPageOrigin.current) / trackWidth.current);
+        },
+        onPanResponderMove: (event) =>
+          setPosition(
+            (event.nativeEvent.pageX - trackPageOrigin.current) /
+              trackWidth.current,
+          ),
+        onPanResponderRelease: (event) => {
+          setPosition(
+            (event.nativeEvent.pageX - trackPageOrigin.current) /
+              trackWidth.current,
+          );
+          current.current.onDragChange(false);
+        },
+        onPanResponderTerminate: () => current.current.onDragChange(false),
+        onPanResponderTerminationRequest: () => false,
+        onShouldBlockNativeResponder: () => true,
+      }),
+    [],
+  );
+  const changeBy = (step: number) => setPosition(current.current.value + step);
+  const handleKeyDown: NonNullable<ViewProps["onKeyDown"]> = (event) => {
+    const key = event.nativeEvent.key;
+    const direction =
+      key === "ArrowLeft" || key === "ArrowDown"
+        ? -1
+        : key === "ArrowRight" || key === "ArrowUp"
+          ? 1
+          : 0;
+    if (direction) {
+      event.preventDefault();
+      changeBy(direction * 0.005);
+    } else if (key === "Home" || key === "End") {
+      event.preventDefault();
+      setPosition(key === "Home" ? 0 : 1);
+    }
+  };
+  const percentage = Math.round(value * 1000) / 10;
+  // RN Web reads the explicit ARIA fields, while native uses accessibilityValue.
+  const webAccessibilityValue =
+    Platform.OS === "web"
+      ? {
+          "aria-valuemin": 0,
+          "aria-valuemax": 100,
+          "aria-valuenow": percentage,
+          "aria-valuetext": `${percentage}%`,
+        }
+      : {};
+  return (
+    <View style={{ gap: 6 }}>
+      <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
+        <Txt style={{ color: "#c9c0d4", fontSize: 11, flex: 1 }}>{label}</Txt>
+        <Txt style={{ color: "#d5e9b2", fontSize: 12 }}>{percentage}%</Txt>
+      </View>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+        <Action
+          label={decreaseLabel}
+          Icon={Minus}
+          iconOnly
+          disabled={value <= 0}
+          onPress={() => changeBy(-0.005)}
+        />
+        <View
+          {...responder.panHandlers}
+          onKeyDown={handleKeyDown}
+          testID="anatomy-section-slider"
+          accessible
+          focusable
+          accessibilityRole="adjustable"
+          accessibilityLabel={label}
+          {...webAccessibilityValue}
+          accessibilityValue={{
+            min: 0,
+            max: 100,
+            now: percentage,
+            text: `${percentage}%`,
+          }}
+          accessibilityActions={[
+            { name: "increment", label: increaseLabel },
+            { name: "decrement", label: decreaseLabel },
+          ]}
+          onAccessibilityAction={(event) => {
+            if (event.nativeEvent.actionName === "increment") changeBy(0.005);
+            else if (event.nativeEvent.actionName === "decrement")
+              changeBy(-0.005);
+          }}
+          onLayout={(event) => {
+            trackWidth.current = Math.max(1, event.nativeEvent.layout.width);
+          }}
+          style={{
+            flex: 1,
+            minWidth: 60,
+            height: 48,
+            marginHorizontal: 10,
+            justifyContent: "center",
+          }}
+        >
+          <View
+            pointerEvents="none"
+            style={{ height: 4, borderRadius: 2, backgroundColor: "#494354" }}
+          >
+            <View
+              style={{
+                width: `${value * 100}%`,
+                height: 4,
+                borderRadius: 2,
+                backgroundColor: "#b8d993",
+              }}
+            />
+          </View>
+          <View
+            pointerEvents="none"
+            style={{
+              position: "absolute",
+              left: `${value * 100}%`,
+              width: 18,
+              height: 18,
+              borderRadius: 9,
+              backgroundColor: "#d5efad",
+              borderWidth: 2,
+              borderColor: "#819b62",
+              transform: [{ translateX: -9 }],
+            }}
+          />
+        </View>
+        <Action
+          label={increaseLabel}
+          Icon={Plus}
+          iconOnly
+          disabled={value >= 1}
+          onPress={() => changeBy(0.005)}
+        />
+      </View>
+    </View>
+  );
+}
 
 function Action({
   label,
@@ -131,6 +315,7 @@ export function AnatomyStudyWorkspace({
   const shortScreen = height < 500;
   const beside = width >= 1000 || (width >= 680 && height < 550);
   const [panel, setPanel] = useState<Panel>(width >= 1000 ? "notes" : null);
+  const [sectionDragging, setSectionDragging] = useState(false);
   const [canvasHeight, setCanvasHeight] = useState(Math.max(200, height - 260));
   const [zen, setZen] = useState(false);
   const toggle = (next: Panel) => {
@@ -138,12 +323,27 @@ export function AnatomyStudyWorkspace({
     setPanel((current) => (current === next ? null : next));
   };
   const CurrentIcon = systemIcons[system];
+  const quickActions = () =>
+    anatomyQuickViews.map((entry) => (
+      <Action
+        key={entry.id}
+        label={entry.name[language]}
+        Icon={systemIcons[entry.system]}
+        active={atlas.quickView === entry.id}
+        disabled={atlas.quickViewCounts[entry.id] === 0}
+        onPress={() => {
+          atlas.showQuickView(entry.id);
+          if (!beside) setPanel(null);
+        }}
+      />
+    ));
   const focusSelection = () => {
     atlas.setFocusKey((n) => n + 1);
     atlas.setActiveRegion(undefined);
     atlas.setRegionBounds(undefined);
   };
   const toggleDetail = () => {
+    atlas.setSection(undefined);
     atlas.setDetailMode((value) => !value);
     atlas.setIsolate(false);
     atlas.setHiddenIds((current) =>
@@ -215,6 +415,7 @@ export function AnatomyStudyWorkspace({
         <ScrollView
           keyboardShouldPersistTaps="handled"
           nestedScrollEnabled
+          scrollEnabled={!sectionDragging}
           style={{ flex: 1 }}
           contentContainerStyle={{ paddingBottom: 20 }}
         >
@@ -224,6 +425,14 @@ export function AnatomyStudyWorkspace({
           {panel === "search" && <AnatomyStructureSearch atlas={atlas} />}
           {panel === "layers" && (
             <View style={{ padding: 16, gap: 20 }}>
+              {shortScreen && (
+                <View style={{ gap: 8 }} testID="anatomy-quick-views">
+                  <Txt style={styles.eyebrow}>
+                    {l("VUES RAPIDES", "QUICK VIEWS")}
+                  </Txt>
+                  <View style={styles.wrap}>{quickActions()}</View>
+                </View>
+              )}
               <View style={{ gap: 8 }}>
                 <Txt style={styles.eyebrow}>
                   {l("EXPLORER UN SYSTÈME", "EXPLORE A SYSTEM")}
@@ -277,6 +486,210 @@ export function AnatomyStudyWorkspace({
                     </Txt>
                   </Pressable>
                 ))}
+                {atlas.quickView === "nerves" && (
+                  <Txt style={{ color: "#a9a5b8", fontSize: 11 }}>
+                    {l(
+                      "Les nerfs sont affichés seuls. Ajoutez le squelette ici pour étudier leurs rapports avec les os.",
+                      "Nerves are shown on their own. Add the skeleton here to study their relationships with bones.",
+                    )}
+                  </Txt>
+                )}
+              </View>
+              {sourceId === "extended" && mode === "3d" && (
+                <View style={{ gap: 8 }}>
+                  <Txt style={styles.eyebrow}>
+                    {l("ARTÈRES ET VEINES", "ARTERIES AND VEINS")}
+                  </Txt>
+                  <View style={styles.wrap}>
+                    {(["all", "artery", "vein"] as const).map((value) => (
+                      <Action
+                        key={value}
+                        label={
+                          value === "all"
+                            ? l("Tous les vaisseaux", "All vessels")
+                            : value === "artery"
+                              ? l("Artères uniquement", "Arteries only")
+                              : l("Veines uniquement", "Veins only")
+                        }
+                        Icon={Network}
+                        active={
+                          system === "vessels" && atlas.vascularFilter === value
+                        }
+                        onPress={() => atlas.changeVascularFilter(value)}
+                      />
+                    ))}
+                  </View>
+                  <Txt style={{ color: "#a9a5b8", fontSize: 11 }}>
+                    {l("Modèles d’artères", "Artery models")} :{" "}
+                    {atlas.quickViewCounts.arteries}
+                    {" · "}
+                    {l("Modèles de veines", "Vein models")} :{" "}
+                    {atlas.quickViewCounts.veins}
+                    {" · "}
+                    {l("Modèles nerveux", "Nervous models")} :{" "}
+                    {atlas.quickViewCounts.nerves}
+                  </Txt>
+                  {atlas.quickView === "bones" && (
+                    <Txt style={{ color: "#a9a5b8", fontSize: 11 }}>
+                      {l(
+                        "Les formes osseuses sont présentées avec les cartilages et les articulations de la référence.",
+                        "Bone shapes are shown with the reference cartilage and joints.",
+                      )}
+                    </Txt>
+                  )}
+                </View>
+              )}
+              <View style={{ gap: 10 }}>
+                <Txt style={styles.eyebrow}>
+                  {l("COUPE ET DISSECTION", "SECTION AND DISSECTION")}
+                </Txt>
+                <Action
+                  label={l("Coupe anatomique", "Anatomical section")}
+                  Icon={Scissors}
+                  active={!!atlas.section}
+                  disabled={mode !== "3d" || atlas.detailMode}
+                  onPress={() =>
+                    atlas.section
+                      ? atlas.setSection(undefined)
+                      : atlas.startSection()
+                  }
+                />
+                {atlas.section && (
+                  <View
+                    testID="anatomy-section-controls"
+                    style={{ gap: 12, paddingTop: 2 }}
+                  >
+                    <View style={styles.wrap}>
+                      {(
+                        [
+                          ["axial", l("Axial", "Axial")],
+                          ["sagittal", l("Sagittal", "Sagittal")],
+                          ["coronal", l("Coronal", "Coronal")],
+                        ] as const
+                      ).map(([axis, label]) => (
+                        <Action
+                          key={axis}
+                          label={label}
+                          Icon={Scissors}
+                          active={atlas.section!.axis === axis}
+                          onPress={() =>
+                            atlas.setSection((current) =>
+                              current
+                                ? {
+                                    ...current,
+                                    axis,
+                                    position:
+                                      atlas.selectionSectionPosition(axis),
+                                  }
+                                : current,
+                            )
+                          }
+                        />
+                      ))}
+                    </View>
+                    <SectionPositionControl
+                      label={l(
+                        "Position du plan de coupe",
+                        "Section plane position",
+                      )}
+                      decreaseLabel={l(
+                        "Reculer le plan de coupe",
+                        "Decrease section position",
+                      )}
+                      increaseLabel={l(
+                        "Avancer le plan de coupe",
+                        "Increase section position",
+                      )}
+                      value={atlas.section.position}
+                      onChange={(position) =>
+                        atlas.setSection((current) =>
+                          current ? { ...current, position } : current,
+                        )
+                      }
+                      onDragChange={setSectionDragging}
+                    />
+                    <View style={styles.wrap}>
+                      <Action
+                        label={l(
+                          "Passer par la sélection",
+                          "Through the selection",
+                        )}
+                        Icon={Focus}
+                        disabled={!selected.meshIds.length}
+                        onPress={() =>
+                          atlas.setSection((current) =>
+                            current
+                              ? {
+                                  ...current,
+                                  position: atlas.selectionSectionPosition(
+                                    current.axis,
+                                  ),
+                                }
+                              : current,
+                          )
+                        }
+                      />
+                      <Action
+                        label={l("Milieu du corps", "Body midpoint")}
+                        Icon={Focus}
+                        onPress={() =>
+                          atlas.setSection((current) =>
+                            current ? { ...current, position: 0.5 } : current,
+                          )
+                        }
+                      />
+                      <Action
+                        label={l("Inverser le côté", "Reverse the side")}
+                        Icon={RotateCcw}
+                        active={atlas.section.inverted}
+                        onPress={() =>
+                          atlas.setSection((current) =>
+                            current
+                              ? { ...current, inverted: !current.inverted }
+                              : current,
+                          )
+                        }
+                      />
+                      <Action
+                        label={l("Réinitialiser la coupe", "Reset section")}
+                        Icon={RotateCcw}
+                        onPress={() =>
+                          atlas.setSection({
+                            axis: "axial",
+                            position: 0.5,
+                            inverted: false,
+                          })
+                        }
+                      />
+                    </View>
+                    <Txt style={{ color: "#a9a5b8", fontSize: 11 }}>
+                      {l(
+                        "Les surfaces restent ouvertes au plan de coupe.",
+                        "Surfaces remain open at the section plane.",
+                      )}
+                    </Txt>
+                  </View>
+                )}
+                <View style={styles.wrap}>
+                  <Action
+                    label={l("Annuler le dernier retrait", "Undo last removal")}
+                    Icon={Undo2}
+                    disabled={!atlas.hiddenHistoryCount}
+                    onPress={atlas.undoHidden}
+                  />
+                  <Action
+                    label={l("Tout réafficher", "Show all hidden structures")}
+                    Icon={Eye}
+                    disabled={!atlas.hiddenIds.length}
+                    onPress={atlas.restoreHidden}
+                  />
+                </View>
+                {!!atlas.hiddenIds.length && (
+                  <Txt style={{ color: "#a9a5b8", fontSize: 11 }}>
+                    {atlas.hiddenIds.length}{" "}
+                    {l("structures retirées", "structures removed")}
+                  </Txt>
+                )}
               </View>
               <View style={{ gap: 8 }}>
                 <Txt style={styles.eyebrow}>{l("APPARENCE", "APPEARANCE")}</Txt>
@@ -294,6 +707,19 @@ export function AnatomyStudyWorkspace({
                     onPress={() => atlas.setAppearance("study")}
                   />
                 </View>
+                <Action
+                  label={l("Ombres de profondeur", "Depth shading")}
+                  Icon={Sun}
+                  active={atlas.depthShading}
+                  disabled={mode !== "3d"}
+                  onPress={() => atlas.setDepthShading((enabled) => !enabled)}
+                />
+                <Txt style={{ color: "#a6a0b5", fontSize: 12, lineHeight: 18 }}>
+                  {l(
+                    "Accentue les reliefs et les espaces entre les structures. L’effet s’adapte automatiquement à votre appareil.",
+                    "Accentuates relief and the spaces between structures. The effect adapts automatically to your device.",
+                  )}
+                </Txt>
               </View>
               {shortScreen && (
                 <View style={{ gap: 8 }}>
@@ -363,13 +789,13 @@ export function AnatomyStudyWorkspace({
                   {l("RÉFÉRENCE ANATOMIQUE", "ANATOMY REFERENCE")}
                 </Txt>
                 <View style={styles.wrap}>
-                  {(["detailed", "extended"] as const).map((value) => (
+                  {(["extended", "detailed"] as const).map((value) => (
                     <Action
                       key={value}
                       label={
                         value === "detailed"
                           ? l("Corps détaillé", "Detailed body")
-                          : l("Atlas étendu", "Extended atlas")
+                          : l("Corps complet", "Whole body")
                       }
                       Icon={value === "detailed" ? Activity : Network}
                       active={sourceId === value}
@@ -384,8 +810,8 @@ export function AnatomyStudyWorkspace({
                         "Fine surfaces, loaded progressively within the same body.",
                       )
                     : l(
-                        "Davantage de branches nerveuses et vasculaires dans une référence distincte.",
-                        "More nerve and vessel branches in a separate reference.",
+                        "Nerfs, artères, veines et formes osseuses dans une même référence BodyParts3D 4.3. La couverture dépend des structures disponibles dans cette source.",
+                        "Nerves, arteries, veins and bone shapes within one BodyParts3D 4.3 reference. Coverage depends on the structures available in this source.",
                       )}
                 </Txt>
               </View>
@@ -484,6 +910,22 @@ export function AnatomyStudyWorkspace({
         />
       </View>
       {!zen && !shortScreen && (
+        <ScrollView
+          horizontal
+          testID="anatomy-quick-views"
+          showsHorizontalScrollIndicator={false}
+          style={{ flexGrow: 0, flexShrink: 0 }}
+          contentContainerStyle={{
+            gap: 6,
+            alignItems: "center",
+            paddingHorizontal: 12,
+            paddingVertical: 4,
+          }}
+        >
+          {quickActions()}
+        </ScrollView>
+      )}
+      {!zen && !shortScreen && (
         <View style={styles.regionBar}>
           <ScrollView
             horizontal
@@ -549,6 +991,8 @@ export function AnatomyStudyWorkspace({
                 key={sourceId}
                 sourceManifest={atlas.anatomyModelManifest}
                 appearance={atlas.appearance}
+                depthShading={atlas.depthShading}
+                section={atlas.section}
                 system={system}
                 visibleSystems={atlas.visibleSystems}
                 view={view}
@@ -560,6 +1004,8 @@ export function AnatomyStudyWorkspace({
                 isolatedDetail={atlas.detailMode}
                 opacity={atlas.opacity}
                 hiddenIds={atlas.hiddenIds}
+                excludedIds={atlas.excludedIds}
+                representationIds={atlas.representationIds}
                 resetKey={atlas.reset}
                 focusSelectionKey={atlas.focusKey}
                 focusRegionBounds={atlas.regionBounds}
@@ -623,6 +1069,18 @@ export function AnatomyStudyWorkspace({
                     onPress={() => atlas.setZoom((n) => Math.max(1, n - 0.5))}
                   />
                 </View>
+              </View>
+            )}
+            {!!atlas.hiddenHistoryCount && (
+              <View
+                testID="anatomy-undo-removal"
+                style={{ position: "absolute", left: 12, bottom: 60 }}
+              >
+                <Action
+                  label={l("Annuler le retrait", "Undo removal")}
+                  Icon={Undo2}
+                  onPress={atlas.undoHidden}
+                />
               </View>
             )}
             {zen && (

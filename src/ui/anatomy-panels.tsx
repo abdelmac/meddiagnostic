@@ -142,6 +142,11 @@ export function AnatomyInspector({
             : ""}
         </Txt>
       )}
+      {!!selected.representationGroup && (
+        <Txt style={{ color: "#a18aae", fontSize: 11 }}>
+          {l("Variante du modèle source", "Source model variant")}
+        </Txt>
+      )}
       {language === "fr" && !selected.translated && (
         <Txt style={{ color: "#c4b0d3", fontSize: 11 }}>
           {l(
@@ -171,7 +176,7 @@ export function AnatomyInspector({
               small
               label={
                 alternateSource === "extended"
-                  ? l("Voir dans l’atlas étendu", "View in extended atlas")
+                  ? l("Voir dans le corps complet", "View in whole body")
                   : l("Voir dans le corps détaillé", "View in detailed body")
               }
               onPress={() => changeSource(alternateSource)}
@@ -477,6 +482,11 @@ export function AnatomyStructureSearch({
       key={item.id}
       accessibilityRole="button"
       accessibilityLabel={item.name[language]}
+      accessibilityHint={
+        item.representationGroup
+          ? `${l("Modèle source", "Source model")} · ${item.id.split("_").at(-1)}`
+          : undefined
+      }
       aria-pressed={item.id === selectedId}
       onPress={() => select(item.id)}
       style={{
@@ -506,6 +516,11 @@ export function AnatomyStructureSearch({
           ? " · HD"
           : ""}
       </Txt>
+      {!!item.representationGroup && (
+        <Txt style={{ color: "#b6a0c3", fontSize: 10, marginTop: 3 }}>
+          {l("Modèle source", "Source model")} · {item.id.split("_").at(-1)}
+        </Txt>
+      )}
     </Pressable>
   );
   return (

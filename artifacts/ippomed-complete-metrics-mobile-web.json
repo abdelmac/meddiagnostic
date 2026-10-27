@@ -2,7 +2,7 @@
   "origin": "https://medquiz-europe.medcompass-web.workers.dev",
   "project": "mobile-web",
   "timingScope": "Navigation to interactive preview; HIGH requests held",
-  "previewLoadMs": 7863,
+  "previewLoadMs": 13297,
   "initial": {
     "meshes": 687,
     "triangles": 2548718,
@@ -13,18 +13,60 @@
   },
   "shoulder": {
     "meshes": 687,
-    "triangles": 1772300,
-    "drawCalls": 234,
-    "highMeshes": 5,
-    "highTriangles": 259362,
-    "residentTriangles": 259362
+    "triangles": 1791208,
+    "drawCalls": 257,
+    "highMeshes": 3,
+    "highTriangles": 210828,
+    "residentTriangles": 210828
   },
   "final": {
     "meshes": 687,
-    "triangles": 2137640,
-    "drawCalls": 208,
+    "triangles": 2148764,
+    "drawCalls": 209,
     "highMeshes": 14,
-    "highTriangles": 1200976,
-    "residentTriangles": 2007152
+    "highTriangles": 1208462,
+    "residentTriangles": 2014638
+  },
+  "resolution": {
+    "initialBody": {
+      "mode": "body",
+      "ratio": 2,
+      "width": 780,
+      "height": 676,
+      "pixels": 527280,
+      "pixelBudget": 1500000
+    },
+    "sharpBody": {
+      "mode": "body",
+      "ratio": 2,
+      "width": 780,
+      "height": 676,
+      "pixels": 527280,
+      "pixelBudget": 1500000
+    },
+    "movingBody": {
+      "mode": "moving",
+      "ratio": 1,
+      "width": 390,
+      "height": 338,
+      "pixels": 131820,
+      "pixelBudget": 1500000
+    },
+    "settledBody": {
+      "mode": "body",
+      "ratio": 2,
+      "width": 780,
+      "height": 676,
+      "pixels": 527280,
+      "pixelBudget": 1500000
+    },
+    "finalBody": {
+      "mode": "body",
+      "ratio": 2,
+      "width": 780,
+      "height": 676,
+      "pixels": 527280,
+      "pixelBudget": 1500000
+    }
   }
 }

@@ -10,6 +10,9 @@ import { localizeAnatomyName, anatomyNameHasFrench } from "../data/anatomy-nomen
 import { anatomyInspectionResolution, anatomyMeshBounds, createAnatomyProgressiveLod, loadAnatomyLayer, matchingAnatomyMeshes, type AnatomyLodStatus, type BodyPartsManifest, type LoadedAnatomyLayer } from "./anatomy-gltf.web";
 import { HumanFigure } from "./anatomy-vector";
 import { applyAnatomyTissueProfile } from "./anatomy-materials.web";
+import { createAnatomyOcclusion } from "./anatomy-occlusion.web";
+import { anatomySectionContainsPoint, anatomySectionPlane, type AnatomySectionPlane } from "../domain/anatomy-section";
+import { anatomyRepresentationChoices } from "../domain/anatomy-representations";
 import type { AnatomySceneProps } from "./anatomy-scene-types";
 
 export type { AnatomySceneProps } from "./anatomy-scene-types";
@@ -25,6 +28,7 @@ type World = {
   detailMode: boolean; bodyCamera?: { position: THREE.Vector3; target: THREE.Vector3 };
   layer?: LoadedAnatomyLayer; activeLayers: LoadedAnatomyLayer[]; render: () => void; present: () => void;
   fit: (bounds: THREE.Box3, options?: CameraFitOptions) => void;
+  dolly: (factor: number) => void;
   pruneDetails: () => void;
   settleResolution: () => void;
   fullBounds: () => THREE.Box3;
@@ -34,7 +38,7 @@ type World = {
 export function AnatomyScene(props: AnatomySceneProps) {
   const manifest = props.sourceManifest ?? defaultManifest;
   const datasetKey = manifest.datasetId ?? manifest.dataset ?? "bodyparts3d-4.0";
-  const appearance = props.appearance ?? (manifest.datasetId === "bodyparts3d-3.0-95" ? "natural" : "study");
+  const appearance = props.appearance ?? (manifest.meshes.some((entry) => entry.lod) ? "natural" : "study");
   const { system, view, selectedId, zoom = 1, height = 580, language = "fr", isolate = false, opacity = 1, hiddenIds = [], resetKey = 0, focusSelectionKey = 0, focusRegionKey = 0, isolatedDetail = false } = props;
   const requiredSystems = [...new Set(props.visibleSystems?.length ? props.visibleSystems : ["skeleton" as AnatomySystem, system])];
   const visibleKey = requiredSystems.slice().sort().join(",");
@@ -60,7 +64,7 @@ export function AnatomyScene(props: AnatomySceneProps) {
     try { renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "low-power" }); }
     catch { setStatus("webgl-error"); return; }
     const lowPower = matchMedia("(pointer: coarse)").matches || navigator.hardwareConcurrency <= 4;
-    const adaptiveResolution = manifest.datasetId === "bodyparts3d-3.0-95";
+    const adaptiveResolution = manifest.meshes.some((entry) => entry.lod);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lowPower ? 1 : 1.5));
     renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.95;
     const canvas = renderer.domElement;
@@ -100,20 +104,27 @@ export function AnatomyScene(props: AnatomySceneProps) {
       // A screen-space shell keeps its width in CSS pixels despite the source
       // quantisation scale, camera distance and adaptive drawing-buffer DPR.
       vertexShader: `uniform float width; uniform vec2 viewport;
+        #include <clipping_planes_pars_vertex>
         void main(){
-          vec4 clip=projectionMatrix*modelViewMatrix*vec4(position,1.0);
+          vec4 mvPosition=modelViewMatrix*vec4(position,1.0);
+          vec4 clip=projectionMatrix*mvPosition;
           vec4 n=projectionMatrix*vec4(normalize(normalMatrix*normal),0.0);
           vec2 direction=(n.xy*clip.w-clip.xy*n.w)*viewport;
           direction/=max(length(direction),0.000001);
           clip.xy+=direction*(2.0*width/viewport)*clip.w;
+          #include <clipping_planes_vertex>
           gl_Position=clip;
         }`,
-      fragmentShader: "uniform vec3 color; void main(){gl_FragColor=vec4(color,1.0);\n#include <colorspace_fragment>\n}", side: THREE.BackSide, depthWrite: false, toneMapped: false,
+      fragmentShader: "uniform vec3 color;\n#include <clipping_planes_pars_fragment>\nvoid main(){\n#include <clipping_planes_fragment>\ngl_FragColor=vec4(color,1.0);\n#include <colorspace_fragment>\n}", side: THREE.BackSide, depthWrite: false, toneMapped: false, clipping: true,
     });
     const originals = new Map<THREE.Mesh, MaterialSet>();
     const faded = new Map<THREE.Material, THREE.Material>(), selectedMaterials = new Map<THREE.Material, THREE.Material>(), hoverMaterials = new Map<THREE.Material, THREE.Material>();
     let frame = 0, motion = 0, lastFrame = 0, disposed = false, hovered: string | undefined;
     let resolutionTimer: ReturnType<typeof setTimeout> | undefined, interacting = false;
+    let occlusionTimer: ReturnType<typeof setTimeout> | undefined, occlusionMoving = true, occlusionRevision = 0, occlusionVisibility = "";
+    let sectionPlane: AnatomySectionPlane | undefined, sectionKey = "";
+    const clipPlane = new THREE.Plane();
+    const occlusion = createAnatomyOcclusion(renderer, lowPower, () => render());
     let fittedFrame: { bounds: THREE.Box3; options: CameraFitOptions } | undefined;
     const fullBounds = () => {
       if (value.detailMode && value.activeLayers.length) {
@@ -131,10 +142,23 @@ export function AnatomyScene(props: AnatomySceneProps) {
         if (disposed) return;
         if (renderer.getContext().isContextLost()) { setStatus("webgl-error"); return; }
         lastFrame = at;
+        const autoReset = renderer.info.autoReset;
+        renderer.info.autoReset = false; renderer.info.reset();
         renderer.render(scene, camera);
+        const sourceCalls = renderer.info.render.calls, sourceTriangles = renderer.info.render.triangles;
+        const depth = occlusion.render({ scene, camera, helpers: [outlines, shadow], revision: occlusionRevision, depthShading: live.current.depthShading ?? true, moving: interacting || occlusionMoving, opacity: live.current.opacity ?? 1, triangles: sourceTriangles });
+        if (depth.reason === "error") renderer.render(scene, camera);
+        canvas.dataset.occlusion = depth.reason; canvas.dataset.occlusionMode = depth.reason; canvas.dataset.occlusionWidth = String(depth.width); canvas.dataset.occlusionHeight = String(depth.height);
+        canvas.dataset.occlusionSamples = String(depth.samples); canvas.dataset.occlusionSampleCount = String(depth.samples); canvas.dataset.occlusionRadiusMm = "22"; canvas.dataset.occlusionCaptured = String(depth.captured);
+        if (depth.gpuMilliseconds !== undefined) canvas.dataset.occlusionGpuMs = depth.gpuMilliseconds.toFixed(2);
+        canvas.dataset.totalDrawCalls = String(renderer.info.render.calls); canvas.dataset.totalTriangles = String(renderer.info.render.triangles);
+        canvas.dataset.occlusionDrawCalls = String(renderer.info.render.calls - sourceCalls); canvas.dataset.occlusionTriangles = String(renderer.info.render.triangles - sourceTriangles);
+        renderer.info.autoReset = autoReset;
         canvas.dataset.pixelRatio = String(renderer.getPixelRatio()); canvas.dataset.bufferPixels = String(canvas.width * canvas.height);
         canvas.dataset.camera = [camera.position.x, camera.position.y, camera.position.z, controls.target.x, controls.target.y, controls.target.z].map((n) => n.toFixed(5)).join(",");
-        canvas.dataset.drawCalls = String(renderer.info.render.calls); canvas.dataset.triangles = String(renderer.info.render.triangles);
+        // Existing counters describe genuine anatomy/outline. Total counters
+        // additionally expose depth and fullscreen presentation passes.
+        canvas.dataset.drawCalls = String(sourceCalls); canvas.dataset.triangles = String(sourceTriangles);
         const selected = value.activeLayers.flatMap((layer) => matchingAnatomyMeshes(layer, live.current.selectedId)).filter((mesh) => mesh.visible);
         if (selected.length) {
           const center = anatomyMeshBounds(selected).getCenter(new THREE.Vector3()).project(camera);
@@ -166,6 +190,11 @@ export function AnatomyScene(props: AnatomySceneProps) {
         resolutionTimer = undefined; canvas.dataset.resolutionPending = "false"; updateResolution(false);
       }, 220);
     };
+    const settleOcclusion = () => {
+      if (occlusionTimer) clearTimeout(occlusionTimer);
+      occlusionMoving = true;
+      if (!interacting) occlusionTimer = setTimeout(() => { occlusionTimer = undefined; occlusionMoving = false; render(); }, lowPower ? 360 : 260);
+    };
     const materialFor = (base: THREE.Material, style: "selected" | "hover" | "faded", alpha: number) => {
       const cache = style === "selected" ? selectedMaterials : style === "hover" ? hoverMaterials : faded;
       let material = cache.get(base);
@@ -183,23 +212,40 @@ export function AnatomyScene(props: AnatomySceneProps) {
     };
     const present = () => {
       const meshes = value.activeLayers.flatMap((layer) => layer.meshes);
-      outlines.clear(); shadow.visible = !value.detailMode;
+      outlines.clear(); shadow.visible = !value.detailMode && !live.current.section;
       canvas.dataset.selectedId = live.current.selectedId ?? "";
       canvas.dataset.detailMode = String(value.detailMode);
       canvas.dataset.meshCount = "0";
       if (!meshes.length) { render(); return; }
       const current = live.current, selected = new Set(value.activeLayers.flatMap((layer) => matchingAnatomyMeshes(layer, current.selectedId))), hidden = new Set(value.detailMode ? [] : current.hiddenIds ?? []);
-      const currentAppearance = current.appearance ?? (manifest.datasetId === "bodyparts3d-3.0-95" ? "natural" : "study");
+      const excluded = new Set(value.detailMode ? [] : current.excludedIds ?? []);
+      const representations = anatomyRepresentationChoices(manifest.meshes, new Set([...selected].map(mesh => mesh.userData.structureId as string)), new Set(current.representationIds ?? []));
+      canvas.dataset.representationChoices = JSON.stringify(Object.fromEntries(representations));
+      const sourceBounds = fullBounds();
+      sectionPlane = anatomySectionPlane(current.section, { min: sourceBounds.min.toArray(), max: sourceBounds.max.toArray() });
+      renderer.clippingPlanes = sectionPlane ? [clipPlane.set(new THREE.Vector3(...sectionPlane.normal), sectionPlane.constant)] : [];
+      const nextSectionKey = JSON.stringify(sectionPlane ?? null);
+      if (sectionKey !== nextSectionKey) { sectionKey = nextSectionKey; settleOcclusion(); hovered = undefined; setHoverId(undefined); delete canvas.dataset.hoverId; delete canvas.dataset.lastPickPoint; delete canvas.dataset.lastPickId; }
+      canvas.dataset.section = sectionPlane ? JSON.stringify({ axis: current.section!.axis, position: current.section!.position, inverted: current.section!.inverted, normal: sectionPlane.normal, constant: sectionPlane.constant }) : "off";
+      canvas.dataset.sectionAxis = sectionPlane ? current.section!.axis : "off";
+      canvas.dataset.sectionPosition = sectionPlane ? String(current.section!.position) : "";
+      canvas.dataset.sectionInverted = sectionPlane ? String(current.section!.inverted) : "false";
+      canvas.dataset.sectionPlane = sectionPlane ? JSON.stringify(sectionPlane) : "";
+      canvas.dataset.hiddenIds = JSON.stringify(current.hiddenIds ?? []); canvas.dataset.hiddenCount = String((current.hiddenIds ?? []).length);
+      canvas.dataset.excludedIds = JSON.stringify(current.excludedIds ?? []);
+      canvas.dataset.representationIds = JSON.stringify(current.representationIds ?? []);
+      const currentAppearance = current.appearance ?? (adaptiveResolution ? "natural" : "study");
       canvas.dataset.appearance = currentAppearance; canvas.dataset.materialModel = "standard-pbr"; canvas.dataset.outlineWidth = String(outlineMaterial.uniforms.width!.value);
       const tissueProfiles = new Set<string>(), selectedColors = new Set<string>();
       const alpha = !value.detailMode && Number.isFinite(current.opacity) ? THREE.MathUtils.clamp(current.opacity!, 0.08, 1) : 1;
       meshes.forEach((mesh) => {
         const id = mesh.userData.structureId as string, aliases = mesh.userData.legacyIds as readonly string[], chosen = selected.has(mesh);
-        mesh.visible = !hidden.has(id) && !aliases.some((alias) => hidden.has(alias))
+        const entry = value.activeLayers.find((layer) => layer.entries.has(id))?.entries.get(id);
+        const representationVisible = !entry?.representationGroup || representations.get(entry.representationGroup) === id;
+        mesh.visible = representationVisible && !excluded.has(id) && !hidden.has(id) && !aliases.some((alias) => hidden.has(alias))
           && (value.detailMode || !current.isolate || !selected.size || chosen) && (!mesh.userData.contextEnvelope || chosen);
         if (!originals.has(mesh)) originals.set(mesh, mesh.material);
         const base = originals.get(mesh)!;
-        const entry = value.activeLayers.find((layer) => layer.entries.has(id))?.entries.get(id);
         (Array.isArray(base) ? base : [base]).forEach((material) => {
           if (entry) applyAnatomyTissueProfile(material, entry, currentAppearance);
           if (mesh.visible && material.userData.anatomyTissue) tissueProfiles.add(material.userData.anatomyTissue as string);
@@ -213,6 +259,21 @@ export function AnatomyScene(props: AnatomySceneProps) {
           const shell = new THREE.Mesh(mesh.geometry, outlineMaterial); shell.matrixAutoUpdate = false; shell.matrix.copy(mesh.matrixWorld); outlines.add(shell);
         }
       });
+      const nextVisibility = meshes.filter(mesh => mesh.visible).map(mesh => mesh.uuid).join(",");
+      const visibleEntries = new Map(meshes.filter(mesh => mesh.visible).map(mesh => {
+        const id = mesh.userData.structureId as string;
+        return [id, value.activeLayers.find(layer => layer.entries.has(id))?.entries.get(id)] as const;
+      }));
+      canvas.dataset.visibleArteries = String([...visibleEntries.values()].filter(entry => entry?.system === "vessels" && entry.vascularKind === "artery").length);
+      canvas.dataset.visibleVeins = String([...visibleEntries.values()].filter(entry => entry?.system === "vessels" && entry.vascularKind === "vein").length);
+      canvas.dataset.visibleNerves = String([...visibleEntries.values()].filter(entry => entry?.system === "nerves").length);
+      canvas.dataset.visibleSkeleton = String([...visibleEntries.values()].filter(entry => entry?.system === "skeleton").length);
+      const visibleRepresentations: Record<string, string[]> = {};
+      for (const [id, entry] of visibleEntries) if (entry?.representationGroup) {
+        (visibleRepresentations[entry.representationGroup] ??= []).push(id);
+      }
+      canvas.dataset.visibleRepresentations = JSON.stringify(visibleRepresentations);
+      if (nextVisibility !== occlusionVisibility) { occlusionVisibility = nextVisibility; occlusionRevision++; }
       canvas.dataset.tissueProfiles = [...tissueProfiles].sort().join(","); canvas.dataset.selectedMaterialColor = [...selectedColors].sort().join(",");
       canvas.dataset.selectedId = current.selectedId ?? ""; canvas.dataset.meshCount = String(meshes.filter((mesh) => mesh.visible).length); render();
     };
@@ -239,6 +300,16 @@ export function AnatomyScene(props: AnatomySceneProps) {
       };
       motion = requestAnimationFrame(animate);
     };
+    const dolly = (factor: number) => {
+      if (!Number.isFinite(factor) || factor <= 0) return;
+      cancelAnimationFrame(motion);
+      const direction = camera.position.clone().sub(controls.target), distance = direction.length();
+      if (!distance) return;
+      const next = THREE.MathUtils.clamp(distance * factor, controls.minDistance, controls.maxDistance);
+      camera.position.copy(controls.target).addScaledVector(direction, next / distance);
+      if (fittedFrame) fittedFrame.options.zoom = (fittedFrame.options.zoom ?? 1) * distance / next;
+      controls.update(); settleResolution(); settleOcclusion(); render(); value.lod?.schedule();
+    };
     const releaseLayer = (layer: LoadedAnatomyLayer) => {
       const bases = new Set<THREE.Material>();
       layer.meshes.forEach((mesh) => {
@@ -260,35 +331,41 @@ export function AnatomyScene(props: AnatomySceneProps) {
         value.detailTouched.delete(key);
       }
     };
-    const value: World = { renderer, bodyPixelRatio: renderer.getPixelRatio(), scene, camera, controls, layers: new Map(), activeLayers: [], loading: new Map(), controllers: new Set(), requests: new Map(), detailTouched: new Map(), activeDetailKeys: new Set(), detailMode: false, render, present, fit, fullBounds, pruneDetails, settleResolution };
+    const value: World = { renderer, bodyPixelRatio: renderer.getPixelRatio(), scene, camera, controls, layers: new Map(), activeLayers: [], loading: new Map(), controllers: new Set(), requests: new Map(), detailTouched: new Map(), activeDetailKeys: new Set(), detailMode: false, render, present, fit, dolly, fullBounds, pruneDetails, settleResolution };
     if (manifest.meshes.some((entry) => entry.lod)) value.lod = createAnatomyProgressiveLod({
-      manifest, camera, canvas, lowPower, getLayers: () => value.activeLayers, getSelectedId: () => live.current.selectedId,
+      manifest, camera, canvas, lowPower, getLayers: () => value.activeLayers, getSelectedId: () => live.current.selectedId, getSectionPlane: () => sectionPlane,
       enabled: () => !value.detailMode && value.activeLayers.length > 0, changed: present, status: setLodStatus, disposeLayer: releaseLayer,
     });
-    const cameraChange = () => { settleResolution(); render(); value.lod?.schedule(); };
+    const cameraChange = () => { settleResolution(); settleOcclusion(); render(); value.lod?.schedule(); };
     world.current = value; controls.addEventListener("change", cameraChange);
-    const stopMotion = () => { fittedFrame = undefined; interacting = true; settleResolution(); cancelAnimationFrame(motion); value.lod?.pause(); canvas.style.cursor = "grabbing"; };
-    const stopDrag = () => { interacting = false; settleResolution(); value.lod?.resume(); canvas.style.cursor = hovered ? "pointer" : "grab"; };
+    const stopMotion = () => { fittedFrame = undefined; interacting = true; settleResolution(); settleOcclusion(); cancelAnimationFrame(motion); value.lod?.pause(); canvas.style.cursor = "grabbing"; };
+    const stopDrag = () => { interacting = false; settleResolution(); settleOcclusion(); value.lod?.resume(); canvas.style.cursor = hovered ? "pointer" : "grab"; };
     controls.addEventListener("start", stopMotion); controls.addEventListener("end", stopDrag);
     const resize = () => {
       const width = container.clientWidth || 380, h = container.clientHeight || 580;
       (outlineMaterial.uniforms.viewport!.value as THREE.Vector2).set(width, h);
       renderer.setSize(width, h, false); camera.aspect = width / h; camera.updateProjectionMatrix();
       if (fittedFrame) fit(fittedFrame.bounds, { ...fittedFrame.options, animate: false });
-      settleResolution(); render(); value.lod?.schedule();
+      settleResolution(); settleOcclusion(); render(); value.lod?.schedule();
     };
     const observer = new ResizeObserver(resize); observer.observe(container); resize();
     const raycaster = new THREE.Raycaster(), pointer = new THREE.Vector2();
+    let lastPickPoint: THREE.Vector3 | undefined;
     const pick = (x: number, y: number) => {
       if (!value.activeLayers.length) return undefined;
       const rect = canvas.getBoundingClientRect(); pointer.set((x - rect.left) / rect.width * 2 - 1, -(y - rect.top) / rect.height * 2 + 1); raycaster.setFromCamera(pointer, camera);
-      return raycaster.intersectObjects(value.activeLayers.flatMap((layer) => layer.meshes.filter((mesh) => mesh.visible)), false)[0]?.object as THREE.Mesh | undefined;
+      const hit = raycaster.intersectObjects(value.activeLayers.flatMap((layer) => layer.meshes.filter((mesh) => mesh.visible)), false).find(hit => anatomySectionContainsPoint(sectionPlane, hit.point.toArray()));
+      lastPickPoint = hit?.point;
+      return hit?.object as THREE.Mesh | undefined;
     };
     const clearHover = () => { hovered = undefined; setHoverId(undefined); delete canvas.dataset.hoverId; canvas.style.cursor = "grab"; present(); };
     const activePointers = new Set<number>();
     let down: { x: number; y: number; id: number } | undefined, multiTouch = false, hoverAt = 0;
     let lastTouch: { at: number; id: string; x: number; y: number } | undefined;
+    let lastPointerType = "", lastTouchInteractionAt = -Infinity;
     const pointerDown = (event: PointerEvent) => {
+      lastPointerType = event.pointerType;
+      if (event.pointerType === "touch") lastTouchInteractionAt = performance.now();
       activePointers.add(event.pointerId); if (activePointers.size > 1) multiTouch = true;
       else { down = { x: event.clientX, y: event.clientY, id: event.pointerId }; multiTouch = false; } clearHover();
     };
@@ -310,6 +387,8 @@ export function AnatomyScene(props: AnatomySceneProps) {
       if (multiTouch || !down || event.pointerId !== down.id || event.button !== 0 || Math.hypot(event.clientX - down.x, event.clientY - down.y) > 7) return;
       const mesh = pick(event.clientX, event.clientY), id = mesh?.userData.structureId as string | undefined;
       if (id) {
+        if (lastPickPoint) canvas.dataset.lastPickPoint = JSON.stringify(lastPickPoint.toArray());
+        canvas.dataset.lastPickId = id;
         live.current.onSelect?.(id);
         if (event.pointerType === "touch") {
           if (lastTouch && lastTouch.id === id && performance.now() - lastTouch.at < 350 && Math.hypot(lastTouch.x - event.clientX, lastTouch.y - event.clientY) < 20) { fit(anatomyMeshBounds(value.activeLayers.flatMap((layer) => layer.byId.get(id) ?? [])), { animate: true, selection: true }); lastTouch = undefined; }
@@ -320,8 +399,15 @@ export function AnatomyScene(props: AnatomySceneProps) {
     };
     const pointerCancel = (event: PointerEvent) => { activePointers.delete(event.pointerId); down = undefined; };
     const doubleClick = (event: MouseEvent) => {
+      const input = event as MouseEvent & { pointerType?: string; sourceCapabilities?: { firesTouchEvents?: boolean } | null };
+      // Touch has its own identity-checked double-tap above. Browsers may also
+      // synthesize dblclick after two taps at the same pixel, even when hiding
+      // the first surface exposed a different structure under the second tap.
+      if (input.pointerType === "touch" || input.sourceCapabilities?.firesTouchEvents || (lastPointerType === "touch" && performance.now() - lastTouchInteractionAt < 900)) {
+        event.preventDefault(); return;
+      }
       const mesh = pick(event.clientX, event.clientY), id = mesh?.userData.structureId as string | undefined;
-      if (id) { live.current.onSelect?.(id); fit(anatomyMeshBounds(value.activeLayers.flatMap((layer) => layer.byId.get(id) ?? [])), { animate: true, selection: true }); }
+      if (id) { if (lastPickPoint) canvas.dataset.lastPickPoint = JSON.stringify(lastPickPoint.toArray()); canvas.dataset.lastPickId = id; live.current.onSelect?.(id); fit(anatomyMeshBounds(value.activeLayers.flatMap((layer) => layer.byId.get(id) ?? [])), { animate: true, selection: true }); }
     };
     const keyboard = (event: KeyboardEvent) => {
       const sphere = new THREE.Spherical().setFromVector3(camera.position.clone().sub(controls.target));
@@ -338,7 +424,7 @@ export function AnatomyScene(props: AnatomySceneProps) {
     canvas.addEventListener("pointerleave", clearHover); canvas.addEventListener("dblclick", doubleClick); canvas.addEventListener("keydown", keyboard); canvas.addEventListener("webglcontextlost", contextLost);
     setContextReady(true);
     return () => {
-      disposed = true; if (resolutionTimer) clearTimeout(resolutionTimer); value.lod?.dispose(); cancelAnimationFrame(frame); cancelAnimationFrame(motion); observer.disconnect(); controls.removeEventListener("change", cameraChange); controls.removeEventListener("start", stopMotion); controls.removeEventListener("end", stopDrag); controls.dispose();
+      disposed = true; if (resolutionTimer) clearTimeout(resolutionTimer); if (occlusionTimer) clearTimeout(occlusionTimer); occlusion.dispose(); value.lod?.dispose(); cancelAnimationFrame(frame); cancelAnimationFrame(motion); observer.disconnect(); controls.removeEventListener("change", cameraChange); controls.removeEventListener("start", stopMotion); controls.removeEventListener("end", stopDrag); controls.dispose();
       canvas.removeEventListener("pointerdown", pointerDown); canvas.removeEventListener("pointermove", pointerMove); canvas.removeEventListener("pointerup", pointerUp); canvas.removeEventListener("pointercancel", pointerCancel);
       canvas.removeEventListener("pointerleave", clearHover); canvas.removeEventListener("dblclick", doubleClick); canvas.removeEventListener("keydown", keyboard); canvas.removeEventListener("webglcontextlost", contextLost);
       value.controllers.forEach((controller) => controller.abort()); originals.forEach((material, mesh) => { mesh.material = material; }); value.layers.forEach((layer) => layer.dispose());
@@ -418,7 +504,7 @@ export function AnatomyScene(props: AnatomySceneProps) {
   // preserve the camera and the loaded spatial workspace.
   }, [datasetKey, visibleKey, isolatedDetail, detailKey, contextReady, retry, contextAttempt]);
 
-  useEffect(() => { world.current?.present(); world.current?.lod?.schedule(); }, [selectedId, isolate, opacity, hiddenIds, appearance, revision]);
+  useEffect(() => { world.current?.present(); world.current?.lod?.schedule(); }, [selectedId, isolate, opacity, hiddenIds, props.excludedIds, props.representationIds, appearance, props.depthShading, props.section?.axis, props.section?.position, props.section?.inverted, revision]);
   useEffect(() => {
     const current = world.current;
     if (!current?.layer || status !== "ready") return;
@@ -431,6 +517,7 @@ export function AnatomyScene(props: AnatomySceneProps) {
       if (!bounds.isEmpty()) { current.fit(bounds, { animate: true }); return; }
     }
     if (before && before.focus !== focusSelectionKey && selection.length) { current.fit(anatomyMeshBounds(selection), { animate: true, selection: true }); return; }
+    if (before && before.view === view && before.reset === resetKey && before.zoom !== safeZoom) { current.dolly(before.zoom / safeZoom); return; }
     const changed = !before || before.view !== view || before.zoom !== safeZoom || before.reset !== resetKey;
     if (!changed) return;
     if (safeZoom > 1.01 && selection.length) {
@@ -440,7 +527,9 @@ export function AnatomyScene(props: AnatomySceneProps) {
   }, [view, zoom, resetKey, focusSelectionKey, focusRegionKey, system, revision, status]);
   useEffect(() => {
     world.current?.renderer.domElement.setAttribute("aria-label", l("Atlas anatomique 3D BodyParts3D. Glissez pour tourner. Molette : zoom vers le pointeur. Clic droit ou deux doigts : déplacer. Double-cliquez pour cadrer une structure. Flèches : rotation, plus et moins : zoom, F : cadrer, R : réinitialiser.", "BodyParts3D 3D anatomy atlas. Drag to rotate. Scroll to zoom towards the pointer. Right-drag or use two fingers to pan. Double-click to frame a structure. Arrows rotate, plus and minus zoom, F frames, R resets."));
-  }, [language, contextReady]);
+    const entry = hoverId ? world.current?.activeLayers.find(layer => layer.byId.has(hoverId))?.entries.get(hoverId) : undefined;
+    if (entry) { setHoverLabel(localizeAnatomyName(entry.name, language)); setHoverEnglish(language === "fr" && !anatomyNameHasFrench(entry.name)); }
+  }, [language, contextReady, hoverId, revision]);
 
   const error = status === "error" || status === "webgl-error";
   const fallbackId = anatomyStructure(selectedId ?? "")?.id ?? manifest.meshes.find((entry) => entry.id === selectedId)?.legacyIds?.find((id) => !!anatomyStructure(id));

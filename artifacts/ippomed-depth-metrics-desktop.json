@@ -1,0 +1,17 @@
+{
+  "project": "desktop",
+  "initialMode": "active",
+  "finalMode": "active",
+  "gpuMilliseconds": "7.35",
+  "comparison": {
+    "compared": true,
+    "changed": 212010,
+    "backgroundDeltas": [
+      0,
+      0
+    ],
+    "width": 1440,
+    "height": 674
+  },
+  "graphicsErrors": []
+}

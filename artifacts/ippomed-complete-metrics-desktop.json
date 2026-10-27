@@ -2,7 +2,7 @@
   "origin": "https://medquiz-europe.medcompass-web.workers.dev",
   "project": "desktop",
   "timingScope": "Navigation to interactive preview; HIGH requests held",
-  "previewLoadMs": 8419,
+  "previewLoadMs": 15431,
   "initial": {
     "meshes": 687,
     "triangles": 2548718,
@@ -25,6 +25,7 @@
     "drawCalls": 250,
     "highMeshes": 26,
     "highTriangles": 1942862,
-    "residentTriangles": 2742864
-  }
+    "residentTriangles": 2926228
+  },
+  "resolution": {}
 }

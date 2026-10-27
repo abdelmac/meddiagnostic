@@ -16,6 +16,7 @@ const state: NativeAnatomyState = {
   view: "posterior",
   language: "en",
   appearance: "natural",
+  depthShading: true,
   selectedId: "FMA13377",
   zoom: 2.5,
   height: 580,
@@ -23,6 +24,8 @@ const state: NativeAnatomyState = {
   isolate: true,
   isolatedDetail: false,
   hiddenIds: ["FMA7163"],
+  excludedIds: ["FMA13378"],
+  representationIds: ["FMA13378"],
   visibleSystems: ["muscles", "skeleton"],
   resetKey: 2,
   focusSelectionKey: 3,
@@ -64,9 +67,126 @@ test("state transport strips unrelated account fields and copies nested state", 
   const parsed = parseAnatomyNativeState(input)!;
   assert.deepEqual(parsed, state);
   parsed.hiddenIds.push("FMA13378");
+  parsed.excludedIds.push("FMA7163");
+  parsed.representationIds.push("FMA7163");
   parsed.focusRegionBounds!.min[0] = -1;
   assert.deepEqual(state.hiddenIds, ["FMA7163"]);
+  assert.deepEqual(state.excludedIds, ["FMA13378"]);
+  assert.deepEqual(state.representationIds, ["FMA13378"]);
   assert.equal(state.focusRegionBounds!.min[0], -0.3);
+});
+
+test("layer subsets remain separate from dissection and support older native state", () => {
+  const { excludedIds: _excludedIds, ...legacyState } = state;
+  const legacy = parseAnatomyNativeState(
+    JSON.parse(JSON.stringify(legacyState)),
+  )!;
+  assert.deepEqual(legacy.excludedIds, []);
+  assert.deepEqual(legacy.hiddenIds, state.hiddenIds);
+  for (const excludedIds of [
+    null,
+    "FMA13378",
+    ["../private"],
+    ["FMA13378", "FMA13378"],
+    Array.from({ length: 4001 }, (_, index) => `FMA${index}`),
+  ])
+    assert.equal(parseAnatomyNativeState({ ...state, excludedIds }), undefined);
+});
+
+test("physical representation preferences survive JSON without sharing or forwarding unrelated state", () => {
+  const input = JSON.parse(
+    JSON.stringify({
+      ...state,
+      representationIds: ["FMA13378", "FMA7163"],
+      account: { token: "private" },
+    }),
+  );
+  const parsed = parseAnatomyNativeState(input)!;
+  assert.deepEqual(parsed.representationIds, ["FMA13378", "FMA7163"]);
+  assert.equal("account" in parsed, false);
+  parsed.representationIds.pop();
+  assert.deepEqual(input.representationIds, ["FMA13378", "FMA7163"]);
+  assert.deepEqual(parsed.hiddenIds, state.hiddenIds);
+  const { representationIds: _representationIds, ...legacyState } = state;
+  assert.deepEqual(parseAnatomyNativeState(legacyState)?.representationIds, []);
+  for (const representationIds of [
+    null,
+    {},
+    "FMA13378",
+    ["../private"],
+    ["FMA13378", "FMA13378"],
+    Array.from({ length: 4001 }, (_, index) => `FMA${index}`),
+  ])
+    assert.equal(
+      parseAnatomyNativeState({ ...state, representationIds }),
+      undefined,
+    );
+});
+
+test("depth shading accepts only booleans and defaults to enabled for older native states", () => {
+  for (const depthShading of [false, true]) {
+    const input = JSON.parse(JSON.stringify({ ...state, depthShading }));
+    const parsed = parseAnatomyNativeState(input)!;
+    assert.equal(parsed.depthShading, depthShading);
+    parsed.depthShading = !depthShading;
+    assert.equal(input.depthShading, depthShading);
+  }
+  const { depthShading: _depthShading, ...legacyState } = state;
+  assert.equal(
+    parseAnatomyNativeState(JSON.parse(JSON.stringify(legacyState)))
+      ?.depthShading,
+    true,
+  );
+  for (const depthShading of [
+    null,
+    0,
+    1,
+    "true",
+    "false",
+    [],
+    {},
+    { enabled: true },
+  ])
+    assert.equal(
+      parseAnatomyNativeState({ ...state, depthShading }),
+      undefined,
+    );
+});
+
+test("virtual section controls survive JSON and only expose bounded rendering state", () => {
+  for (const axis of ["axial", "sagittal", "coronal"] as const) {
+    for (const position of [0, 0.337, 1]) {
+      const section = { axis, position, inverted: true };
+      const input = JSON.parse(
+        JSON.stringify({
+          ...state,
+          section: {
+            ...section,
+            access_token: "private",
+            account: { id: "hidden" },
+          },
+        }),
+      );
+      const parsed = parseAnatomyNativeState(input)!;
+      assert.deepEqual(parsed.section, section);
+      parsed.section!.position = 0.5;
+      assert.equal(input.section.position, position);
+    }
+  }
+  for (const section of [
+    null,
+    [],
+    { axis: "axial", position: -0.01, inverted: false },
+    { axis: "axial", position: 1.01, inverted: false },
+    { axis: "axial", position: NaN, inverted: false },
+    { axis: "axial", position: Infinity, inverted: false },
+    { axis: "oblique", position: 0.5, inverted: false },
+    { axis: "coronal", position: "0.5", inverted: false },
+    { axis: "sagittal", position: 0.5, inverted: "false" },
+    { axis: "sagittal", position: 0.5 },
+  ])
+    assert.equal(parseAnatomyNativeState({ ...state, section }), undefined);
+  assert.equal(parseAnatomyNativeState(state)?.section, undefined);
 });
 
 test("malformed bounds, numbers, enum and oversized array messages are rejected", () => {

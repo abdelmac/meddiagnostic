@@ -1,0 +1,69 @@
+{
+  "project": "mobile-web",
+  "actualTouchSlider": true,
+  "picks": [
+    {
+      "axis": "axial",
+      "plane": {
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "constant": 0.8421537280082703,
+        "coordinate": 0.8421537280082703
+      },
+      "picked": {
+        "id": "FMA22456",
+        "worldPoint": [
+          -0.024901097979582912,
+          0.7549998850797288,
+          0.03979987895390174
+        ]
+      },
+      "signedDistance": 0.08715384292854145
+    },
+    {
+      "axis": "sagittal",
+      "plane": {
+        "normal": [
+          -1,
+          0,
+          0
+        ],
+        "constant": 0,
+        "coordinate": 0
+      },
+      "picked": {
+        "id": "FMA79979",
+        "worldPoint": [
+          -0.024361582015572758,
+          1.2563006222730149,
+          0.11209495360506971
+        ]
+      },
+      "signedDistance": 0.024361582015572758
+    },
+    {
+      "axis": "coronal",
+      "plane": {
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "constant": 0,
+        "coordinate": 0
+      },
+      "picked": {
+        "id": "FMA22872",
+        "worldPoint": [
+          -0.02582095858735657,
+          1.2811100239933406,
+          -0.08346133247230113
+        ]
+      },
+      "signedDistance": 0.08346133247230113
+    }
+  ]
+}

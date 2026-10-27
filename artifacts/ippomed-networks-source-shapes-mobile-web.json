@@ -1,0 +1,26 @@
+{
+  "origin": "https://medquiz-europe.medcompass-web.workers.dev",
+  "project": "mobile-web",
+  "datasetId": "bodyparts3d-4.3",
+  "data": {
+    "cord": {
+      "id": "FMA242005_FJ4426",
+      "fmaId": "FMA242005",
+      "name": "Neural tissue of spinal cord"
+    },
+    "bone": {
+      "id": "FMA23131_FJ3262",
+      "name": "Left humerus",
+      "highTriangles": 3844
+    },
+    "picked": {
+      "id": "FMA23131_FJ3262",
+      "worldPoint": [
+        0.1910638002053891,
+        1.2609761953353882,
+        -0.025168700572996285
+      ],
+      "actualTouch": true
+    }
+  }
+}

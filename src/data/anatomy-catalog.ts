@@ -15,16 +15,50 @@ import {
 import { anatomyQuestions } from "./anatomy-questions";
 import { muscleQuestions } from "./muscle-questions";
 
+export type AnatomyVascularKind = "artery" | "vein" | "other";
+export type AnatomyVascularFilter = "all" | "artery" | "vein";
+export type AnatomyQuickView = "nerves" | "arteries" | "veins" | "bones";
+export const anatomyQuickViews = [
+  {
+    id: "nerves",
+    system: "nerves",
+    name: { fr: "Nerfs", en: "Nerves" },
+    vascularFilter: "all",
+  },
+  {
+    id: "arteries",
+    system: "vessels",
+    name: { fr: "Artères", en: "Arteries" },
+    vascularFilter: "artery",
+  },
+  {
+    id: "veins",
+    system: "vessels",
+    name: { fr: "Veines", en: "Veins" },
+    vascularFilter: "vein",
+  },
+  {
+    id: "bones",
+    system: "skeleton",
+    name: { fr: "Os", en: "Bones" },
+    vascularFilter: "all",
+  },
+] as const;
+
 export type AnatomyMesh = {
   id: string;
   fmaId: string;
   elementId: string;
   representationId: string;
+  representationGroup?: string;
+  representationDefault?: boolean;
   name: string;
   system: AnatomySystem;
   legacyIds: string[];
   bounds?: { min: number[]; max: number[] };
   defaultVisible?: boolean;
+  /** Assigned by the source ontology; never inferred from display colour. */
+  vascularKind?: AnatomyVascularKind;
   lod?: {
     url?: string;
     files?: string[];
@@ -71,7 +105,24 @@ export type AtlasStructure = AnatomyStructure & {
   translated: boolean;
   landmark: boolean;
   fmaId?: string;
+  vascularKind?: AnatomyVascularKind;
+  representationGroup?: string;
+  representationDefault?: boolean;
 };
+
+/** Only blood vessels are filtered; skeletal context remains available. */
+export function anatomyExcludedVesselIds(
+  meshes: readonly AnatomyMesh[],
+  filter: AnatomyVascularFilter,
+): string[] {
+  return filter === "all"
+    ? []
+    : meshes
+        .filter(
+          (mesh) => mesh.system === "vessels" && mesh.vascularKind !== filter,
+        )
+        .map((mesh) => mesh.id);
+}
 const quizStructures = new Set(
   [...anatomyQuestions, ...muscleQuestions]
     .map((q) => q.diagram?.structureId)
@@ -86,22 +137,33 @@ function makeCatalog(data: unknown) {
     representationId: mesh.representationId ?? mesh.id,
   }));
   const mappings = manifest.legacyMapping;
+  const byMeshId = new Map(meshes.map((mesh) => [mesh.id, mesh]));
+  const vascularKindFor = (ids: readonly string[]) => {
+    const first = ids.length ? byMeshId.get(ids[0]!)?.vascularKind : undefined;
+    return first && ids.every((id) => byMeshId.get(id)?.vascularKind === first)
+      ? first
+      : undefined;
+  };
   const modelSource = manifest.source.endsWith(".zip")
     ? manifest.source.replace(/[^/]+\.zip$/, "README_e.html")
     : manifest.source;
 
   /** Course landmarks stay stable; anatomical mesh identifiers remain independent. */
-  const landmarks: AtlasStructure[] = anatomyStructures.map((entry) => ({
-    ...entry,
-    meshIds:
+  const landmarks: AtlasStructure[] = anatomyStructures.map((entry) => {
+    const meshIds =
       mappings[entry.id] ??
       meshes
         .filter((mesh) => mesh.legacyIds.includes(entry.id))
-        .map((mesh) => mesh.id),
-    legacyId: entry.id,
-    landmark: true,
-    translated: true,
-  }));
+        .map((mesh) => mesh.id);
+    return {
+      ...entry,
+      meshIds,
+      vascularKind: vascularKindFor(meshIds),
+      legacyId: entry.id,
+      landmark: true,
+      translated: true,
+    };
+  });
 
   const structures: AtlasStructure[] = meshes.map((mesh) => {
     const legacyId = mesh.legacyIds.find((id) => anatomyStructure(id));
@@ -124,6 +186,9 @@ function makeCatalog(data: unknown) {
       translated: anatomyNameHasFrench(mesh.name),
       landmark: false,
       fmaId: mesh.fmaId,
+      vascularKind: mesh.vascularKind,
+      representationGroup: mesh.representationGroup,
+      representationDefault: mesh.representationDefault,
     };
   });
   const byId = new Map(

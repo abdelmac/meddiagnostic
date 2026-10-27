@@ -1,4 +1,20 @@
-import { expect, type Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
+
+/** pending=0 can precede a debounced LOD refresh. Image/pointer comparisons
+ * require a quiet reference, not just one idle sample between two downloads. */
+export async function waitForAtlasSteady(canvas: Locator, quietMs = 800) {
+  let previous = "", stableSince = 0;
+  await expect.poll(async () => {
+    const state = await canvas.evaluate(node => {
+      const data = (node as HTMLCanvasElement).dataset;
+      return { pending: data.lodPending, resolving: data.resolutionPending, camera: data.camera, ids: data.lodIds, pixels: data.bufferPixels, selected: data.selectedId, section: data.section, source: data.sourceId };
+    });
+    if (state.pending !== "0" || state.resolving === "true" || !state.camera) { previous = ""; stableSince = 0; return false; }
+    const key = JSON.stringify(state);
+    if (key !== previous) { previous = key; stableSince = Date.now(); return false; }
+    return Date.now() - stableSince >= quietMs;
+  }, { timeout: 60000, intervals: [100, 200, 250], message: "Wait for the anatomical reference, camera and drawing buffer to settle" }).toBe(true);
+}
 
 /** All atlas work is routed through the same public controls as touch users. */
 export async function closeAtlasPanel(page: Page) {
@@ -21,7 +37,7 @@ export async function openAtlasPanel(page: Page, panel: "search" | "layers" | "n
 
 export async function chooseAtlasSource(page: Page, source: "detailed" | "extended") {
   const panel = await openAtlasPanel(page, "layers");
-  await panel.getByRole("button", { name: source === "detailed" ? /^(Corps détaillé|Detailed body)$/ : /^(Atlas étendu|Extended atlas)$/ }).click();
+  await panel.getByRole("button", { name: source === "detailed" ? /^(Corps détaillé|Detailed body)$/ : /^(Corps complet|Whole body)$/ }).click();
   await closeAtlasPanel(page);
 }
 

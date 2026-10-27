@@ -36,6 +36,7 @@ import {
 } from "../data/anatomy-structures";
 import {
   atlasCatalog,
+  anatomyQuickViews,
   anatomySearchKey,
   type AtlasSource,
 } from "../data/anatomy-catalog";
@@ -108,6 +109,8 @@ export function AnatomyAtlas({
     opacity,
     setOpacity,
     hiddenIds,
+    excludedIds,
+    representationIds,
     setHiddenIds,
     inspector,
     setInspector,
@@ -254,17 +257,44 @@ export function AnatomyAtlas({
             "Click the body to identify a structure. Isolate it, hide overlying structures and explore its relationships.",
           )}
         </Txt>
+        <View style={[wrap, { gap: 7 }]}>
+          {anatomyQuickViews.map((entry) => (
+            <Pressable
+              key={entry.id}
+              accessibilityRole="button"
+              accessibilityLabel={entry.name[language]}
+              aria-pressed={atlas.quickView === entry.id}
+              disabled={atlas.quickViewCounts[entry.id] === 0}
+              onPress={() => atlas.showQuickView(entry.id)}
+              style={{
+                paddingHorizontal: 14,
+                paddingVertical: 11,
+                minHeight: 44,
+                borderRadius: 10,
+                borderWidth: 1,
+                borderColor:
+                  atlas.quickView === entry.id ? "#6418ef" : "#d8cfe5",
+                backgroundColor:
+                  atlas.quickView === entry.id ? "#eee5ff" : "#fff",
+              }}
+            >
+              <Txt style={{ fontSize: 12, color: "#3b2058" }}>
+                {entry.name[language]}
+              </Txt>
+            </Pressable>
+          ))}
+        </View>
         {mode === "3d" && (
           <View style={{ gap: 8 }}>
             <View style={[wrap, { gap: 8 }]}>
-              {(["detailed", "extended"] as const).map((value) => (
+              {(["extended", "detailed"] as const).map((value) => (
                 <Pressable
                   key={value}
                   accessibilityRole="button"
                   accessibilityLabel={
                     value === "detailed"
                       ? l("Corps détaillé", "Detailed body")
-                      : l("Atlas étendu", "Extended atlas")
+                      : l("Corps complet", "Whole body")
                   }
                   aria-pressed={sourceId === value}
                   onPress={() => changeSource(value)}
@@ -287,7 +317,7 @@ export function AnatomyAtlas({
                   >
                     {value === "detailed"
                       ? l("Corps détaillé", "Detailed body")
-                      : l("Atlas étendu", "Extended atlas")}
+                      : l("Corps complet", "Whole body")}
                   </Txt>
                 </Pressable>
               ))}
@@ -295,12 +325,12 @@ export function AnatomyAtlas({
             <Txt muted style={{ fontSize: 11 }}>
               {sourceId === "detailed"
                 ? l(
-                    "Une même référence pour le corps entier. Les détails d’origine se chargent au zoom et au cadrage. Pour davantage de petites branches nerveuses et vasculaires, choisissez l’atlas étendu.",
-                    "One reference for the whole body. Original details load as you zoom and focus. Choose the extended atlas for more small nerve and vessel branches.",
+                    "Les détails d’origine se chargent au zoom et au cadrage. Le corps complet propose séparément les nerfs, vaisseaux et os de BodyParts3D 4.3.",
+                    "Original details load as you zoom and focus. The whole body separately provides the nerves, vessels and bones from BodyParts3D 4.3.",
                   )
                 : l(
-                    "Un catalogue plus large de structures. Pour explorer une géométrie plus fine dans le corps entier, choisissez le corps détaillé. Les deux références restent séparées.",
-                    "A wider catalogue of structures. Choose the detailed body for finer geometry throughout the body. The two references remain separate.",
+                    "Nerfs, artères, veines et formes osseuses dans une même référence BodyParts3D 4.3. Les deux références restent séparées, avec leurs limites de couverture.",
+                    "Nerves, arteries, veins and bone shapes within one BodyParts3D 4.3 reference. The two references remain separate, with their coverage limits.",
                   )}
             </Txt>
           </View>
@@ -542,6 +572,8 @@ export function AnatomyAtlas({
                   key={sourceId}
                   sourceManifest={anatomyModelManifest}
                   appearance={appearance}
+                  depthShading={atlas.depthShading}
+                  section={atlas.section}
                   system={system}
                   visibleSystems={visibleSystems}
                   view={view}
@@ -553,6 +585,8 @@ export function AnatomyAtlas({
                   isolatedDetail={detailMode}
                   opacity={opacity}
                   hiddenIds={hiddenIds}
+                  excludedIds={excludedIds}
+                  representationIds={representationIds}
                   resetKey={reset}
                   focusSelectionKey={focusKey}
                   focusRegionBounds={regionBounds}

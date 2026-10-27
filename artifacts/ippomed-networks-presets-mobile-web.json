@@ -1,0 +1,67 @@
+{
+  "origin": "https://medquiz-europe.medcompass-web.workers.dev",
+  "project": "mobile-web",
+  "datasetId": "bodyparts3d-4.3",
+  "data": [
+    {
+      "name": "Nerfs",
+      "arteries": 0,
+      "veins": 0,
+      "camera": "0.00000,0.86487,3.46684,0.00000,0.86487,0.00000",
+      "section": "{\"axis\":\"axial\",\"position\":0.5,\"inverted\":false,\"normal\":[0,1,0],\"constant\":-0.8648706078529358}",
+      "hiddenIds": [
+        "FMA34680_FJ1468",
+        "FMA34681_FJ1468M",
+        "FMA34682_FJ1467",
+        "FMA34683_FJ1467M",
+        "FMA34684_FJ1513",
+        "FMA34685_FJ1513M"
+      ]
+    },
+    {
+      "name": "Artères",
+      "arteries": 885,
+      "veins": 0,
+      "camera": "0.00000,0.86487,3.46684,0.00000,0.86487,0.00000",
+      "section": "{\"axis\":\"axial\",\"position\":0.5,\"inverted\":false,\"normal\":[0,1,0],\"constant\":-0.8648706078529358}",
+      "hiddenIds": [
+        "FMA34680_FJ1468",
+        "FMA34681_FJ1468M",
+        "FMA34682_FJ1467",
+        "FMA34683_FJ1467M",
+        "FMA34684_FJ1513",
+        "FMA34685_FJ1513M"
+      ]
+    },
+    {
+      "name": "Veines",
+      "arteries": 0,
+      "veins": 602,
+      "camera": "0.00000,0.86487,3.46684,0.00000,0.86487,0.00000",
+      "section": "{\"axis\":\"axial\",\"position\":0.5,\"inverted\":false,\"normal\":[0,1,0],\"constant\":-0.8648706078529358}",
+      "hiddenIds": [
+        "FMA34680_FJ1468",
+        "FMA34681_FJ1468M",
+        "FMA34682_FJ1467",
+        "FMA34683_FJ1467M",
+        "FMA34684_FJ1513",
+        "FMA34685_FJ1513M"
+      ]
+    },
+    {
+      "name": "Os",
+      "arteries": 0,
+      "veins": 0,
+      "camera": "0.00000,0.86487,3.46684,0.00000,0.86487,0.00000",
+      "section": "{\"axis\":\"axial\",\"position\":0.5,\"inverted\":false,\"normal\":[0,1,0],\"constant\":-0.8648706078529358}",
+      "hiddenIds": [
+        "FMA34680_FJ1468",
+        "FMA34681_FJ1468M",
+        "FMA34682_FJ1467",
+        "FMA34683_FJ1467M",
+        "FMA34684_FJ1513",
+        "FMA34685_FJ1513M"
+      ]
+    }
+  ]
+}

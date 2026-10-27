@@ -1,0 +1,1566 @@
+{
+  "importer": "scripts/import-bodyparts3d.mjs",
+  "dataset": "BodyParts3D 4.0 + 4.3 peripheral nerves",
+  "sources": [
+    {
+      "url": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/isa_parts_list_e.txt",
+      "bytes": 128086,
+      "sha256": "ab7796deedd49205e77f3609a1cb8c53e2bbee14ecb5c9a6ca05227469780513"
+    },
+    {
+      "url": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/isa_element_parts.txt",
+      "bytes": 1142159,
+      "sha256": "a3de74423f943b0d724ae8f59b3a817f87c423a544f8db98113b1980817cbeaf"
+    },
+    {
+      "url": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/partof_parts_list_e.txt",
+      "bytes": 59351,
+      "sha256": "9224080557053e6f1322f1e13ab27f0ecde0db19bb3b505f0631afad230eeebd"
+    },
+    {
+      "url": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/partof_element_parts.txt",
+      "bytes": 651179,
+      "sha256": "3f5f6df1028eb122b30de77c711597b6bb8e5541658e5985859fd228adbf88ea"
+    },
+    {
+      "url": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/isa_BP3D_4.0_obj_99.zip",
+      "bytes": 142903898,
+      "sha256": "40665852c49f218326590e204db91064a1ecfc3c6f8cbd7bbbcaac62c7cd409e"
+    },
+    {
+      "url": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/partof_BP3D_4.0_obj_99.zip",
+      "bytes": 64888505,
+      "sha256": "9fbc713fffeee924a5a657d9813d84d7eb957bded63adb854931dd5e3eb61c97"
+    },
+    {
+      "dataset": "BodyParts3D 4.3",
+      "source": "https://lifesciencedb.jp/bp3d/",
+      "mirror": "https://github.com/olivercase/body_parts_3d_api",
+      "commit": "fd527e6f4daf732fd814314d9257df5877b844bc",
+      "license": "CC-BY-SA-2.1-JP",
+      "files": [
+        {
+          "elementId": "FJ4024",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4024_BP29476_FMA18151_Trunk%20of%20right%20vagus%20nerve.obj",
+          "bytes": 1651782,
+          "sha256": "be374d656c6ec642a93681673744d0330b06d70a84d0dd53bcd3dcde870284df"
+        },
+        {
+          "elementId": "FJ3926",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3926_BP29477_FMA18157_Trunk%20of%20left%20vagus%20nerve.obj",
+          "bytes": 1963465,
+          "sha256": "d9a723878f9fc77ca8e82778dcbd08a40fc27b5d3880c404f30747f854d3074c"
+        },
+        {
+          "elementId": "FJ4264",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4264_BP29324_FMA24105_Trunk%20of%20left%20fifth%20cervical%20nerve.obj",
+          "bytes": 115363,
+          "sha256": "c45e251cfc015a3fd9834805a55e29fb3123485d3bc321af2b1442fa975d9c00"
+        },
+        {
+          "elementId": "FJ3855",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3855_BP29570_FMA242857_Choroid%20plexus%20of%20right%20lateral%20ventricle.obj",
+          "bytes": 336023,
+          "sha256": "7a43ca18ad6786a880ef5615112dd70cbd91077ad45d1a6c10611ac6fca84583"
+        },
+        {
+          "elementId": "FJ4225",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4225_BP29815_FMA37066_Left%20musculocutaneous%20nerve.obj",
+          "bytes": 209111,
+          "sha256": "33bcb8e18b548e418eaef9905d8639382498628b0937a2faba4b43b2d257e303"
+        },
+        {
+          "elementId": "FJ4224",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4224_BP29809_FMA37068_Left%20median%20nerve.obj",
+          "bytes": 275660,
+          "sha256": "0005af3008aa7ae05d1c8900bd559458f897d89fc99c4899323195af81ba99e3"
+        },
+        {
+          "elementId": "FJ4172",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4172_BP29806_FMA37071_Left%20radial%20nerve.obj",
+          "bytes": 35574,
+          "sha256": "a6cd726af7026964e340fdae14c1dc22a8c8fbe0ed8996c937709e83a4cef909"
+        },
+        {
+          "elementId": "FJ4240",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4240_BP29806_FMA37071_Left%20radial%20nerve.obj",
+          "bytes": 281192,
+          "sha256": "b7bbc22a41bcfc72af2c1a9b6fedd888e372d784887ef4d7400f079e678f698d"
+        },
+        {
+          "elementId": "FJ4171",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4171_BP29488_FMA37074_Left%20axillary%20nerve.obj",
+          "bytes": 46757,
+          "sha256": "ba5be7fa0836ccfa72b016da504ab8ff04498c053d3ca4f5cf6b7ff18940418d"
+        },
+        {
+          "elementId": "FJ4243",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4243_BP29488_FMA37074_Left%20axillary%20nerve.obj",
+          "bytes": 27986,
+          "sha256": "1744a5584078ab48f0a1fd4e4c06efefd304c61208eda1f2792d17d745179d12"
+        },
+        {
+          "elementId": "FJ4258",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4258_BP29812_FMA37321_Left%20ulnar%20nerve.obj",
+          "bytes": 276297,
+          "sha256": "e83c41c5d566d299f56e4e68ae45022fa7b41a649e4a2a6e4de1cc6ba17ad38f"
+        },
+        {
+          "elementId": "FJ4285",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4285_BP29115_FMA44867_Lateral%20proper%20palmar%20digital%20branch%20of%20median%20nerve%20to%20middle%20finger.obj",
+          "bytes": 39168,
+          "sha256": "320f55307f8ff753ed20beedd13d8716e6b391f324db59dc1d658c4c2b6615c8"
+        },
+        {
+          "elementId": "FJ4286",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4286_BP29194_FMA44871_Lateral%20proper%20palmar%20digital%20branch%20of%20left%20median%20nerve%20to%20left%20ring%20finger.obj",
+          "bytes": 55592,
+          "sha256": "9e26a20ae66a12b1aa1feaa692c8e7ab76379a9d5ea744d812d95a09e915a9df"
+        },
+        {
+          "elementId": "FJ4269",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4269_BP29786_FMA44977_First%20dorsal%20digital%20branch%20of%20radial%20nerve.obj",
+          "bytes": 42712,
+          "sha256": "db79eeaa7ce17b437e79846dea09b93ea021e2b0d54dade976b98fe5d6d00d00"
+        },
+        {
+          "elementId": "FJ4270",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4270_BP29794_FMA44979_First%20dorsal%20digital%20branch%20of%20left%20radial%20nerve.obj",
+          "bytes": 97984,
+          "sha256": "22cb87e03de72e017a4caa63603f93793a30cc300570be73990562cad5210fdc"
+        },
+        {
+          "elementId": "FJ4278",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4278_BP29777_FMA44984_Lateral%20dorsal%20digital%20branch%20of%20radial%20nerve%20to%20index%20finger.obj",
+          "bytes": 39534,
+          "sha256": "6fb98b933f510a6be6e93040652ef57e590163bb2b0c88ec17b5b2b19be5e2db"
+        },
+        {
+          "elementId": "FJ4271",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4271_BP29790_FMA44986_Dorsal%20digital%20branch%20of%20left%20radial%20nerve%20to%20medial%20side%20of%20left%20index%20finger.obj",
+          "bytes": 35917,
+          "sha256": "180533a3530d9d7c10415f3e6126ca181147b36d84538707f9ca59c9cde17d1f"
+        },
+        {
+          "elementId": "FJ4268",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4268_BP29802_FMA44997_Medial%20dorsal%20digital%20branch%20of%20left%20radial%20nerve%20to%20left%20middle%20finger.obj",
+          "bytes": 56793,
+          "sha256": "2d5746ee24015a824621a25a34a94799b269222d108785e11c6fe69e0276453d"
+        },
+        {
+          "elementId": "FJ4274",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4274_BP29122_FMA45239_Lateral%20cord%20of%20left%20brachial%20nerve%20plexus.obj",
+          "bytes": 21771,
+          "sha256": "b386c72f814da56f26b3fa8647e53d76b75f20008a7b6678d50d644c0358f445"
+        },
+        {
+          "elementId": "FJ4275",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4275_BP29196_FMA45241_Medial%20cord%20of%20left%20brachial%20nerve%20plexus.obj",
+          "bytes": 103364,
+          "sha256": "dafa39b78d7491f619aa9aa09e676da0560dd86357cc4d118e7ab4ce7cc89e7d"
+        },
+        {
+          "elementId": "FJ4280",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4280_BP29303_FMA45243_Posterior%20cord%20of%20left%20brachial%20nerve%20plexus.obj",
+          "bytes": 65939,
+          "sha256": "2951c684acb4242e581f95e2d17bbe59e485bbc77c1d148d7284c68d1883135d"
+        },
+        {
+          "elementId": "FJ7501",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ7501_BP23301_FMA50875_Right%20optic%20nerve.obj",
+          "bytes": 97548,
+          "sha256": "15c204aca7e2140d534e10e1bc048cfe8ed67a5ab480365be2fbff5c8e5b398f"
+        },
+        {
+          "elementId": "FJ7501M",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ7501M_BP23214_FMA50878_Left%20optic%20nerve.obj",
+          "bytes": 97007,
+          "sha256": "b0ffb2097bb6fd3609c68df8aea9b5383c074863e0b4583184a7135ccbae5c54"
+        },
+        {
+          "elementId": "FJ1381",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1381_BP23210_FMA50881_Right%20trochlear%20nerve.obj",
+          "bytes": 169563,
+          "sha256": "4bc7adf0fb6d00ffc565ff4d71e54f2e2d59a5ecb23e225bc20b60a050544b96"
+        },
+        {
+          "elementId": "FJ4039",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4039_BP23210_FMA50881_Right%20trochlear%20nerve.obj",
+          "bytes": 312751,
+          "sha256": "41405d1a29aea69114e34f513c2f2e525ccefb2a88451784abfbe35c788bdffa"
+        },
+        {
+          "elementId": "FJ3981",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3981_BP23034_FMA50882_Left%20trochlear%20nerve.obj",
+          "bytes": 313898,
+          "sha256": "e2cc5d5c57a7859cbd23ba31e9ee26deba19206c4125f6c2634fda99de50a7fa"
+        },
+        {
+          "elementId": "FJ3891",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3891_BP29534_FMA50886_Right%20abducens%20nerve.obj",
+          "bytes": 75374,
+          "sha256": "2447bdf59125a20d8d4285a48e70d623248c5591aa5ba3d024158d033124223c"
+        },
+        {
+          "elementId": "FJ3927",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3927_BP29502_FMA50887_Left%20abducens%20nerve.obj",
+          "bytes": 77089,
+          "sha256": "6d73c3be88280529fc93c08427d0c305883831e1a253f8e608128a17dda7dda7"
+        },
+        {
+          "elementId": "FJ3894",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3894_BP29543_FMA50890_Right%20vestibulocochlear%20nerve.obj",
+          "bytes": 98735,
+          "sha256": "6be6de736fcf27c481890f605f1cc5e2211547b2a993a51a2922cf622d0c739e"
+        },
+        {
+          "elementId": "FJ3932",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3932_BP29535_FMA50891_Left%20vestibulocochlear%20nerve.obj",
+          "bytes": 100417,
+          "sha256": "0ad502daacef35f5332e4afafacfa4eb4e054ff4aec32301b7e9d2c8cdbd98b0"
+        },
+        {
+          "elementId": "FJ3901",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3901_BP29500_FMA50894_Left%20glossopharyngeal%20nerve.obj",
+          "bytes": 450504,
+          "sha256": "75b6042e1038a077c1c26e4158cc51930a4fa61749603a07f2d8131882f83d8c"
+        },
+        {
+          "elementId": "FJ3939",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3939_BP29500_FMA50894_Left%20glossopharyngeal%20nerve.obj",
+          "bytes": 457294,
+          "sha256": "b5974899a90d02463da0385030c9105cbcb37e71f4e34d0b8d4d9b13a5b66291"
+        },
+        {
+          "elementId": "FJ1372",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1372_BP20049_FMA52574_Superior%20branch%20of%20right%20oculomotor%20nerve.obj",
+          "bytes": 59902,
+          "sha256": "bbcb64ae69d4b9af6330e791f73ec49a2b1f591b571178163dad8c984eca3700"
+        },
+        {
+          "elementId": "FJ1321",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1321_BP20060_FMA52575_Superior%20branch%20of%20left%20oculomotor%20nerve.obj",
+          "bytes": 58952,
+          "sha256": "59ed7d0296824709819f76700f92ff2a22591b21ba6cbb9279e154f8273f6454"
+        },
+        {
+          "elementId": "FJ1344",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1344_BP20231_FMA52576_Inferior%20branch%20of%20right%20oculomotor%20nerve.obj",
+          "bytes": 117079,
+          "sha256": "af74c8934f5869a460cd6f75c90245538377e013fae3d87a406094f4cfdd4977"
+        },
+        {
+          "elementId": "FJ1293",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1293_BP20304_FMA52577_Inferior%20branch%20of%20left%20oculomotor%20nerve.obj",
+          "bytes": 124949,
+          "sha256": "58c75a4b8dc830e1e08ca1a2541fc78c9465e1f3a1f6e606f575c3f7c0d2c8e0"
+        },
+        {
+          "elementId": "FJ4030",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4030_BP29214_FMA52579_Nerve%20to%20right%20ciliary%20ganglion.obj",
+          "bytes": 20290,
+          "sha256": "6f8d6802ccf3fd8b7a7510a165a022e71cc72929dfb5b1105f03d00104e1f1d1"
+        },
+        {
+          "elementId": "FJ3965",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3965_BP29175_FMA52580_Nerve%20to%20left%20ciliary%20ganglion.obj",
+          "bytes": 17483,
+          "sha256": "f8fd3639da0830572b5c7109eff5086cae0083284083ce532b85020be3a2e71f"
+        },
+        {
+          "elementId": "FJ4032",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4032_BP29200_FMA52583_Nerve%20to%20right%20superior%20rectus.obj",
+          "bytes": 22768,
+          "sha256": "92090d672ddf29248ac1909897891a948fc8be4f8aa7d9d76489ee427d468fcf"
+        },
+        {
+          "elementId": "FJ3967",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3967_BP29184_FMA52584_Nerve%20to%20left%20superior%20rectus.obj",
+          "bytes": 23662,
+          "sha256": "1014fbae568b6d11009cbe8e84c738c9765100edbea4c70d7458b292a821c9bf"
+        },
+        {
+          "elementId": "FJ4013",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4013_BP29597_FMA52592_Right%20olfactory%20nerve.obj",
+          "bytes": 36382,
+          "sha256": "4ffabe238662ceccf33d60c9ca96dacf16e67ef1af514b1a4627d6721c7cee32"
+        },
+        {
+          "elementId": "FJ4014",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4014_BP29597_FMA52592_Right%20olfactory%20nerve.obj",
+          "bytes": 32697,
+          "sha256": "e83fdc95d2d3e37295d9b44fad7c07eecd49169735aaa1a0f2b8bc5bcec4b958"
+        },
+        {
+          "elementId": "FJ4015",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4015_BP29597_FMA52592_Right%20olfactory%20nerve.obj",
+          "bytes": 32940,
+          "sha256": "735a86a2edb9cca69a92f9fe0b333e8a54cfb84a806b34ca3c18147977f293d3"
+        },
+        {
+          "elementId": "FJ4016",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4016_BP29597_FMA52592_Right%20olfactory%20nerve.obj",
+          "bytes": 35903,
+          "sha256": "20ae52f7918f99b81a2d80f100bdee4804a70c1371e89df055be3a5378d9cf63"
+        },
+        {
+          "elementId": "FJ4017",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4017_BP29597_FMA52592_Right%20olfactory%20nerve.obj",
+          "bytes": 35003,
+          "sha256": "4733e26b5671e9d42ac63a08360152bfe90e594e5c725ab63ec222ef29ec62c6"
+        },
+        {
+          "elementId": "FJ4018",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4018_BP29597_FMA52592_Right%20olfactory%20nerve.obj",
+          "bytes": 36825,
+          "sha256": "dc79abcab823814e3d94894e0ab1bbccc1134b4dda641ecbc81f8146e0c8ea79"
+        },
+        {
+          "elementId": "FJ3915",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3915_BP29573_FMA52593_Left%20olfactory%20nerve.obj",
+          "bytes": 35627,
+          "sha256": "acc52312f2ab4ee3dfd9b5e42fdc7ca355f88dc30601e2a9a132ed1c021bbe05"
+        },
+        {
+          "elementId": "FJ3916",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3916_BP29573_FMA52593_Left%20olfactory%20nerve.obj",
+          "bytes": 33117,
+          "sha256": "aabc22a6bd9aa15a7b58113c64ee266f2e1e6421f9c2fddee8f7d6d06bb6f324"
+        },
+        {
+          "elementId": "FJ3917",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3917_BP29573_FMA52593_Left%20olfactory%20nerve.obj",
+          "bytes": 33767,
+          "sha256": "54264c36c990f50674ef2199fbe60f5f00780e7ba86e8fbf8d5035d077cf678f"
+        },
+        {
+          "elementId": "FJ3918",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3918_BP29573_FMA52593_Left%20olfactory%20nerve.obj",
+          "bytes": 35048,
+          "sha256": "dffca41e9959979549a18dd9a96f015c67315064d4d94a6978123e6fc3a39b8f"
+        },
+        {
+          "elementId": "FJ3919",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3919_BP29573_FMA52593_Left%20olfactory%20nerve.obj",
+          "bytes": 35322,
+          "sha256": "f1b7a851c96a32aee12039981d7f3f60ecb7af01902aeb21161e32f9bcd2fe03"
+        },
+        {
+          "elementId": "FJ3920",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3920_BP29573_FMA52593_Left%20olfactory%20nerve.obj",
+          "bytes": 35449,
+          "sha256": "b5e966aa7faaed3dcf2a49edce1792926d06d5de55836069713540af94f1cc83"
+        },
+        {
+          "elementId": "FJ4037",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4037_BP29236_FMA52595_Nerve%20to%20right%20levator%20palpebrae%20superioris.obj",
+          "bytes": 19874,
+          "sha256": "5e013ea6406598f23c81440c88a8c75df9d4334f4dd439e392497ca3cb3beeaa"
+        },
+        {
+          "elementId": "FJ3977",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3977_BP29161_FMA52596_Nerve%20to%20left%20levator%20palpebrae%20superioris.obj",
+          "bytes": 22404,
+          "sha256": "e5e50af6d2af36d2c2acb78ea7d2cb7b805e0c3b1f15d833728e03154295d8fc"
+        },
+        {
+          "elementId": "FJ4035",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4035_BP29252_FMA52601_Nerve%20to%20right%20medial%20rectus.obj",
+          "bytes": 29919,
+          "sha256": "79736cd084f3e0534db3b3faeff1aea26235095fcd1738a1935ad30e11c47e2f"
+        },
+        {
+          "elementId": "FJ3970",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3970_BP29228_FMA52602_Nerve%20to%20left%20medial%20rectus.obj",
+          "bytes": 25954,
+          "sha256": "a78b98de6b686c6ea0ea78a22909695ad58d7821eb4b72b65200f2290c878b26"
+        },
+        {
+          "elementId": "FJ3969",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3969_BP29201_FMA52604_Nerve%20to%20left%20inferior%20oblique.obj",
+          "bytes": 54164,
+          "sha256": "7e0de3a9d58f013fb47c156346020920c565bbae3816b89bc9ddac1ec2ad9d9a"
+        },
+        {
+          "elementId": "FJ4031",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4031_BP29223_FMA52605_Nerve%20to%20right%20inferior%20rectus.obj",
+          "bytes": 45523,
+          "sha256": "fa8d27469fde10302dfc412625b397c060f9650092eabdaf45ac2e9308937be3"
+        },
+        {
+          "elementId": "FJ3966",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3966_BP29110_FMA52606_Nerve%20to%20left%20inferior%20rectus.obj",
+          "bytes": 41518,
+          "sha256": "d98768eab7bdaad17e2ee01b4f03103a21d64c60862357570523387c667a48cb"
+        },
+        {
+          "elementId": "FJ1363",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1363_BP20226_FMA52622_Right%20ophthalmic%20nerve.obj",
+          "bytes": 104937,
+          "sha256": "41c3030b9fdb8194c045f10547b8170313b5235455f027080c34661221f17d05"
+        },
+        {
+          "elementId": "FJ4019",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4019_BP20226_FMA52622_Right%20ophthalmic%20nerve.obj",
+          "bytes": 58403,
+          "sha256": "c20b23b2c39c9db92ea5379e679f57ff6375ab81672e00ea8ce97a2c639bc33f"
+        },
+        {
+          "elementId": "FJ3921",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3921_BP23833_FMA52623_Left%20ophthalmic%20nerve.obj",
+          "bytes": 58220,
+          "sha256": "79409d56822b38b6423f87ca106017565c366aca0b198cfa17533761c3073dc8"
+        },
+        {
+          "elementId": "FJ1351",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1351_BP20357_FMA52629_Right%20lacrimal%20nerve.obj",
+          "bytes": 119484,
+          "sha256": "8c2f0846eb61cdb7be90b2ac73b7dbff7344ff8cfb8c3c0fc3765e602e04e720"
+        },
+        {
+          "elementId": "FJ4010",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4010_BP20357_FMA52629_Right%20lacrimal%20nerve.obj",
+          "bytes": 121068,
+          "sha256": "819e13434b1b3cb85315b65cf07f31be89d74927620a3420b28784fdc1f8acee"
+        },
+        {
+          "elementId": "FJ1300",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1300_BP20380_FMA52630_Left%20lacrimal%20nerve.obj",
+          "bytes": 116432,
+          "sha256": "e1ab2bdb523216ed8e01ed33d0d7e6c5381da37b47acb3ea8bab0fea53b0aa6d"
+        },
+        {
+          "elementId": "FJ3912",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3912_BP20380_FMA52630_Left%20lacrimal%20nerve.obj",
+          "bytes": 120211,
+          "sha256": "87f1693f3da50f0b56f886f0f4f2774bfb6cafe5a72eee21270eed5a70b62686"
+        },
+        {
+          "elementId": "FJ1341",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1341_BP20449_FMA52639_Right%20frontal%20nerve.obj",
+          "bytes": 74093,
+          "sha256": "56128f160e6543ec506cd6c7de72270401ab5eb607ffb65faaa4f58ddf7427f6"
+        },
+        {
+          "elementId": "FJ4008",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4008_BP20449_FMA52639_Right%20frontal%20nerve.obj",
+          "bytes": 159456,
+          "sha256": "b54494ac6df47e832f95f26ad06b0bb6fed12bab7b8fdb6f284fb00d0cd0c579"
+        },
+        {
+          "elementId": "FJ1290",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1290_BP20367_FMA52640_Left%20frontal%20nerve.obj",
+          "bytes": 73464,
+          "sha256": "0c45545eea949cbece54d47d8796c7a56e259ed72753d6a236eb002d54326ba9"
+        },
+        {
+          "elementId": "FJ3910",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3910_BP20367_FMA52640_Left%20frontal%20nerve.obj",
+          "bytes": 159178,
+          "sha256": "e4b12d254ac3d9f58c8bff01f3fbad3cf429267df6c6c0ccb68ac59f2178fb52"
+        },
+        {
+          "elementId": "FJ1377",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1377_BP22708_FMA52643_Right%20supratrochlear%20nerve.obj",
+          "bytes": 144593,
+          "sha256": "7aca984a6a7ee75af713a0b7946e52eb2bbb363f9e1a321870418a1a77542b15"
+        },
+        {
+          "elementId": "FJ4023",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4023_BP22708_FMA52643_Right%20supratrochlear%20nerve.obj",
+          "bytes": 134797,
+          "sha256": "e12802fe618a91f860a0998dd5b8f0ec9a380f35f03e4dc074e8285ec1e0cc0b"
+        },
+        {
+          "elementId": "FJ1326",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1326_BP21030_FMA52644_Left%20supratrochlear%20nerve.obj",
+          "bytes": 143270,
+          "sha256": "4caf13f73efb446866276e858688127f478520ab0f751204c957d714a0f23cbe"
+        },
+        {
+          "elementId": "FJ3925",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3925_BP21030_FMA52644_Left%20supratrochlear%20nerve.obj",
+          "bytes": 134071,
+          "sha256": "a9c58c4ebeecc18fc7abf700cdb1db1ee5c03a17a1b3e512daa99a0fc55b30ca"
+        },
+        {
+          "elementId": "FJ1376",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1376_BP22693_FMA52656_Right%20supra-orbital%20nerve.obj",
+          "bytes": 159628,
+          "sha256": "4411fa536d5be6c4cff3939bc305f431ff46e84c81249de111b3bff2ae2d5f7e"
+        },
+        {
+          "elementId": "FJ4022",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4022_BP22693_FMA52656_Right%20supra-orbital%20nerve.obj",
+          "bytes": 82680,
+          "sha256": "a36ffc32674e5ffd681e4c83c7512c62f15a37d03d5f4e6a99857ff2cecc2ba7"
+        },
+        {
+          "elementId": "FJ3924",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3924_BP20828_FMA52657_Left%20supra-orbital%20nerve.obj",
+          "bytes": 83094,
+          "sha256": "8cea89d6b5e70e6e02ebe2127efeef33da4248ee97b8811e0ffeeb496f02df65"
+        },
+        {
+          "elementId": "FJ1361",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1361_BP21045_FMA52669_Right%20nasociliary%20nerve.obj",
+          "bytes": 52850,
+          "sha256": "8d808989bd1057066f2072ba8d8f41fee675f6d997bcb94959cbbab9b9d5c1ae"
+        },
+        {
+          "elementId": "FJ1310",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1310_BP20818_FMA52670_Left%20nasociliary%20nerve.obj",
+          "bytes": 53525,
+          "sha256": "89140daaa6b03a4bbee401ef8fe462fabd7b7bf35cf291f2ac1f16418366085d"
+        },
+        {
+          "elementId": "FJ3913",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3913_BP20818_FMA52670_Left%20nasociliary%20nerve.obj",
+          "bytes": 32508,
+          "sha256": "ece48cefdbe3cc599970d669e54438ba03d0ad00780fd16df95363b871f8e589"
+        },
+        {
+          "elementId": "FJ1362",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1362_BP21146_FMA52673_Communicating%20branch%20of%20right%20nasociliary%20nerve%20with%20right%20ciliary%20ganglion.obj",
+          "bytes": 17201,
+          "sha256": "3443e1f1695b28c90a6a026285e4b72219046522a8d24ab8539134acf04f615d"
+        },
+        {
+          "elementId": "FJ4007",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4007_BP21146_FMA52673_Communicating%20branch%20of%20right%20nasociliary%20nerve%20with%20right%20ciliary%20ganglion.obj",
+          "bytes": 14436,
+          "sha256": "af15e5b1bf2d18223ec4161bd8f839ef478920a5f04220a1f958de72169c63dc"
+        },
+        {
+          "elementId": "FJ1311",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1311_BP21151_FMA52674_Communicating%20branch%20of%20left%20nasociliary%20nerve%20with%20left%20ciliary%20ganglion.obj",
+          "bytes": 15670,
+          "sha256": "2a40b3d1a21a069b1709eb6faba251170bcf71d4d64c0f033925ef37dca30ba7"
+        },
+        {
+          "elementId": "FJ3909",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3909_BP21151_FMA52674_Communicating%20branch%20of%20left%20nasociliary%20nerve%20with%20left%20ciliary%20ganglion.obj",
+          "bytes": 16149,
+          "sha256": "b3064d49feb33e44d79a535ff82c2230cab42578a11bba9028158d0c2123c72d"
+        },
+        {
+          "elementId": "FJ1333",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1333_BP23799_FMA52676_Right%20anterior%20ethmoidal%20nerve.obj",
+          "bytes": 15371,
+          "sha256": "5dd34b3b475f0ea61407dbdb907971751ee62ccb157494b813f52a10e60d63f9"
+        },
+        {
+          "elementId": "FJ4006",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4006_BP23799_FMA52676_Right%20anterior%20ethmoidal%20nerve.obj",
+          "bytes": 61044,
+          "sha256": "091cea5ac932586c54fcdbcf4983459ddf00be9349382c88a76c4734f6975e17"
+        },
+        {
+          "elementId": "FJ1283",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1283_BP21112_FMA52677_Left%20anterior%20ethmoidal%20nerve.obj",
+          "bytes": 17753,
+          "sha256": "67787b3f203606aae0951bd0730ab9c564add92031215c73c885602346748c37"
+        },
+        {
+          "elementId": "FJ3908",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3908_BP21112_FMA52677_Left%20anterior%20ethmoidal%20nerve.obj",
+          "bytes": 61574,
+          "sha256": "927b342fe8b2fecbbae6d1758989213d95e231519d19c43d2eb2b70736a01a7d"
+        },
+        {
+          "elementId": "FJ4029",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4029_BP28712_FMA52684_Lateral%20internal%20nasal%20branch%20of%20right%20anterior%20ethmoidal%20nerve.obj",
+          "bytes": 28090,
+          "sha256": "210018ca26bfea674dc27d9268ea198c4f829fd172d3c1f72e38ae27469ae60b"
+        },
+        {
+          "elementId": "FJ3948",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3948_BP28697_FMA52685_Lateral%20internal%20nasal%20branch%20of%20left%20anterior%20ethmoidal%20nerve.obj",
+          "bytes": 30643,
+          "sha256": "8bd1fd899becca3c6e69527a80a7c8ea8d4d6b7e594fe2153e777ab87ee60b18"
+        },
+        {
+          "elementId": "FJ4028",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4028_BP28762_FMA52686_Internal%20nasal%20branch%20of%20right%20anterior%20ethmoidal%20nerve.obj",
+          "bytes": 25433,
+          "sha256": "7f039209746b592c0b8a5e43b95939918105ede4847be85be452ff1daff7eb77"
+        },
+        {
+          "elementId": "FJ3947",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3947_BP28825_FMA52687_Internal%20nasal%20branch%20of%20left%20anterior%20ethmoidal%20nerve.obj",
+          "bytes": 22955,
+          "sha256": "900c98d1d65af9617c418b716826042c4795d54fd965b146b7cdcd8ff5a90f0c"
+        },
+        {
+          "elementId": "FJ4026",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4026_BP28799_FMA52689_Right%20external%20nasal%20nerve.obj",
+          "bytes": 54959,
+          "sha256": "08576a4ec69b572f7e18c2988394000aff13e3a6fd02374369900f0bd46adeb7"
+        },
+        {
+          "elementId": "FJ3937",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3937_BP28777_FMA52690_Left%20external%20nasal%20nerve.obj",
+          "bytes": 56036,
+          "sha256": "dd9b2a52872173229cdb57765333791624110adb784995e90a72c47e370a5ddc"
+        },
+        {
+          "elementId": "FJ1347",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1347_BP21130_FMA52698_Right%20infratrochlear%20nerve.obj",
+          "bytes": 16528,
+          "sha256": "5ffd8cdad24b4da31cf5b393b3edae27977aa8307b8fc484fc1aed292f3d1109"
+        },
+        {
+          "elementId": "FJ4011",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4011_BP21130_FMA52698_Right%20infratrochlear%20nerve.obj",
+          "bytes": 32717,
+          "sha256": "224fcce629046eaa35ff6c9701a4033fe93bcce3b1f6a8788c68d2804150cc25"
+        },
+        {
+          "elementId": "FJ1296",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1296_BP22715_FMA52699_Left%20infratrochlear%20nerve.obj",
+          "bytes": 14611,
+          "sha256": "6e7c88c6571279f9a85350a927238522ec3c12be9babe3aef5b72f910712038c"
+        },
+        {
+          "elementId": "FJ3911",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3911_BP22715_FMA52699_Left%20infratrochlear%20nerve.obj",
+          "bytes": 35897,
+          "sha256": "c3fc29f375e787403462b4bcb055daa36f9eaee4b7705e2174c045810cb5a7cb"
+        },
+        {
+          "elementId": "FJ4009",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4009_BP28826_FMA52709_Palpebral%20branch%20of%20right%20infratrochlear%20nerve.obj",
+          "bytes": 35155,
+          "sha256": "bdb3a9eeddfa1b16944988dbec27063907745b5af206651f4fcfbc30d6391d9b"
+        },
+        {
+          "elementId": "FJ1366",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1366_BP21144_FMA52715_Right%20posterior%20ethmoidal%20nerve.obj",
+          "bytes": 13598,
+          "sha256": "7a9de164f25ace03253e74596462df8ae10431b13b2a9afc921d7d0b40e2c0ae"
+        },
+        {
+          "elementId": "FJ4020",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4020_BP21144_FMA52715_Right%20posterior%20ethmoidal%20nerve.obj",
+          "bytes": 27936,
+          "sha256": "7ebaa141f22440572908847f7a77cd167d34843cd8d913ac59ab041d4d290421"
+        },
+        {
+          "elementId": "FJ1315",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1315_BP21490_FMA52716_Left%20posterior%20ethmoidal%20nerve.obj",
+          "bytes": 14669,
+          "sha256": "9d01a286a4cf3e09dd116f39718c6d54db6a04f2e219208b080496c32983ed3e"
+        },
+        {
+          "elementId": "FJ3922",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3922_BP21490_FMA52716_Left%20posterior%20ethmoidal%20nerve.obj",
+          "bytes": 36962,
+          "sha256": "c33577353d91761b7dd9bc3656fafd53c5cef6a325f59bdd29d7ae3bc4aa1cf1"
+        },
+        {
+          "elementId": "FJ3989",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3989_BP29205_FMA52729_Right%20middle%20meningeal%20nerve.obj",
+          "bytes": 27559,
+          "sha256": "8f5dfc76e8524091c18b20768aee2f442b8604a5cf6d6df4fa73f4d54b51ad7b"
+        },
+        {
+          "elementId": "FJ3955",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3955_BP29120_FMA52730_Left%20middle%20meningeal%20nerve.obj",
+          "bytes": 28436,
+          "sha256": "1c82191e029f1e453028028f59fff833885f7e19756cbd67411e7a12b86a28f8"
+        },
+        {
+          "elementId": "FJ3900",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3900_BP29182_FMA52732_Ganglionic%20branch%20of%20right%20maxillary%20nerve%20to%20right%20pterygopalatine%20ganglion.obj",
+          "bytes": 18638,
+          "sha256": "9bc93141b7f89ddca2e4150db2a070204b966dde7d8a96b627c8c3e3519583e3"
+        },
+        {
+          "elementId": "FJ3929",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3929_BP29126_FMA52733_Ganglionic%20branch%20of%20left%20maxillary%20nerve%20to%20left%20pterygopalatine%20ganglion.obj",
+          "bytes": 18709,
+          "sha256": "0e2867bd00f988df1966bf00efa0df0d62da1b7b6275e373c7b5327cf3a3ad53"
+        },
+        {
+          "elementId": "FJ3999",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3999_BP29093_FMA52773_Orbital%20branch%20of%20right%20maxillary%20nerve%20to%20right%20orbitalis.obj",
+          "bytes": 31581,
+          "sha256": "19a5732c79142973ef916b820000bc4b7b774e086c562a6c9c3ee28a451da504"
+        },
+        {
+          "elementId": "FJ3971",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3971_BP29086_FMA52774_Orbital%20branch%20of%20left%20maxillary%20nerve%20to%20left%20orbitalis.obj",
+          "bytes": 32068,
+          "sha256": "e5651973c6aa2b50c5105fac3820f05f96c9bf7b0c3aec8d66020d976a1f47ce"
+        },
+        {
+          "elementId": "FJ3976",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3976_BP29138_FMA52784_Left%20lateral%20posterior%20superior%20nasal%20nerve.obj",
+          "bytes": 47176,
+          "sha256": "a03f452ce2a24b5e2da96e00eaaa2edab66fa428e4340af59d7714919f5d6351"
+        },
+        {
+          "elementId": "FJ4004",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4004_BP29209_FMA52785_Right%20lateral%20posterior%20superior%20nasal%20nerve.obj",
+          "bytes": 48582,
+          "sha256": "6200a072ac74ac87e93582b3760590a4a66a22b125e68c0961f207c2288bef54"
+        },
+        {
+          "elementId": "FJ4005",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4005_BP29247_FMA52786_Right%20medial%20posterior%20superior%20nasal%20nerve.obj",
+          "bytes": 52358,
+          "sha256": "2f7112087261db956b7cb9153d1c0a9762b6d466435d224ace3e2c4c59a5a809"
+        },
+        {
+          "elementId": "FJ3978",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3978_BP29140_FMA52787_Left%20medial%20posterior%20superior%20nasal%20nerve.obj",
+          "bytes": 53242,
+          "sha256": "11e9cbce84836a0bed88238db86afaf2dd408a1fb64c08715c5c2c63b6360f11"
+        },
+        {
+          "elementId": "FJ3993",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3993_BP29147_FMA52798_Right%20nasopalatine%20nerve.obj",
+          "bytes": 62555,
+          "sha256": "ee1728878871e867bf6fa41be7d9864634b71419a99c7040e1e08a9a057734a0"
+        },
+        {
+          "elementId": "FJ3959",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3959_BP29143_FMA52799_Left%20nasopalatine%20nerve.obj",
+          "bytes": 62441,
+          "sha256": "7b347f625403ea3c9f9911c961ea38fd25dfee427375de68baae50154c0873d3"
+        },
+        {
+          "elementId": "FJ3902",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3902_BP29212_FMA52803_Right%20greater%20palatine%20nerve.obj",
+          "bytes": 79995,
+          "sha256": "de6bcfc880cc87de8e945898dc882298db5b7307ddb723115461c68a10defd23"
+        },
+        {
+          "elementId": "FJ3940",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3940_BP29137_FMA52804_Left%20greater%20palatine%20nerve.obj",
+          "bytes": 79875,
+          "sha256": "0f52ddabacff1ee7ec335536d40f197d41e500c00ee8e2b6b3c1d425b679866f"
+        },
+        {
+          "elementId": "FJ4002",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4002_BP29085_FMA52824_Right%20posterior%20inferior%20nasal%20nerve.obj",
+          "bytes": 94600,
+          "sha256": "d9f8a657096f532b353fb60b649be3cf1b31006e36d34811054133f1d39cddb1"
+        },
+        {
+          "elementId": "FJ3974",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3974_BP29092_FMA52825_Left%20posterior%20inferior%20nasal%20nerve.obj",
+          "bytes": 96560,
+          "sha256": "e550e258cd78c2a4fcb2cc33311d0c992141b912d2f1fb518475d91f9abffbb6"
+        },
+        {
+          "elementId": "FJ4003",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4003_BP28997_FMA52936_Right%20posterior%20superior%20alveolar%20nerve.obj",
+          "bytes": 106723,
+          "sha256": "81458ca8ba6a3e600ea48f30ad8e74efcb6b81eef49cd820b85050bb046a000f"
+        },
+        {
+          "elementId": "FJ3975",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3975_BP29013_FMA52937_Left%20posterior%20superior%20alveolar%20nerve.obj",
+          "bytes": 105872,
+          "sha256": "47f19a959066883cd56e2508c15a5161e442a78e249610b26fca810e733aa186"
+        },
+        {
+          "elementId": "FJ3991",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3991_BP28993_FMA52939_Right%20middle%20superior%20alveolar%20nerve.obj",
+          "bytes": 76699,
+          "sha256": "1171bd1816579f1b7e98174e2e2ce46c9e5d15c5369034b1b6f242f0ddb25808"
+        },
+        {
+          "elementId": "FJ3957",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3957_BP29084_FMA52940_Left%20middle%20superior%20alveolar%20nerve.obj",
+          "bytes": 78130,
+          "sha256": "e76340fbdf8782335e603cbf47f5e46cc2fdbab9f9ba90e87075c644c2c92fc5"
+        },
+        {
+          "elementId": "FJ3892",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3892_BP29071_FMA52941_Right%20anterior%20superior%20alveolar%20nerve.obj",
+          "bytes": 102300,
+          "sha256": "576e6451f91fd44c6ce28fdfd5986eb6bd6ee7c15f09f52ed95d411d55d5a292"
+        },
+        {
+          "elementId": "FJ3930",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3930_BP29082_FMA52942_Left%20anterior%20superior%20alveolar%20nerve.obj",
+          "bytes": 102220,
+          "sha256": "ce2cfc344ca89a5d7e56e168d279d652a50860ea3ec4f4c5eef01f3b65dc22aa"
+        },
+        {
+          "elementId": "FJ4042",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4042_BP29246_FMA52968_Right%20zygomatic%20nerve.obj",
+          "bytes": 134123,
+          "sha256": "feb0578a474a2666e468e9ebcf2b5448b4d07637cba1f843cd8e95d7fc865673"
+        },
+        {
+          "elementId": "FJ3983",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3983_BP29129_FMA52969_Left%20zygomatic%20nerve.obj",
+          "bytes": 128687,
+          "sha256": "ad441d4ace8cec2b65fd6f7980bb47ec64ea7d2c1db5d278cb44d19a54187eb4"
+        },
+        {
+          "elementId": "FJ3905",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3905_BP29078_FMA52987_Inferior%20palpebral%20branch%20of%20right%20infra-orbital%20nerve.obj",
+          "bytes": 39607,
+          "sha256": "4d29986fb84661bbf84138255713e5cafdf22c02a500fefc3ef5d25924fc29d8"
+        },
+        {
+          "elementId": "FJ3944",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3944_BP29015_FMA52988_Inferior%20palpebral%20branch%20of%20left%20infra-orbital%20nerve.obj",
+          "bytes": 40592,
+          "sha256": "72db3b2eb58572fa5d575f0f225caa8547fd318cbe34327f302d37d147f4f134"
+        },
+        {
+          "elementId": "FJ3904",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3904_BP29004_FMA52990_External%20nasal%20branch%20of%20right%20infra-orbital%20nerve.obj",
+          "bytes": 59758,
+          "sha256": "e773015fb08f3ae4fabf90ef8b119bace9d51b3301f8b9c5a3e0adc1061c3df2"
+        },
+        {
+          "elementId": "FJ3943",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3943_BP29025_FMA52991_External%20nasal%20branch%20of%20left%20infra-orbital%20nerve.obj",
+          "bytes": 60207,
+          "sha256": "cc05ae9b4916dfbd992ca69340df569489520eae404418db07104bb1ba9faab6"
+        },
+        {
+          "elementId": "FJ3906",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3906_BP29087_FMA52992_Internal%20nasal%20branch%20of%20right%20infra-orbital%20nerve.obj",
+          "bytes": 28544,
+          "sha256": "dadcf34f56238965d6220b02b437034a59c4a237c31baa48889e4682e0604296"
+        },
+        {
+          "elementId": "FJ3945",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3945_BP29003_FMA52993_Internal%20nasal%20branch%20of%20left%20infra-orbital%20nerve.obj",
+          "bytes": 29137,
+          "sha256": "881178f6d2c9f99705ed3cdb9768f00c7983fe1985a358c26dcf9d91497c2146"
+        },
+        {
+          "elementId": "FJ3907",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3907_BP29062_FMA52994_Superior%20labial%20branch%20of%20right%20infra-orbital%20nerve.obj",
+          "bytes": 74787,
+          "sha256": "7d43162461d121c8b7ee8605e0300262c35e5e1988a6d7ba616e330caa7abb27"
+        },
+        {
+          "elementId": "FJ3946",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3946_BP29024_FMA52995_Superior%20labial%20branch%20of%20left%20infra-orbital%20nerve.obj",
+          "bytes": 75627,
+          "sha256": "ec3874c65480f96ba77e7bad315b53c57e11fa9173b40ae2c24b0fa3366b08d9"
+        },
+        {
+          "elementId": "FJ3985",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3985_BP29281_FMA52997_Right%20mandibular%20nerve.obj",
+          "bytes": 40716,
+          "sha256": "a82827feaf5225334b8f5985c1df076f1fa8b1d1eb83b83ec7541c2716d7e2b8"
+        },
+        {
+          "elementId": "FJ3951",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3951_BP29377_FMA52998_Left%20mandibular%20nerve.obj",
+          "bytes": 40739,
+          "sha256": "258363cb099ac440b381d0770b4b3c342ba01cc99a376f3860a54280f96d1117"
+        },
+        {
+          "elementId": "FJ3994",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3994_BP29232_FMA53057_Right%20medial%20pterygoid%20nerve.obj",
+          "bytes": 58791,
+          "sha256": "9fbbe989091c74e43891e6783a7f15bd39ed1cb68bc85be1e8d6443d1a9067d5"
+        },
+        {
+          "elementId": "FJ3960",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3960_BP29197_FMA53058_Left%20medial%20pterygoid%20nerve.obj",
+          "bytes": 59730,
+          "sha256": "a30219aaf346eb4ae41ceacb4f8032b454bcaf9cc3cbb118537e6f3e2117a644"
+        },
+        {
+          "elementId": "FJ3897",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3897_BP29111_FMA53067_Right%20buccal%20nerve.obj",
+          "bytes": 118744,
+          "sha256": "2f5b9de8f0879b7b6dcd72d759ed98d079637c4c31dce3bb5bf0388b9efc19c5"
+        },
+        {
+          "elementId": "FJ3935",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3935_BP29164_FMA53068_Left%20buccal%20nerve.obj",
+          "bytes": 120245,
+          "sha256": "51d301007c9d8587bcf90f8d10a04252632a21ad109e46be86f57c11e019b83c"
+        },
+        {
+          "elementId": "FJ3895",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3895_BP29121_FMA53072_Branch%20of%20right%20mandibular%20nerve%20to%20right%20otic%20ganglion.obj",
+          "bytes": 32903,
+          "sha256": "5aa2232cae8754776772af3cc5db0de7e23cea66ed7420e1f6120b57e4d82f88"
+        },
+        {
+          "elementId": "FJ3933",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3933_BP29270_FMA53073_Branch%20of%20left%20mandibular%20nerve%20to%20left%20otic%20ganglion.obj",
+          "bytes": 34249,
+          "sha256": "a7d2db851e863db6ce20435e45ca75c56dc13c1fd5300fb036c842999c57b8f0"
+        },
+        {
+          "elementId": "FJ3997",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3997_BP29266_FMA53076_Nerve%20to%20right%20tensor%20veli%20palatini.obj",
+          "bytes": 23106,
+          "sha256": "c2c17f071045105bca79248fa5d59d5f52192746f3aa3ac40ef64e1db4174de2"
+        },
+        {
+          "elementId": "FJ3963",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3963_BP29107_FMA53077_Nerve%20to%20left%20tensor%20veli%20palatini.obj",
+          "bytes": 23638,
+          "sha256": "91659a808c42153b94f64e194b7c7682dfe639b949e32d449ab87e8025d3579f"
+        },
+        {
+          "elementId": "FJ3987",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3987_BP29127_FMA53104_Right%20masseteric%20nerve.obj",
+          "bytes": 103947,
+          "sha256": "74c93dcd7b7cde15193c6df645ac0820e1988ef7dc21f0bee9f6c0af8ccaf568"
+        },
+        {
+          "elementId": "FJ3953",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3953_BP29133_FMA53105_Left%20masseteric%20nerve.obj",
+          "bytes": 103468,
+          "sha256": "a48bd762e1328199f01b85ca0d4acdde7240da0557fe81dbda080af5bd2d5ee7"
+        },
+        {
+          "elementId": "FJ3995",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3995_BP29080_FMA53109_Right%20lateral%20pterygoid%20nerve.obj",
+          "bytes": 53016,
+          "sha256": "d67a72ee54331632ab8baa3fb58e0e34e26d8139f0c8286bdf6fd75feea669ce"
+        },
+        {
+          "elementId": "FJ3961",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3961_BP29054_FMA53110_Left%20lateral%20pterygoid%20nerve.obj",
+          "bytes": 52029,
+          "sha256": "cf3f628b1f1c68853bfff21ef99b1a0cafe5de029580db87fb706cfd68da6e1d"
+        },
+        {
+          "elementId": "FJ3990",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3990_BP28919_FMA53251_Right%20mental%20nerve.obj",
+          "bytes": 88218,
+          "sha256": "cac2afe3a3e1de780161592f430b2734420e6535ed5b1115dc5070fe29db42d5"
+        },
+        {
+          "elementId": "FJ3956",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3956_BP28937_FMA53252_Left%20mental%20nerve.obj",
+          "bytes": 93123,
+          "sha256": "fa99a0de8a38dde67a7c5e19a7a86aca6b4e02f456fa0f52e8833f9b1a0097bb"
+        },
+        {
+          "elementId": "FJ3998",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3998_BP29193_FMA53286_Occipital%20branch%20of%20right%20posterior%20auricular%20nerve.obj",
+          "bytes": 229040,
+          "sha256": "8740a2827b8403d9b8b3b69a3c2d9b549cbac6e1c3564b8a5ebea25242e77fae"
+        },
+        {
+          "elementId": "FJ3964",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3964_BP29185_FMA53287_Occipital%20branch%20of%20left%20posterior%20auricular%20nerve.obj",
+          "bytes": 232351,
+          "sha256": "a8574c2831da4a4c26075ab5fe459d559aa02d5cddc05447a60adb79ace79cc9"
+        },
+        {
+          "elementId": "FJ3896",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3896_BP29352_FMA53311_Buccal%20branch%20of%20right%20facial%20nerve.obj",
+          "bytes": 263995,
+          "sha256": "76e5894cb39a6dae74745dd8cd05038f34a10d4ab5d897b5172f9b11a3476950"
+        },
+        {
+          "elementId": "FJ3934",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3934_BP29347_FMA53312_Buccal%20branch%20of%20left%20facial%20nerve.obj",
+          "bytes": 267627,
+          "sha256": "48441f4fa6ed429d30d34c85346c2c4e3295f6cd7b3b1ea6e2f0d73c684482a4"
+        },
+        {
+          "elementId": "FJ3986",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3986_BP29323_FMA53366_Marginal%20mandibular%20branch%20of%20right%20facial%20nerve.obj",
+          "bytes": 251866,
+          "sha256": "80a6d4373045f7517d8f260a4bd190fef198cc3d847346e874e3f5c57050e99f"
+        },
+        {
+          "elementId": "FJ3952",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3952_BP29350_FMA53367_Marginal%20mandibular%20branch%20of%20left%20facial%20nerve.obj",
+          "bytes": 256760,
+          "sha256": "09bfef79c73f8403193e446bf31392cfff2944293f7e528fd5f260fcddbd3ca3"
+        },
+        {
+          "elementId": "FJ3898",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3898_BP29302_FMA53398_Cervical%20branch%20of%20right%20facial%20nerve.obj",
+          "bytes": 177935,
+          "sha256": "37fc40c0f053ffe99538b456b443edc94832c7d86af9da83a80e00d088e121b0"
+        },
+        {
+          "elementId": "FJ3936",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3936_BP29357_FMA53399_Cervical%20branch%20of%20left%20facial%20nerve.obj",
+          "bytes": 181829,
+          "sha256": "25cbcd7e3810161533c9ae6403106abfb66493fd3f968108c7cb0590400c44be"
+        },
+        {
+          "elementId": "FJ4257",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4257_BP29547_FMA55173_Left%20transverse%20cervical%20nerve.obj",
+          "bytes": 69702,
+          "sha256": "de235ed7814f81c43919c28cd13ab6501b05f6b1a85ace86b0a98d4de34f91f7"
+        },
+        {
+          "elementId": "FJ4163",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4163_BP29795_FMA6115_Anterior%20cutaneous%20branch%20of%20left%20second%20intercostal%20nerve.obj",
+          "bytes": 33421,
+          "sha256": "011f5a6487e6e919695e114c498e35cfb35f41aed2e06b3714da0a3a2d1eb8d0"
+        },
+        {
+          "elementId": "FJ4213",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4213_BP29795_FMA6115_Anterior%20cutaneous%20branch%20of%20left%20second%20intercostal%20nerve.obj",
+          "bytes": 60927,
+          "sha256": "ab74313bb7e1c9974b1095c80f925bcae65d9a9a09ceff0a4c8df1c77687ca93"
+        },
+        {
+          "elementId": "FJ1755",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1755_BP21421_FMA61934_Choroid%20plexus%20of%20cerebral%20hemisphere.obj",
+          "bytes": 336896,
+          "sha256": "0006169068786745377d33ed5ea3d64073a2607bb2b5cfb2cb2e9c5cfad1f710"
+        },
+        {
+          "elementId": "FJ1803",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1803_BP21421_FMA61934_Choroid%20plexus%20of%20cerebral%20hemisphere.obj",
+          "bytes": 344578,
+          "sha256": "6279d394ff3d16d327adcb993f84d7221db18d13a9bded2572324a34a29b0339"
+        },
+        {
+          "elementId": "FJ4156",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4156_BP29455_FMA6201_Pericardial%20branch%20of%20phrenic%20nerve.obj",
+          "bytes": 34255,
+          "sha256": "b52a9b3469141b1fae1905f8d98551baa859ff2d97ee4153821970dc39449258"
+        },
+        {
+          "elementId": "FJ4226",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4226_BP29455_FMA6201_Pericardial%20branch%20of%20phrenic%20nerve.obj",
+          "bytes": 32661,
+          "sha256": "d3f8a433870376379548dbe56681a08da7878626188da6f51e5fe241842c67b9"
+        },
+        {
+          "elementId": "FJ4260",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4260_BP29456_FMA6442_Left%20first%20cervical%20nerve.obj",
+          "bytes": 134503,
+          "sha256": "105b1717c2f70059928f164a575199ebdf801905c80372c3be1228aff88fb9af"
+        },
+        {
+          "elementId": "FJ4256",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4256_BP29546_FMA65292_Left%20thoracodorsal%20nerve.obj",
+          "bytes": 149894,
+          "sha256": "97fbf447a823d44529a6f69a382395cad552bda6200a9ffa53d06c9f7b3724c2"
+        },
+        {
+          "elementId": "FJ4223",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4223_BP29528_FMA65295_Left%20medial%20pectoral%20nerve.obj",
+          "bytes": 182549,
+          "sha256": "3ba80e21c2805f78aa0c8067342c5a644b08745515e2b928f4abd33d2bee32ae"
+        },
+        {
+          "elementId": "FJ4242",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4242_BP29426_FMA65306_Left%20superior%20subscapular%20nerve.obj",
+          "bytes": 69024,
+          "sha256": "b73b9361cbfbc1acee0ef817cb279f9d80f1ea7c006cbacffd0673dd5e63343a"
+        },
+        {
+          "elementId": "FJ4158",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4158_BP29313_FMA65326_Left%20anterior%20interosseous%20nerve.obj",
+          "bytes": 29314,
+          "sha256": "8dfe1d72b88241c98e172662d81ac35440f848aca553475caca50090b3ba21b1"
+        },
+        {
+          "elementId": "FJ4281",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4281_BP29027_FMA65338_Lateral%20proper%20palmar%20digital%20branch%20of%20left%20median%20nerve%20to%20left%20thumb.obj",
+          "bytes": 50406,
+          "sha256": "d88b84cc7425ef07af878e7e653dfb6dc19da4bb3f7c357596a06bb49ed0b3d0"
+        },
+        {
+          "elementId": "FJ4287",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4287_BP28982_FMA65340_Medial%20proper%20palmar%20digital%20branch%20of%20left%20median%20nerve%20to%20left%20thumb.obj",
+          "bytes": 28590,
+          "sha256": "33073fc6ea60d9d09a2952586de20e064098c3562cfd57b52b89a269c263409b"
+        },
+        {
+          "elementId": "FJ4284",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4284_BP29101_FMA65342_Lateral%20proper%20palmar%20digital%20branch%20of%20left%20median%20nerve%20to%20left%20index%20finger.obj",
+          "bytes": 46792,
+          "sha256": "75ad7bedddb7d669889e2e9d7f1e93b4ea38ea039f6028aae27ff87f3e2a7ba2"
+        },
+        {
+          "elementId": "FJ4282",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4282_BP29041_FMA65344_Medial%20proper%20palmar%20digital%20branch%20of%20left%20median%20nerve%20to%20left%20index%20finger.obj",
+          "bytes": 58943,
+          "sha256": "32c713dcc51b4795a93a5f92837ea3bd3c8d385d7b8d8041941b17fc466c838f"
+        },
+        {
+          "elementId": "FJ4283",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4283_BP29095_FMA65348_Medial%20proper%20palmar%20digital%20branch%20of%20left%20median%20nerve%20to%20left%20middle%20finger.obj",
+          "bytes": 54685,
+          "sha256": "59eb7f2804fb9cb54f54e98411c5b72e71a1e287cfca48eb177cecf1b36a7b92"
+        },
+        {
+          "elementId": "FJ4290",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4290_BP29296_FMA65362_Superior%20trunk%20of%20left%20brachial%20nerve%20plexus.obj",
+          "bytes": 26889,
+          "sha256": "eef38026c899cc0602025cbdff6efab87c45da270b2b4ff63989f1bd5db52077"
+        },
+        {
+          "elementId": "FJ4273",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4273_BP29300_FMA65364_Inferior%20trunk%20of%20left%20brachial%20nerve%20plexus.obj",
+          "bytes": 24250,
+          "sha256": "d04bdf01c87bb85a6476fae87427993eacf640093acbd279954352a2a42486db"
+        },
+        {
+          "elementId": "FJ4276",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4276_BP29380_FMA65366_Middle%20trunk%20of%20left%20brachial%20nerve%20plexus.obj",
+          "bytes": 22974,
+          "sha256": "af471cdd660e8ec2dd4f783e2d3537c0cb0f96f522031d88389fa1fc12481526"
+        },
+        {
+          "elementId": "FJ4157",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4157_BP29423_FMA65387_Trunk%20of%20left%20phrenic%20nerve.obj",
+          "bytes": 67550,
+          "sha256": "8f0b011b7675e9484f6779d05368853541cd498971e31ff0e024d8bdc8971fa7"
+        },
+        {
+          "elementId": "FJ4279",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4279_BP29423_FMA65387_Trunk%20of%20left%20phrenic%20nerve.obj",
+          "bytes": 64088,
+          "sha256": "9d9fb727aa8a3bd4d8596f2cdda44a6bf1e8ef941f288d3ade9542203d99d846"
+        },
+        {
+          "elementId": "FJ4221",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4221_BP28988_FMA65389_Left%20lesser%20occipital%20nerve.obj",
+          "bytes": 104089,
+          "sha256": "879fc0bde040b9ba28fe0f78a4fcf02fea3e24bd69193f85cb6cd3c375dab314"
+        },
+        {
+          "elementId": "FJ4173",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4173_BP29081_FMA65396_Trunk%20of%20left%20great%20auricular%20nerve.obj",
+          "bytes": 83521,
+          "sha256": "82f55fb034d158ce9c7a767e7e52fc5e598c149f2f9e2a9265c7c553acdcd3ba"
+        },
+        {
+          "elementId": "FJ4244",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4244_BP29533_FMA65416_Left%20supraclavicular%20nerve.obj",
+          "bytes": 151705,
+          "sha256": "87ec4b0e8a2b26d9bd68b76692583907e77495006c04cc27c2ec40f0268027da"
+        },
+        {
+          "elementId": "FJ3899",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3899_BP29410_FMA65421_Trunk%20of%20right%20facial%20nerve.obj",
+          "bytes": 293679,
+          "sha256": "b9a13f88f9282463941529d7b081e5885fa650071b17b8dfc4fde0bec675b600"
+        },
+        {
+          "elementId": "FJ3938",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3938_BP29462_FMA65422_Trunk%20of%20left%20facial%20nerve.obj",
+          "bytes": 299069,
+          "sha256": "11e87253b185411f5d8755b26547b421936b20263dbd01fe77bd05af111a4ec9"
+        },
+        {
+          "elementId": "FJ4038",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4038_BP29432_FMA65423_Trunk%20of%20right%20trigeminal%20nerve.obj",
+          "bytes": 13719,
+          "sha256": "e9169b6ac3881ded050f2fd6c7605cc4692d1b3696a0567154fc68c60aad5bc4"
+        },
+        {
+          "elementId": "FJ3980",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3980_BP29463_FMA65424_Trunk%20of%20left%20trigeminal%20nerve.obj",
+          "bytes": 13700,
+          "sha256": "f7e1789b0df8a66ffad551245e3d2043a79f38764669d995a7ab69d650661d0e"
+        },
+        {
+          "elementId": "FJ4033",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4033_BP29461_FMA65425_Trunk%20of%20right%20oculomotor%20nerve.obj",
+          "bytes": 40326,
+          "sha256": "3be46eec2cabf39270b443326760fd3077b9f894bdd563ebe6d02bc786853bca"
+        },
+        {
+          "elementId": "FJ4034",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4034_BP29461_FMA65425_Trunk%20of%20right%20oculomotor%20nerve.obj",
+          "bytes": 64569,
+          "sha256": "e29e7e539955a915bd893c4ff533c4a00726a6ea3808a2d3065662a2cbed296d"
+        },
+        {
+          "elementId": "FJ3968",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3968_BP29438_FMA65426_Trunk%20of%20left%20oculomotor%20nerve.obj",
+          "bytes": 39293,
+          "sha256": "416c07d2d859ad02c81f0ba0ce921abcec1c2ae20704d62b9dec4fa31b92ccac"
+        },
+        {
+          "elementId": "FJ4185",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4185_BP29040_FMA65908_Left%20second%20intercostobrachial%20nerve.obj",
+          "bytes": 128467,
+          "sha256": "9f467fa539885021336d9800ba581f7dea01aba5478d34d940ca6fd7e07f26f9"
+        },
+        {
+          "elementId": "FJ4197",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4197_BP29803_FMA6752_Lateral%20cutaneous%20branch%20of%20left%20first%20intercostal%20nerve.obj",
+          "bytes": 79619,
+          "sha256": "c9545d536395b7f1e7abdb333040021fcfc92157e08c2031266fb8e15c932821"
+        },
+        {
+          "elementId": "FJ4261",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4261_BP29310_FMA7003_Trunk%20of%20left%20second%20cervical%20nerve.obj",
+          "bytes": 69930,
+          "sha256": "7c350173fe65eacc6f48aff7a2c224e6f1f904e63f05fe41cec69f42d902e746"
+        },
+        {
+          "elementId": "FJ4262",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4262_BP29408_FMA7005_Trunk%20of%20left%20third%20cervical%20nerve.obj",
+          "bytes": 86754,
+          "sha256": "a13f145f88a653114ecdef8f416bb29cc1237cccd254ec03ec6b405103c2c252"
+        },
+        {
+          "elementId": "FJ4263",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4263_BP29309_FMA7007_Trunk%20of%20left%20fourth%20cervical%20nerve.obj",
+          "bytes": 60427,
+          "sha256": "94f418aa78b950bf3f39ebe6086795c6c66c0fee49c5ed795f6523d0c4f21eb0"
+        },
+        {
+          "elementId": "FJ4265",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4265_BP29315_FMA7011_Trunk%20of%20left%20sixth%20cervical%20nerve.obj",
+          "bytes": 68404,
+          "sha256": "4f8c708b7a866609078ce513432b060fd9bf04f2b899aef52ebaf9c8af13a200"
+        },
+        {
+          "elementId": "FJ4266",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4266_BP29366_FMA7013_Trunk%20of%20left%20seventh%20cervical%20nerve.obj",
+          "bytes": 58244,
+          "sha256": "d22ca0d722f811e9fba1cc51accfbd50d0e8805070b6fe0616cf9700e57e529a"
+        },
+        {
+          "elementId": "FJ4267",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4267_BP29406_FMA7015_Trunk%20of%20left%20eighth%20cervical%20nerve.obj",
+          "bytes": 60680,
+          "sha256": "6e3be4f8b771cd9d2226869e18f2c8e99155319063c44ec1c6869bb930674002"
+        },
+        {
+          "elementId": "FJ4245",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4245_BP29808_FMA7023_Trunk%20of%20left%20first%20thoracic%20nerve.obj",
+          "bytes": 24327,
+          "sha256": "730268434b74e1ae81dc620a8b841836a9212fbff2cbd201f0a3a1fde4439034"
+        },
+        {
+          "elementId": "FJ4248",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4248_BP29807_FMA7025_Trunk%20of%20left%20second%20thoracic%20nerve.obj",
+          "bytes": 27165,
+          "sha256": "0248dfe17771bcf2f714318160d7f184cb3127473096329899efc3a946feaee8"
+        },
+        {
+          "elementId": "FJ1319",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1319_BP21577_FMA7041_Short%20ciliary%20nerve.obj",
+          "bytes": 44106,
+          "sha256": "a8e791670bb33b48556ab4be1c9db53b578f6903b3f5adccea8d54c8d2ade986"
+        },
+        {
+          "elementId": "FJ1370",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1370_BP21577_FMA7041_Short%20ciliary%20nerve.obj",
+          "bytes": 46501,
+          "sha256": "96130f6c93626635aee66faf1ba02290e0eebe17d444513b1730d722435c84f3"
+        },
+        {
+          "elementId": "FJ5048",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ5048_BP29634_FMA71693_Set%20of%20branches%20of%20cavernous%20part%20of%20internal%20carotid%20artery%20to%20nerves.obj",
+          "bytes": 16210,
+          "sha256": "1b835ac8cc656e1058b1ce4781926e0b53e0abacfc75f6287e76ebc969291157"
+        },
+        {
+          "elementId": "FJ4291",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4291_BP29635_FMA75533_Set%20of%20phrenico-abdominal%20branches%20of%20phrenic%20nerve.obj",
+          "bytes": 58496,
+          "sha256": "20c14106def611e9545307c64a636fdbbfa2f7f354463eca4b8f1c1b6a7c4d4a"
+        },
+        {
+          "elementId": "FJ3972",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3972_BP29344_FMA77524_Pharyngeal%20nerve.obj",
+          "bytes": 71647,
+          "sha256": "f3d4c5324d694806179b434dec43bd4c3aa88713ebf95103f481922b17131c19"
+        },
+        {
+          "elementId": "FJ4000",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4000_BP29344_FMA77524_Pharyngeal%20nerve.obj",
+          "bytes": 69487,
+          "sha256": "5a60def5d5ec5be3c983a2fdbd1af63128c352912e0e6a173bce033445dd93ca"
+        },
+        {
+          "elementId": "FJ4222",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4222_BP29235_FMA79667_Trunk%20of%20left%20long%20thoracic%20nerve.obj",
+          "bytes": 99937,
+          "sha256": "4fb3e702f359607165b89d30d4d94c6883d64e9f878583db223fb5187a9062ae"
+        },
+        {
+          "elementId": "FJ4241",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4241_BP29108_FMA79671_Trunk%20of%20left%20subclavian%20nerve.obj",
+          "bytes": 38077,
+          "sha256": "b27ca8eaf3d1050b81333c317d2ea749fde10da49a43d51a5c5c47fb84edf350"
+        },
+        {
+          "elementId": "FJ4027",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4027_BP29430_FMA80482_Trunk%20of%20right%20hypoglossal%20nerve.obj",
+          "bytes": 318286,
+          "sha256": "680000147b0ac768185da3310b3aaf910889d8428fd5891a8db3e1d2f32d320f"
+        },
+        {
+          "elementId": "FJ3941",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3941_BP29459_FMA80483_Trunk%20of%20left%20hypoglossal%20nerve.obj",
+          "bytes": 120080,
+          "sha256": "bdef6f96d99391903b39322a760318ecaaa0aa534efe21796004bc81a7fa5d73"
+        },
+        {
+          "elementId": "FJ3984",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3984_BP29156_FMA80511_Trunk%20of%20right%20lingual%20nerve.obj",
+          "bytes": 147211,
+          "sha256": "ee5a91f1c971091bfa3398f7d102669308fe82380e22563a81369ecf00c2d8a1"
+        },
+        {
+          "elementId": "FJ3949",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3949_BP29199_FMA80512_Trunk%20of%20left%20lingual%20nerve.obj",
+          "bytes": 147877,
+          "sha256": "fc111c90759c98a8884557b3dc6fc1dbf8dec735ff6a1ab96b163b0eafc392bd"
+        },
+        {
+          "elementId": "FJ3903",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3903_BP29069_FMA80518_Trunk%20of%20right%20inferior%20alveolar%20nerve.obj",
+          "bytes": 151847,
+          "sha256": "2eab9520e09631b4d0b618204dfdf480f07a29f5d1c4954c3bfe72fcda5b3aa3"
+        },
+        {
+          "elementId": "FJ3942",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3942_BP29102_FMA80519_Trunk%20of%20left%20inferior%20alveolar%20nerve.obj",
+          "bytes": 153857,
+          "sha256": "47f86e1c2bd4aefa937b1e30c56fdb7371c94564ef58161b9fa44485e8317bab"
+        },
+        {
+          "elementId": "FJ3992",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3992_BP28909_FMA80523_Trunk%20of%20right%20mylohyoid%20nerve.obj",
+          "bytes": 111341,
+          "sha256": "6382b1da8b450c807ce651c54a250faec2721d02422ed7cbe8ba76c7042d71b3"
+        },
+        {
+          "elementId": "FJ3958",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3958_BP28957_FMA80524_Trunk%20of%20left%20mylohyoid%20nerve.obj",
+          "bytes": 113299,
+          "sha256": "c4c2d3ab3bd7bd731fb681ef815b1c29b2095b951cb9200c563cd1af0ad703f8"
+        },
+        {
+          "elementId": "FJ3893",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3893_BP29166_FMA80540_Trunk%20of%20right%20auriculotemporal%20nerve.obj",
+          "bytes": 242145,
+          "sha256": "1a2820984531bce032339479d2206e1908f3512a7f40ad18b255f68324d9a36a"
+        },
+        {
+          "elementId": "FJ3931",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3931_BP29210_FMA80541_Trunk%20of%20left%20auriculotemporal%20nerve.obj",
+          "bytes": 245820,
+          "sha256": "3c52884c9eb53a7d4b2f5183b95bc9f3b49a00d256b9d3fb875ca561f46f15f6"
+        },
+        {
+          "elementId": "FJ3996",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3996_BP29219_FMA80552_Trunk%20of%20branch%20of%20right%20mandibular%20nerve%20to%20tensor%20tympani.obj",
+          "bytes": 54039,
+          "sha256": "c3065079d3151b0bbc635ece141046beb8ad2ea1ffd52618aab06421821483f6"
+        },
+        {
+          "elementId": "FJ3962",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3962_BP29265_FMA80553_Trunk%20of%20branch%20of%20left%20mandibular%20nerve%20to%20tensor%20tympani.obj",
+          "bytes": 54774,
+          "sha256": "894c0fcd9c0c153110ca0ced0878af6cff8df2a179ddac68e8e2d74613efa575"
+        },
+        {
+          "elementId": "FJ3988",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3988_BP29403_FMA80594_Trunk%20of%20right%20maxillary%20nerve.obj",
+          "bytes": 79086,
+          "sha256": "4d33aeccaf8e6c2f637cabb7179b4892f7a6bff650496463115b8b8c01484fd2"
+        },
+        {
+          "elementId": "FJ3954",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3954_BP29330_FMA80595_Trunk%20of%20left%20maxillary%20nerve.obj",
+          "bytes": 79976,
+          "sha256": "3e079970c3f9693ffd478eafc0185f454edd3c6694165cb6ac0d73a99d17910b"
+        },
+        {
+          "elementId": "FJ4021",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4021_BP29389_FMA80694_Trunk%20of%20right%20recurrent%20laryngeal%20nerve.obj",
+          "bytes": 157643,
+          "sha256": "788f9eee2f853038749d9de7f7158d31666ccdc292143ba661afad7047de5fac"
+        },
+        {
+          "elementId": "FJ3923",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3923_BP29761_FMA80695_Trunk%20of%20left%20recurrent%20laryngeal%20nerve.obj",
+          "bytes": 315416,
+          "sha256": "d7a4d859120d395bc487b1ceb87f46d4e5157926802371da94ec9e2edc5a8164"
+        },
+        {
+          "elementId": "FJ4001",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4001_BP29285_FMA80805_Trunk%20of%20right%20posterior%20auricular%20nerve.obj",
+          "bytes": 200096,
+          "sha256": "f6be92e38f7139381d0c1ea43be98fe2da0ad068c01c17bd28e8e5a6b813ad49"
+        },
+        {
+          "elementId": "FJ3973",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3973_BP29299_FMA80806_Trunk%20of%20left%20posterior%20auricular%20nerve.obj",
+          "bytes": 203858,
+          "sha256": "234271390320724163cbf55c77243b3d1afa1e3cace71142b6448c801dee2fb3"
+        },
+        {
+          "elementId": "FJ4040",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4040_BP29394_FMA80827_Trunk%20of%20temporal%20branch%20of%20right%20facial%20nerve.obj",
+          "bytes": 340608,
+          "sha256": "88a32aa7f67701ff5cf919c53e878bfe27a36c8b3a028593a9e650338dbed642"
+        },
+        {
+          "elementId": "FJ3979",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3979_BP29341_FMA80828_Trunk%20of%20temporal%20branch%20of%20left%20facial%20nerve.obj",
+          "bytes": 346082,
+          "sha256": "ce680d0639aadc62c6e18942ed7af63a364d3204c904ecd6f7059b6344bd28be"
+        },
+        {
+          "elementId": "FJ4041",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4041_BP29335_FMA80846_Trunk%20of%20zygomatic%20branch%20of%20right%20facial%20nerve.obj",
+          "bytes": 258270,
+          "sha256": "342d43a3a773f420bbda1c3767ca6a4b7faf4eae51236ec4a76db97c10d82fdf"
+        },
+        {
+          "elementId": "FJ3982",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3982_BP29360_FMA80847_Trunk%20of%20zygomatic%20branch%20of%20left%20facial%20nerve.obj",
+          "bytes": 263119,
+          "sha256": "e94ea3c1e818677f7b160d1cdff827430a1c662ad1921ebf7b64d147a11c8a1d"
+        },
+        {
+          "elementId": "FJ4025",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4025_BP29541_FMA81014_Trunk%20of%20right%20accessory%20nerve.obj",
+          "bytes": 514568,
+          "sha256": "f61eb9a8d12433202449935ff9b051ecb7012d305cfcd4cb25a7c79da31ac23d"
+        },
+        {
+          "elementId": "FJ3928",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3928_BP29554_FMA81015_Trunk%20of%20left%20accessory%20nerve.obj",
+          "bytes": 524103,
+          "sha256": "77f13262c3670ff37fc3b9b0a25710a4c8bf226a80280d2abbc4c2fd8557cd47"
+        },
+        {
+          "elementId": "FJ1369",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1369_BP22010_FMA82734_Right%20long%20ciliary%20nerve.obj",
+          "bytes": 21635,
+          "sha256": "515e22d0a6dd05db3f5fa3c8470a1d5c20be3002adf906ff6479257f8b2cd467"
+        },
+        {
+          "elementId": "FJ1318",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ1318_BP22719_FMA82735_Left%20long%20ciliary%20nerve.obj",
+          "bytes": 19777,
+          "sha256": "788fe917211d7a7941ca85cfdfed40ef188cc989a67ff484835771991a652084"
+        },
+        {
+          "elementId": "FJ3950",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ3950_BP22719_FMA82735_Left%20long%20ciliary%20nerve.obj",
+          "bytes": 23374,
+          "sha256": "7ff3869f99feef981f0111126f74b6bd1f3797b860738a9cec62dfd77f40d9ad"
+        },
+        {
+          "elementId": "FJ4174",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4174_BP29305_FMA85332_Trunk%20of%20left%20first%20intercostal%20nerve.obj",
+          "bytes": 50342,
+          "sha256": "46617af185bdc1d74b152120664ef2146ac553e30366798bd0f8dfa18b7dac29"
+        },
+        {
+          "elementId": "FJ4178",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4178_BP29343_FMA85334_Trunk%20of%20left%20second%20intercostal%20nerve.obj",
+          "bytes": 71345,
+          "sha256": "d49324805db7d3ecfaec13bde329278c658bfd417d33343ec4809d5231b0615a"
+        },
+        {
+          "elementId": "FJ4159",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4159_BP29800_FMA8922_Anterior%20cutaneous%20branch%20of%20left%20first%20intercostal%20nerve.obj",
+          "bytes": 46261,
+          "sha256": "f2342030606f6555098659bdd09e806e8650fb3dda298e6e1cc387cc6bee5215"
+        },
+        {
+          "elementId": "FJ4209",
+          "url": "https://media.githubusercontent.com/media/olivercase/body_parts_3d_api/fd527e6f4daf732fd814314d9257df5877b844bc/meshes/FJ4209_BP29800_FMA8922_Anterior%20cutaneous%20branch%20of%20left%20first%20intercostal%20nerve.obj",
+          "bytes": 57098,
+          "sha256": "33a4919560df3ea0a4391d234540396e39447bc22cfa6f4066e8d30d0a851918"
+        }
+      ]
+    }
+  ],
+  "missingElements": [],
+  "hiddenByDefaultWholeBodySkinElements": [
+    "FJ2810"
+  ],
+  "files": [
+    {
+      "id": "skeleton",
+      "url": "/anatomy/bodyparts3d/skeleton-01.glb",
+      "files": [
+        "/anatomy/bodyparts3d/skeleton-01.glb"
+      ],
+      "bytes": 11457508,
+      "meshCount": 262,
+      "triangles": 784356,
+      "licenses": [
+        "CC-BY-4.0"
+      ]
+    },
+    {
+      "id": "muscles",
+      "files": [
+        "/anatomy/bodyparts3d/muscles-01.glb",
+        "/anatomy/bodyparts3d/muscles-02.glb",
+        "/anatomy/bodyparts3d/muscles-03.glb",
+        "/anatomy/bodyparts3d/muscles-04.glb"
+      ],
+      "bytes": 41852528,
+      "meshCount": 425,
+      "triangles": 2404604,
+      "licenses": [
+        "CC-BY-4.0"
+      ]
+    },
+    {
+      "id": "organs",
+      "url": "/anatomy/bodyparts3d/organs-01.glb",
+      "files": [
+        "/anatomy/bodyparts3d/organs-01.glb"
+      ],
+      "bytes": 12018640,
+      "meshCount": 317,
+      "triangles": 762186,
+      "licenses": [
+        "CC-BY-4.0"
+      ]
+    },
+    {
+      "id": "nerves",
+      "files": [
+        "/anatomy/bodyparts3d/nerves-01.glb",
+        "/anatomy/bodyparts3d/nerves-peripheral.glb"
+      ],
+      "bytes": 11950492,
+      "meshCount": 342,
+      "triangles": 843874,
+      "licenses": [
+        "CC-BY-SA-2.1-JP",
+        "CC-BY-4.0"
+      ]
+    },
+    {
+      "id": "vessels",
+      "files": [
+        "/anatomy/bodyparts3d/vessels-01.glb",
+        "/anatomy/bodyparts3d/vessels-02.glb"
+      ],
+      "bytes": 22344796,
+      "meshCount": 974,
+      "triangles": 1614408,
+      "licenses": [
+        "CC-BY-4.0"
+      ]
+    }
+  ],
+  "isolatedDetails": {
+    "dataset": "BodyParts3D 3.0 — isolated 95% detail models",
+    "license": "CC-BY-SA-2.1-JP",
+    "notice": "/anatomy/bodyparts3d/details/LICENSE.txt",
+    "provenance": "/anatomy/bodyparts3d/details/provenance.json",
+    "meshCount": 31
+  }
+}

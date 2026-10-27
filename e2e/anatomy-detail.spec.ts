@@ -14,6 +14,7 @@ async function frames(page: Page) {
 async function openDetailedBody(page: Page) {
   await page.goto("/?lang=fr");
   await openImmersiveAtlas(page);
+  await chooseAtlasSource(page, "detailed");
   const layers = await openAtlasPanel(page, "layers");
   await expect(layers.getByRole("button", { name: "Corps détaillé", exact: true })).toHaveAttribute("aria-pressed", "true");
   await closeAtlasPanel(page);
@@ -73,6 +74,27 @@ async function canvasPixelRatio(canvas: Locator) {
   return canvas.evaluate((node) => (node as HTMLCanvasElement).width / node.clientWidth);
 }
 
+async function canvasResolution(canvas: Locator) {
+  return canvas.evaluate((node) => {
+    const surface = node as HTMLCanvasElement;
+    return {
+      mode: surface.dataset.resolutionMode,
+      ratio: surface.width / surface.clientWidth,
+      width: surface.width,
+      height: surface.height,
+      pixels: surface.width * surface.height,
+      pixelBudget: Number(surface.dataset.pixelBudget),
+    };
+  });
+}
+
+async function expectMobilePixelBudget(canvas: Locator) {
+  const resolution = await canvasResolution(canvas);
+  expect(resolution.pixelBudget).toBe(1_500_000);
+  expect(resolution.pixels).toBeLessThanOrEqual(resolution.pixelBudget);
+  return resolution;
+}
+
 async function counters(canvas: Locator) {
   return {
     meshes: Number(await canvas.getAttribute("data-mesh-count")),
@@ -84,11 +106,12 @@ async function counters(canvas: Locator) {
   };
 }
 
-test("the coherent body stays interactive before HIGH loads and gains detail in place across regions", async ({ page }, info) => {
+test("the coherent body stays interactive before HIGH loads and gains detail in place across regions", async ({ page, context }, info) => {
   test.setTimeout(180000);
   let releaseHigh: () => void = () => {};
   const gate = new Promise<void>((resolve) => { releaseHigh = resolve; });
   let released = false, highRequests = 0;
+  const resolutionMetrics: Record<string, unknown> = {};
   await page.route(highRoute, async (route) => {
     highRequests++;
     if (!released) await gate;
@@ -102,7 +125,11 @@ test("the coherent body stays interactive before HIGH loads and gains detail in 
     await expect(canvas).toHaveAttribute("data-source-id", sourceId);
     await expect(canvas).toHaveAttribute("data-selected-lod", "base");
     await expect.poll(async () => Number(await canvas.getAttribute("data-mesh-count"))).toBeGreaterThan(600);
-    if (info.project.name === "mobile-web") await expect.poll(() => canvasPixelRatio(canvas)).toBeCloseTo(1, 1);
+    if (info.project.name === "mobile-web") {
+      await expect(canvas).toHaveAttribute("data-resolution-mode", "body");
+      await expect.poll(() => canvasPixelRatio(canvas)).toBeCloseTo(2, 1);
+      resolutionMetrics.initialBody = await expectMobilePixelBudget(canvas);
+    }
     await expect(page.getByTestId("anatomy-webgl-fallback")).toHaveCount(0);
     const initial = await counters(canvas);
     await screenshot(page, canvas, "body-preview", info.project.name);
@@ -196,14 +223,54 @@ test("the coherent body stays interactive before HIGH loads and gains detail in 
     await expect.poll(async () => Number(await canvas.getAttribute("data-lod-pending")), { timeout: 60000 }).toBe(0);
     if (info.project.name === "mobile-web") {
       await expect(canvas).toHaveAttribute("data-resolution-mode", "body");
-      await expect.poll(() => canvasPixelRatio(canvas)).toBeCloseTo(1, 1);
+      await expect.poll(() => canvasPixelRatio(canvas)).toBeCloseTo(2, 1);
+      resolutionMetrics.sharpBody = await expectMobilePixelBudget(canvas);
+
+      // The whole body, not just a close-up, must return to a sharp buffer.
+      // Exercise real touch input while retaining the same selected anatomy.
+      const selectedBeforeMotion = await canvas.getAttribute("data-selected-id");
+      const cameraBeforeMotion = await canvas.getAttribute("data-camera");
+      const bounds = (await canvas.boundingBox())!;
+      const start = {
+        x: Math.round(bounds.x + bounds.width * 0.5),
+        y: Math.round(bounds.y + bounds.height * 0.5),
+      };
+      const touch = await context.newCDPSession(page);
+      await touch.send("Emulation.setTouchEmulationEnabled", { enabled: true, maxTouchPoints: 2 });
+      try {
+        await touch.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ id: 1, ...start, radiusX: 3, radiusY: 3, force: 1 }] });
+        await expect(canvas).toHaveAttribute("data-resolution-mode", "moving");
+        await expect.poll(() => canvasPixelRatio(canvas)).toBeCloseTo(1, 1);
+        resolutionMetrics.movingBody = await expectMobilePixelBudget(canvas);
+        await canvas.screenshot({ path: `artifacts/ippomed-complete-body-moving-${info.project.name}.png` });
+        for (let step = 1; step <= 5; step++) {
+          await touch.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ id: 1, x: start.x + step * 7, y: start.y + step * 3, radiusX: 3, radiusY: 3, force: 1 }] });
+          await page.waitForTimeout(20);
+        }
+      } finally {
+        await touch.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+        await touch.detach();
+      }
+      await expect(canvas).not.toHaveAttribute("data-camera", cameraBeforeMotion!);
+      await expect(canvas).toHaveAttribute("data-selected-id", selectedBeforeMotion!);
+      await expect(canvas).toHaveAttribute("data-resolution-mode", "body");
+      await expect.poll(() => canvasPixelRatio(canvas)).toBeCloseTo(2, 1);
+      resolutionMetrics.settledBody = await expectMobilePixelBudget(canvas);
+
+      // Keep the final comparison capture at the original whole-body framing.
+      await page.getByRole("button", { name: "Revoir le corps entier", exact: true }).click();
+      await expect(canvas).toHaveAttribute("data-selected-id", selectedBeforeMotion!);
+      await expect(canvas).toHaveAttribute("data-selected-lod", "high", { timeout: 60000 });
+      await expect(canvas).toHaveAttribute("data-resolution-mode", "body");
+      await expect.poll(() => canvasPixelRatio(canvas)).toBeCloseTo(2, 1);
+      resolutionMetrics.finalBody = await expectMobilePixelBudget(canvas);
     }
     await screenshot(page, canvas, "body-high", info.project.name);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     const metrics = {
       origin: new URL(page.url()).origin, project: info.project.name,
       timingScope: "Navigation to interactive preview; HIGH requests held", previewLoadMs,
-      initial, shoulder: highShoulder, final,
+      initial, shoulder: highShoulder, final, resolution: resolutionMetrics,
     };
     console.log("Coherent body render:", JSON.stringify(metrics));
     writeFileSync(`artifacts/ippomed-complete-metrics-${info.project.name}.json`, JSON.stringify(metrics, null, 2) + "\n");
@@ -235,7 +302,7 @@ test("failed HIGH keeps the preview usable and absent nerves keep their own sour
   await openAtlasPanel(page, "notes");
   const inspector = page.getByTestId("anatomy-selected-structure");
   await expect(inspector).toContainText("Ce repère n’est pas modélisé dans cette référence.");
-  await inspector.getByRole("button", { name: "Voir dans l’atlas étendu", exact: true }).click();
+  await inspector.getByRole("button", { name: "Voir dans le corps complet", exact: true }).click();
   await expect(scene).not.toHaveAttribute("data-source-id", sourceId);
   await expect(scene).toHaveAttribute("data-ready", "true", { timeout: 60000 });
   await expect(inspector).toContainText("Nerf médian");

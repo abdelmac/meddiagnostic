@@ -1,8 +1,8 @@
 # Validation du 21 octobre 2026 — Ippomed et atlas anatomique détaillé
 
-La première section décrit la version Ippomed actuellement publiée. Les suivantes conservent les contrôles des publications précédentes du jour. Le rapport historique [VALIDATION.md](VALIDATION.md) ne décrit plus les capacités actuelles des comptes et du serveur.
+La première section décrit la version Ippomed publiée le 21 octobre. Les suivantes conservent les contrôles des publications précédentes du jour. La publication actuelle est décrite dans [la validation du 25 octobre](VALIDATION-2026-10-25.md). Le rapport historique [VALIDATION.md](VALIDATION.md) ne décrit plus les capacités actuelles des comptes et du serveur.
 
-**Mise à jour du 23 octobre :** la version web décrite ici reste publiée. L’état natif a avancé depuis ce rapport : Expo est connecté et le premier APK Android est compilé, téléchargé et contrôlé. Voir [MOBILE.md](MOBILE.md) pour le lien d’installation, les vérifications et les étapes iOS encore nécessaires.
+**Mise à jour du 23 octobre :** la version web décrite ici restait publiée à cette date. L’état natif a avancé depuis ce rapport : Expo est connecté et le premier APK Android a été compilé, téléchargé et contrôlé. Voir [MOBILE.md](MOBILE.md) pour le lien d’installation actuel, les vérifications et les étapes iOS encore nécessaires.
 
 ## Atlas immersif, rendu naturel et préparation Android/iOS
 

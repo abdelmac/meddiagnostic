@@ -2,7 +2,7 @@ import * as THREE from "three";
 import type { AnatomySystem } from "../data/anatomy-structures";
 
 export type AnatomyAppearance = "natural" | "study";
-type TissueEntry = { name: string; system: AnatomySystem };
+type TissueEntry = { name: string; system: AnatomySystem; vascularKind?: "artery" | "vein" | "other" };
 type TissueProfile = { id: string; color: string; roughness: number; environment: number };
 
 /** Illustrative tissue colours and optical response; only the source normals
@@ -21,7 +21,8 @@ export function anatomyTissueProfile(entry: TissueEntry, appearance: AnatomyAppe
     if (/white matter|corpus callosum|commissure|internal capsule|fornix|optic tract|optic chiasm|stria/.test(name)) return profile("central-white-matter", study ? "#d8c9b0" : "#ccc5b5", 0.69, 0.29);
     return profile("central-nervous", study ? "#bea8ae" : "#b7aaa1", 0.66, 0.29);
   }
-  if (entry.system === "vessels") return /vein|venous|vena|sinus/.test(name)
+  // Source ontology takes precedence over translated or ambiguous mesh names.
+  if (entry.system === "vessels") return (entry.vascularKind ? entry.vascularKind === "vein" : /vein|venous|vena|sinus/.test(name))
     ? profile("vein", study ? "#597bb5" : "#78505e", 0.49, 0.39)
     : profile("artery", study ? "#b84a50" : "#9c3e43", 0.5, 0.39);
   if (/lung|bronch/.test(name)) return profile("lung", "#af8890", 0.7, 0.28);

@@ -2,7 +2,7 @@ import { test, expect, type Locator, type Page } from "@playwright/test";
 import { questions } from "../src/data/questions";
 import manifest from "../src/data/bodyparts3d-manifest.json";
 import { localizeAnatomyName } from "../src/data/anatomy-nomenclature";
-import { chooseAtlasSource, chooseAtlasSystem, closeAtlasPanel, openAtlasPanel, openImmersiveAtlas, selectAtlasStructure } from "./anatomy-helpers";
+import { chooseAtlasSource, chooseAtlasSystem, closeAtlasPanel, openAtlasPanel, openImmersiveAtlas, selectAtlasStructure, waitForAtlasSteady } from "./anatomy-helpers";
 
 async function nextRenderedFrames(page: Page) {
   await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
@@ -149,7 +149,7 @@ test("Ippomed: detailed meshes respond to clicks, focus, hide, rotation and a mu
 
   // The existing course landmark still opens the same versioned quiz bank.
   await chooseAtlasSystem(page, "Muscles");
-  const shoulder = manifest.meshes.find((mesh) => mesh.name === "acromial part of right deltoid")!;
+  const shoulder = manifest.meshes.find((mesh) => mesh.fmaId === "FMA34682" && mesh.elementId === "FJ1467")!;
   expect(shoulder).toBeDefined();
   await selectAtlasStructure(page, localizeAnatomyName(shoulder.name, "fr"), shoulder.id);
   await expect(canvas).toHaveAttribute("data-selected-id", shoulder.id);
@@ -185,7 +185,7 @@ test("anatomy recovers from an unavailable model asset without blocking the 2D c
   test.setTimeout(90000);
   let unavailable = true;
   let rejectedRequests = 0;
-  await page.route("**/anatomy/bodyparts3d/*.glb", async (route) => {
+  await page.route("**/anatomy/bodyparts3d/**/*.glb", async (route) => {
     if (unavailable) {
       rejectedRequests++;
       await route.fulfill({ status: 503, contentType: "text/plain", body: "Temporarily unavailable" });
@@ -233,7 +233,7 @@ test("HD anatomy opens one dense source surface, supports pointer selection and 
     isolatedDetails?: { entries: { id: string; triangles: number; url: string }[] };
   }).isolatedDetails;
   expect(details, "le build de validation doit inclure les détails HD publiés").toBeDefined();
-  const shoulder = manifest.meshes.find((mesh) => mesh.name === "acromial part of right deltoid")!;
+  const shoulder = manifest.meshes.find((mesh) => mesh.fmaId === "FMA34682" && mesh.elementId === "FJ1467")!;
   const detail = details!.entries.find((entry) => entry.id === shoulder.id)!;
   expect(detail).toBeDefined();
   await page.goto("/?lang=fr");
@@ -243,7 +243,7 @@ test("HD anatomy opens one dense source surface, supports pointer selection and 
   await expect(scene).toHaveAttribute("data-ready", "true", { timeout: 60000 });
   await selectAtlasStructure(page, localizeAnatomyName(shoulder.name, "fr"), shoulder.id);
   await expect(canvas).toHaveAttribute("data-selected-id", shoulder.id);
-  await nextRenderedFrames(page);
+  await waitForAtlasSteady(canvas);
   const bodyCamera = await canvas.getAttribute("data-camera");
   const bodyCounters = await renderCounters(canvas);
   const bodyPixelRatio = await canvas.evaluate((node) => (node as HTMLCanvasElement).width / node.clientWidth);

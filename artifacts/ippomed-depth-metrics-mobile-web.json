@@ -1,0 +1,17 @@
+{
+  "project": "mobile-web",
+  "initialMode": "active",
+  "finalMode": "active",
+  "gpuMilliseconds": "1.17",
+  "comparison": {
+    "compared": true,
+    "changed": 46909,
+    "backgroundDeltas": [
+      0,
+      0
+    ],
+    "width": 1170,
+    "height": 1014
+  },
+  "graphicsErrors": []
+}

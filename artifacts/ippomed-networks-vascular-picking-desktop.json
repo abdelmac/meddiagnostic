@@ -1,0 +1,18 @@
+{
+  "origin": "https://medquiz-europe.medcompass-web.workers.dev",
+  "project": "desktop",
+  "datasetId": "bodyparts3d-4.3",
+  "data": {
+    "picked": {
+      "id": "FMA10951_FJ3441",
+      "worldPoint": [
+        -0.01475039222758391,
+        1.220846235752106,
+        0.024942821154616192
+      ],
+      "actualTouch": false
+    },
+    "excludedArterial": 602,
+    "excludedVenous": 885
+  }
+}

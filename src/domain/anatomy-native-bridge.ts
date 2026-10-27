@@ -3,6 +3,10 @@ import type {
   AnatomySystem,
   AnatomyView,
 } from "../data/anatomy-structures";
+import {
+  normalizeAnatomySection,
+  type AnatomySection,
+} from "./anatomy-section";
 
 /** Public geometry only. Account cookies and credentials never cross this boundary. */
 export const ANATOMY_ASSET_ORIGIN =
@@ -18,6 +22,8 @@ export type NativeAnatomyState = {
   view: AnatomyView;
   language: AnatomyLanguage;
   appearance: "natural" | "study";
+  depthShading: boolean;
+  section?: AnatomySection;
   selectedId?: string;
   zoom: number;
   height: number;
@@ -25,6 +31,8 @@ export type NativeAnatomyState = {
   isolate: boolean;
   isolatedDetail: boolean;
   hiddenIds: string[];
+  excludedIds: string[];
+  representationIds: string[];
   visibleSystems: AnatomySystem[];
   resetKey: number;
   focusSelectionKey: number;
@@ -80,9 +88,16 @@ export function parseAnatomyNativeState(
     !isSystem(value.system) ||
     (value.view !== "anterior" && value.view !== "posterior") ||
     (value.language !== "fr" && value.language !== "en") ||
-    (value.appearance !== "natural" && value.appearance !== "study")
+    (value.appearance !== "natural" && value.appearance !== "study") ||
+    (value.depthShading !== undefined &&
+      typeof value.depthShading !== "boolean")
   )
     return;
+  const section =
+    value.section === undefined
+      ? undefined
+      : normalizeAnatomySection(value.section);
+  if (value.section !== undefined && !section) return;
   if (value.selectedId !== undefined && !validAnatomyBridgeId(value.selectedId))
     return;
   if (
@@ -95,6 +110,8 @@ export function parseAnatomyNativeState(
     return;
   if (
     !ids(value.hiddenIds) ||
+    (value.excludedIds !== undefined && !ids(value.excludedIds)) ||
+    (value.representationIds !== undefined && !ids(value.representationIds)) ||
     !Array.isArray(value.visibleSystems) ||
     !value.visibleSystems.length ||
     value.visibleSystems.length > 5 ||
@@ -116,6 +133,8 @@ export function parseAnatomyNativeState(
     view: value.view as AnatomyView,
     language: value.language as AnatomyLanguage,
     appearance: value.appearance as NativeAnatomyState["appearance"],
+    depthShading: value.depthShading === undefined ? true : value.depthShading,
+    ...(section ? { section } : {}),
     ...(value.selectedId === undefined
       ? {}
       : { selectedId: value.selectedId as string }),
@@ -125,6 +144,14 @@ export function parseAnatomyNativeState(
     isolate: value.isolate,
     isolatedDetail: value.isolatedDetail,
     hiddenIds: [...value.hiddenIds],
+    excludedIds:
+      value.excludedIds === undefined
+        ? []
+        : [...(value.excludedIds as string[])],
+    representationIds:
+      value.representationIds === undefined
+        ? []
+        : [...(value.representationIds as string[])],
     visibleSystems: [...value.visibleSystems] as AnatomySystem[],
     resetKey: value.resetKey,
     focusSelectionKey: value.focusSelectionKey,

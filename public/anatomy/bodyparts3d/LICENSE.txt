@@ -1,3 +1,14 @@
+BodyParts3D, Copyright 2008 Database Center for Life Science (DBCLS), licensed under CC Attribution-ShareAlike 2.1 Japan
+License: Creative Commons Attribution-ShareAlike 2.1 Japan (CC-BY-SA-2.1-JP)
+https://creativecommons.org/licenses/by-sa/2.1/jp/
+Official source: https://lifesciencedb.jp/bp3d/
+Official source license: https://lifesciencedb.jp/bp3d/info_en/license/index.html
+Pinned data mirror: https://github.com/olivercase/body_parts_3d_api/tree/fd527e6f4daf732fd814314d9257df5877b844bc
+All preview and HIGH GLB files under v43/ are adaptations distributed under this license.
+Adaptations: source 4.3 only; axes and millimetres converted to Y-up, +Z-anterior metres; authored normals normalized and encoded as signed 16-bit; uniform per-element position quantization with measured vector error <=0.02 mm (float positions otherwise); lossless Meshopt compression and vertex/triangle reordering. Every HIGH source triangle is retained. Preview alone is simplified with a 0.5 mm estimated appearance error limit. No anatomy, fibres, textures or subdivision is generated.
+All original FJ surfaces remain available, including model alternatives identified in provenance. This is an adult male reference, not exhaustive human anatomy or an independently medically reviewed model. The art license does not describe Ippomed application code.
+
+PRESERVED LEGACY COLLECTION (outside v43/):
 BASE: BodyParts3D 4.0
 BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International
 Base files: skeleton-*.glb, muscles-*.glb, organs-*.glb, nerves-*.glb (except nerves-peripheral.glb), vessels-*.glb

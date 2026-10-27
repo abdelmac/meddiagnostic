@@ -35,13 +35,25 @@ export function AnatomyScene(props: AnatomySceneProps) {
     props.sourceManifest ?? (defaultManifest as unknown as BodyPartsManifest);
   const source =
     manifest.datasetId === "bodyparts3d-3.0-95" ? "detailed" : "extended";
+  const physicalIds = useMemo(
+    () => new Set(manifest.meshes.map((mesh) => mesh.id)),
+    [manifest],
+  );
+  const representationIds = useMemo(() => {
+    const groups = new Map(
+      manifest.meshes.map((mesh) => [mesh.id, mesh.representationGroup]),
+    );
+    const choices = new Map<string, string>();
+    for (const id of props.representationIds ?? []) {
+      const group = groups.get(id);
+      if (group && validAnatomyBridgeId(id)) choices.set(group, id);
+    }
+    return [...choices.values()];
+  }, [manifest, props.representationIds]);
   const allowedIds = useMemo(
     () =>
-      new Set([
-        ...manifest.meshes.map((mesh) => mesh.id),
-        ...Object.keys(manifest.legacyMapping ?? {}),
-      ]),
-    [manifest],
+      new Set([...physicalIds, ...Object.keys(manifest.legacyMapping ?? {})]),
+    [manifest, physicalIds],
   );
   const [attempt, setAttempt] = useState(0);
   const [phase, setPhase] = useState<"starting" | "active" | "failed">(
@@ -66,6 +78,8 @@ export function AnatomyScene(props: AnatomySceneProps) {
     view: props.view,
     language: props.language ?? "fr",
     appearance: props.appearance ?? "natural",
+    depthShading: props.depthShading ?? true,
+    section: props.section,
     selectedId:
       props.selectedId && allowedIds.has(props.selectedId)
         ? props.selectedId
@@ -78,6 +92,14 @@ export function AnatomyScene(props: AnatomySceneProps) {
     hiddenIds: [
       ...new Set((props.hiddenIds ?? []).filter(validAnatomyBridgeId)),
     ].slice(0, 4000),
+    excludedIds: [
+      ...new Set(
+        (props.excludedIds ?? []).filter(
+          (id) => validAnatomyBridgeId(id) && physicalIds.has(id),
+        ),
+      ),
+    ].slice(0, 4000),
+    representationIds,
     visibleSystems: [
       ...new Set(
         props.visibleSystems?.length ? props.visibleSystems : [props.system],

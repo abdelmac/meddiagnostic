@@ -37,7 +37,9 @@ type Gltf = {
 };
 type ParsedGlb = { json: Gltf; binary: Buffer };
 const root = path.resolve("public/anatomy/bodyparts3d");
-const manifest: Manifest = JSON.parse(fs.readFileSync("src/data/bodyparts3d-manifest.json", "utf8"));
+// Installed Android previews still reference these original files. Their
+// geometry and notices stay available when the active atlas moves to 4.3.
+const manifest: Manifest = JSON.parse(fs.readFileSync(path.join(root, "legacy-manifest.json"), "utf8"));
 const meshById = new Map(manifest.meshes.map((mesh) => [mesh.id, mesh]));
 const maximumFileBytes = 25 * 1024 * 1024;
 const sha256 = (bytes: Uint8Array) => crypto.createHash("sha256").update(bytes).digest("hex");
@@ -94,7 +96,7 @@ function accessor(glb: ParsedGlb, accessorIndex: number, decoded: Map<number, Ui
   return { description, bytes, stride: view.byteStride ?? compression?.byteStride ?? 0 };
 }
 
-test("le catalogue décrit des surfaces sources uniques, leurs licences et des fichiers publiables", () => {
+test("le catalogue historique reste disponible avec ses surfaces, licences et fichiers pour les applications installées", () => {
   assert.equal(manifest.status, "ready");
   assert.equal(manifest.dataset, manifest.meshes.some((mesh) => mesh.sourceVersion === "4.3")
     ? "BodyParts3D 4.0 + 4.3 peripheral nerves" : "BodyParts3D 4.0");
@@ -105,7 +107,7 @@ test("le catalogue décrit des surfaces sources uniques, leurs licences et des f
   assert.equal(meshById.size, manifest.meshes.length);
   assert.equal(new Set(manifest.meshes.map((mesh) => mesh.elementId)).size, manifest.meshes.length, "un élément physique FJ ne doit pas être superposé plusieurs fois");
   assert.deepEqual(manifest.systems.map((system) => system.id).sort(), ["muscles", "nerves", "organs", "skeleton", "vessels"]);
-  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root, "manifest.json"), "utf8")), manifest);
+  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root, "legacy-manifest.json"), "utf8")), manifest);
   const baseFiles = manifest.systems.flatMap((system) => system.files);
   assert.equal(new Set(baseFiles).size, baseFiles.length);
   const publishedFiles = new Set([...baseFiles, ...(manifest.isolatedDetails?.entries.map((entry) => entry.url) ?? [])]);
@@ -147,6 +149,7 @@ test("le catalogue décrit des surfaces sources uniques, leurs licences et des f
   }
   for (const location of publishedAssetFiles(root)) {
     const filename = path.relative(root, location).split(path.sep).join("/");
+    if (filename.startsWith("v43/")) continue; // The current corpus has its own full integrity tests.
     assert.ok(fs.statSync(location).isFile());
     assert.ok(fs.statSync(location).size < maximumFileBytes, filename);
     assert.match(filename, /\.(glb|json|txt)$/, "les archives OBJ brutes ne doivent pas être publiées");
@@ -233,7 +236,7 @@ test("les GLB décodent toutes les surfaces annoncées, avec positions, normales
 });
 
 test("des surfaces décodées correspondent aux OBJ sources mis en cache, sans géométrie substituée", async (context) => {
-  const provenance: { sources: { url?: string; sha256?: string; bytes?: number; files?: { elementId: string; url: string; bytes: number; sha256: string }[] }[] } = JSON.parse(fs.readFileSync(path.join(root, "provenance.json"), "utf8"));
+  const provenance: { sources: { url?: string; sha256?: string; bytes?: number; files?: { elementId: string; url: string; bytes: number; sha256: string }[] }[] } = JSON.parse(fs.readFileSync(path.join(root, "legacy-provenance.json"), "utf8"));
   assert.ok(provenance.sources.some((source) => source.url?.endsWith("isa_BP3D_4.0_obj_99.zip")));
   assert.ok(provenance.sources.some((source) => source.url?.endsWith("partof_BP3D_4.0_obj_99.zip")));
   const samples = ["isa", "partof", "highres-4.3"].map((archive) => manifest.meshes.find((mesh) => mesh.sourceArchive === archive));
