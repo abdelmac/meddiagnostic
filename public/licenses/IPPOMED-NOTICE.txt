@@ -9,7 +9,7 @@ Le code original de l’application Ippomed est distribué sous la licence **Cre
 - Texte officiel complet, conservé sans modification : [LICENSE](LICENSE).
 - Licence officielle : [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 - Dépôt du projet : [abdelmac/meddiagnostic](https://github.com/abdelmac/meddiagnostic).
-- Code exact de cette release, prévu pour la diffusion avec l’atlas : [ippomed-source-2026-10-28.zip](https://medquiz-europe.medcompass-web.workers.dev/source/ippomed-source-2026-10-28.zip). Son empreinte SHA-256 est fournie séparément lors de la publication.
+- Code exact de cette release, distribué avec l’atlas : [ippomed-source-2026-10-28.zip](https://medquiz-europe.medcompass-web.workers.dev/source/ippomed-source-2026-10-28.zip). Son empreinte SHA-256 est fournie dans le fichier `.sha256` séparé.
 
 Attribution du code : **Ippomed contributors — Ippomed — CC BY-SA 4.0**, avec un lien vers le dépôt ou l’archive de la release. Les adaptations doivent conserver les attributions et signaler les modifications conformément à la licence.
 
@@ -30,4 +30,4 @@ La revue a écarté **206 objets physiques** en raison de licences ou de provena
 
 Sources et détails : [rapport neurovasculaire et de licence](docs/ANATOMIE-NEUROVASCULAIRE-2026-10-27.md), [licence Z-Anatomy épinglée](https://github.com/Z-Anatomy/Models-of-human-anatomy/blob/caf0f6078f2a0ac9e65e81dce042d5a30b65d0f0/License.txt) et notices générées avec les modèles. L’autorisation de publication du propriétaire du projet ne change pas les licences des auteurs tiers.
 
-La licence et la préparation de cette release sont effectives dans les fichiers du projet. La mise en ligne de l’archive et des nouveaux modèles reste une opération de déploiement distincte ; ce fichier ne constitue pas une preuve de disponibilité réseau.
+La licence et la distribution de cette release sont effectives. La disponibilité réseau des modèles et du code est contrôlée séparément dans les rapports de validation de la publication.

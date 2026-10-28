@@ -4,7 +4,7 @@ L’[atlas neurovasculaire est publié](https://medquiz-europe.medcompass-web.wo
 
 ## Corpus et précision de conversion
 
-Le nouvel atlas contient **3 642 objets source** : 680 du système squelettique/articulaire, 1 374 du système musculaire et des insertions, 526 viscéraux ou de surface, 390 nerveux/sensoriels et 672 cardiovasculaires. Les compteurs ne désignent pas autant de structures anatomiques uniques.
+Le nouvel atlas contient **3 642 objets source** : 680 du système squelettique/articulaire, 1 374 du système musculaire et des insertions, 526 autres organes, tissus ou surfaces, 390 nerveux/sensoriels et 672 cardiovasculaires. Les compteurs ne désignent pas autant de structures anatomiques uniques.
 
 Les classifications contrôlées distinguent **425 objets artériels, 230 veineux et 17 autres cardiovasculaires**. Le groupe nerveux/sensoriel comprend **251 objets avec preuve de nerf ou branche**, 91 structures centrales et 48 éléments sensoriels ou associés. Les deux plexus choroïdes restent dans le système nerveux, sans étiquette d’artère fondée sur leur couleur.
 
@@ -27,6 +27,10 @@ Les rapports détaillés sont conservés dans `.local/z-anatomy-source/validatio
 
 Le propriétaire a explicitement autorisé le 28 octobre l’application de **CC BY-SA 4.0 au code propre d’Ippomed** et la publication de l’atlas. Le texte officiel est dans [LICENSE](../LICENSE), avec les [attributions et exceptions](../NOTICE.md). Les licences des bibliothèques, logos et autres ressources restent distinctes.
 
-Les exports finaux **Android et iOS** ont réussi. Le [build Android versionCode 5](https://expo.dev/accounts/hikmamif/projects/medquiz/builds/314f49d1-73c0-40dd-9a4a-0d77ca0b1d25) est en cours sur EAS Free au moment de cette rédaction. Son téléchargement et son inspection seront consignés après sa réussite. La vérification du quota avant lancement indiquait 4/15 builds Android, 4/30 au total et 0 centime estimé.
+Les exports finaux **Android et iOS** ont réussi. Le [build Android versionCode 5](https://expo.dev/accounts/hikmamif/projects/medquiz/builds/314f49d1-73c0-40dd-9a4a-0d77ca0b1d25) a **réussi le 28 octobre à 0 h 27, heure de Paris**, sur EAS Free. [Télécharger l’APK](https://expo.dev/artifacts/eas/jzPjMjTKjj0U0AhDI9YoK8V5vWgMMrG8K8LfDO-eEtk.apk).
+
+L’APK téléchargé pèse **105 995 908 octets**, SHA-256 `dc4a419ae5833222038965c20ac5c75714f9a8aee93b49fbe7a3dbd10272b324`. Le package `fr.medquiz.app`, le DEX, Hermes et le moteur DOM sont présents ; les **3 642 identifiants** de l’atlas et les six nerfs des jambes des deux côtés sont retrouvés. Aucun GLB/OBJ/ZIP embarqué et aucun des trois secrets connus dans les huit fichiers extraits. Le bloc de signature v2 est structurellement valide, sans vérification cryptographique indépendante. Preuve : `.local/native-apk5-validation-2026-10-28.json`.
+
+Après compilation, le quota vérifié indique **5/15 builds Android**, **0/15 iOS**, **5/30 au total** et **0 centime** estimé ou en dépassement. Aucun forfait payant n’a été activé.
 
 Les essais navigateur mobile sont émulés. Aucune installation sur téléphone physique, soumission aux stores ou signature Apple n’est validée dans cette étape.

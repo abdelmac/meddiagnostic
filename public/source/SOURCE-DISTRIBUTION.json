@@ -1,7 +1,7 @@
 {
   "application": "Ippomed",
   "release": "2026-10-28",
-  "baseCommit": "04bbf7b5dfbf80eee49d67010a3af70e7d41e713",
+  "baseCommit": "bc30bd614cbe611b2767bdadc5f9d2210b520a42",
   "codeLicence": "CC-BY-SA-4.0",
   "licenceFile": "LICENSE",
   "thirdPartyNotices": "NOTICE.md",
@@ -40,8 +40,8 @@
     },
     {
       "path": "NOTICE.md",
-      "bytes": 4726,
-      "sha256": "0dee89cdfeec27a6f823588ef0a4931813816ead2939e29bc37eecce20d1f5a0"
+      "bytes": 4641,
+      "sha256": "b5fcfd9ae9340d2e0e7a12041db85cee0eaf1bca917e2ea293cc486ddd4a2448"
     },
     {
       "path": "README.md",
@@ -140,8 +140,8 @@
     },
     {
       "path": "docs/MOBILE.md",
-      "bytes": 16858,
-      "sha256": "bf85a38c7ae35e18eb3865cd37a0050d91dc0e19e45b2ec5080d31e444da9fa8"
+      "bytes": 18495,
+      "sha256": "77a26780daf3354ba8a44ee37082ffc0011b3f1c1b57c68f0e989089d47377a5"
     },
     {
       "path": "docs/PRODUCTION.md",
@@ -167,6 +167,11 @@
       "path": "docs/VALIDATION-2026-10-26.md",
       "bytes": 9223,
       "sha256": "85198353a328e03713ac8cd9b8bfdcf9df9793a0dce7e50c4f211df019fc00be"
+    },
+    {
+      "path": "docs/VALIDATION-2026-10-28.md",
+      "bytes": 5177,
+      "sha256": "ee390408fce028a1a4ed5a91e2668299658c967b7a32b4318625ddaf9554972b"
     },
     {
       "path": "docs/VALIDATION.md",
@@ -330,8 +335,8 @@
     },
     {
       "path": "public/licenses/IPPOMED-NOTICE.txt",
-      "bytes": 4726,
-      "sha256": "0dee89cdfeec27a6f823588ef0a4931813816ead2939e29bc37eecce20d1f5a0"
+      "bytes": 4641,
+      "sha256": "b5fcfd9ae9340d2e0e7a12041db85cee0eaf1bca917e2ea293cc486ddd4a2448"
     },
     {
       "path": "public/licenses/meshoptimizer-MIT.txt",
