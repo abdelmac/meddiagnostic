@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "projectSourceArchivePublication": "disabled",
+  "retiredPathPrefix": "/source",
+  "retiredArchive": "/source/ippomed-source-2026-10-28.zip",
+  "legacyRelease": {
+    "date": "2026-10-28",
+    "licence": "CC-BY-SA-4.0",
+    "sourceUrl": "https://github.com/abdelmac/meddiagnostic/tree/8bbcd75fc6946a0a1b2dbcd889892177776db500",
+    "commit": "8bbcd75fc6946a0a1b2dbcd889892177776db500",
+    "gitTree": "3786c432a044e397af73e35183e29e36f1223183",
+    "sourceContinuity": "verified-226-files-byte-or-line-ending-equivalent",
+    "publicSourceRetainedReason": "Existing Z-Anatomy integration and previously published CC release; no new application source publication is authorized by this policy."
+  },
+  "futureProprietaryTerms": {
+    "status": "draft-pending-rights-confirmation-and-component-clearance",
+    "rightsHolderIdentityConfirmed": false,
+    "appliesToPreviouslyLicensedCopies": false
+  },
+  "entireProjectIsPrivate": false
+}

@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { legacyCodeLicenceFile, legacyModelManifest, legacyModelNotice } from './lib/legacy-source-notices.mjs';
 
 const root = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const converted = path.join(root, '.local/z-anatomy-preview-assets');
@@ -28,7 +29,9 @@ for (const record of manifest.files) {
 }
 for (const name of ['manifest.json', 'ATTRIBUTION.txt', 'LICENSE.txt']) permitted.add(name);
 for (const name of permitted) {
-  const bytes = fs.readFileSync(path.join(converted, name));
+  let bytes = fs.readFileSync(path.join(converted, name));
+  if (name === 'manifest.json') bytes = Buffer.from(JSON.stringify(legacyModelManifest(JSON.parse(bytes)), null, 2) + '\n');
+  else if (name === 'ATTRIBUTION.txt' || name === 'LICENSE.txt') bytes = Buffer.from(legacyModelNotice(bytes.toString('utf8')));
   if (bytes.length > 25 * 1024 * 1024) throw Error('Publication asset exceeds hosting limit');
   const destination = path.resolve(target, name);
   if (!destination.startsWith(target + path.sep)) throw Error('Unsafe converted asset path');
@@ -37,6 +40,6 @@ for (const name of permitted) {
 }
 const licenceRoot = path.join(root, 'public/licenses');
 fs.mkdirSync(licenceRoot, { recursive: true });
-fs.copyFileSync(path.join(root, 'LICENSE'), path.join(licenceRoot, 'IPPOMED-CODE-CC-BY-SA-4.0.txt'));
+fs.copyFileSync(legacyCodeLicenceFile, path.join(licenceRoot, 'IPPOMED-CODE-CC-BY-SA-4.0.txt'));
 fs.copyFileSync(path.join(root, 'NOTICE.md'), path.join(licenceRoot, 'IPPOMED-NOTICE.txt'));
-console.log(JSON.stringify({ status: 'staged-for-publication', files: permitted.size, manifestSha256: sha(manifestBytes), target: 'public/anatomy/z-anatomy', deployed: false }));
+console.log(JSON.stringify({ status: 'staged-for-publication', files: permitted.size, verifiedInputManifestSha256: sha(manifestBytes), publishedManifestSha256: sha(fs.readFileSync(path.join(target, 'manifest.json'))), target: 'public/anatomy/z-anatomy', deployed: false }));

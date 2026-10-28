@@ -14,7 +14,7 @@ https://github.com/Z-Anatomy/Models-of-human-anatomy/blob/caf0f6078f2a0ac9e65e81
 
 
 
-The owner explicitly approved publication of this atlas and the application code under CC BY-SA 4.0 on 2026-10-28. This follows the upstream author's stated position that the independent viewer's code also be shared. The release source code is available at: https://medquiz-europe.medcompass-web.workers.dev/source/ippomed-source-2026-10-28.zip
+The owner explicitly approved publication of this atlas and the application code under CC BY-SA 4.0 on 2026-10-28. This follows the upstream author's stated position that the independent viewer's code also be shared. The release source code is available at: https://github.com/abdelmac/meddiagnostic/tree/8bbcd75fc6946a0a1b2dbcd889892177776db500
 
 Author position: https://github.com/Z-Anatomy/Models-of-human-anatomy/issues/12
 
@@ -68,3 +68,6 @@ Adaptation: evaluated source world coordinates converted once from Blender Z-up 
 
 
 Authored normal exception: 230 exactly zero source corner normals in 10 objects were undefined in the source. Only these lighting normals were derived from their incident source triangle faces. Every nonzero authored normal, source position and source triangle remains unchanged before bounded encoding. Source normal-array SHA-256 and repaired corner indices are recorded per object in manifest.json.
+
+Source archive withdrawal:
+The project-hosted complete source archive is withdrawn. The existing reader retains its previously published CC-BY-SA-4.0 source at the verified immutable public revision above. This preserves the documented source condition of the existing Z-Anatomy integration. It does not make the project private, revoke prior grants, relicense third-party assets, or grant a blanket licence for future application versions.

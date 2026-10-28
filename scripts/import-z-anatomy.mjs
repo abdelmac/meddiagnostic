@@ -10,6 +10,7 @@ import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { MeshoptEncoder, MeshoptSimplifier } from "meshoptimizer";
 import { createAnatomyGltfEncoder } from "./lib/anatomy-gltf-encoder.mjs";
+import { distributionPolicy, legacySourceUrl } from "./lib/legacy-source-notices.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const STAGING = path.join(ROOT, ".local/z-anatomy-source/staging-private");
@@ -28,8 +29,7 @@ const SOURCE_PIN = "caf0f6078f2a0ac9e65e81dce042d5a30b65d0f0";
 const SOURCE_SHA256 =
   "9f08a17ea0115fed80b2a73ecdf0a1bc2ab2f6956f37c593ce23d513ea35afcd";
 const DATASET = "Z-Anatomy neurovascular";
-const RELEASE_SOURCE_URL =
-  "https://medquiz-europe.medcompass-web.workers.dev/source/ippomed-source-2026-10-28.zip";
+const RELEASE_SOURCE_URL = legacySourceUrl;
 const SYSTEMS = ["skeleton", "muscles", "organs", "nerves", "vessels"];
 const MAX_ASSET_BYTES = 24 * 1024 * 1024;
 const PREVIEW_BATCH_BYTES = 8 * 1024 * 1024;
@@ -324,6 +324,9 @@ async function main() {
       "Usage: node scripts/import-z-anatomy.mjs [--publication-approved]. Assets always stay under .local/; use the flag only after the owner's explicit CC BY-SA 4.0 publication approval.",
     );
   const publicationApproved = args[0] === "--publication-approved";
+  if (publicationApproved && distributionPolicy.projectSourceArchivePublication === "disabled") {
+    throw Error("New application-source publication is disabled. The 2026-10-28 approval covers the historical release only; private model inspection remains available without --publication-approved.");
+  }
   const publicationStatus = publicationApproved
     ? "approved"
     : "private-preview-pending-approval";

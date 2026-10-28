@@ -1,17 +1,21 @@
 # Ippomed — licences et attributions
 
-## Code original d’Ippomed
+## Version antérieure et retrait de l’archive
 
-Copyright © 2026 Ippomed contributors.
+La version du code propre antérieurement publiée le 28 octobre 2026 a été diffusée sous **CC BY-SA 4.0** pour les droits alors valablement accordés. Le retrait de l’archive complète du site ne révoque pas ces autorisations et n’efface pas les copies déjà reçues. Cette mention ne constitue pas une nouvelle licence ouverte globale pour les versions futures.
 
-Le code original de l’application Ippomed est distribué sous la licence **Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)**, sauf mention spécifique applicable à un élément tiers. Cette licence a été appliquée avec l’autorisation explicite du propriétaire du projet le 28 octobre 2026.
+- Texte officiel historique inchangé : [CC BY-SA 4.0](licenses/legacy-2026-10-28/CC-BY-SA-4.0.txt).
+- Notice historique inchangée : [notice du 28 octobre](licenses/legacy-2026-10-28/NOTICE.md).
+- [Statut actuel de distribution](LICENSE) et [inventaire des droits](docs/DROITS-COMMERCIALISATION.md).
+- Source historique de l’application conservée pour l’intégration Z-Anatomy : [révision publique vérifiée](https://github.com/abdelmac/meddiagnostic/tree/8bbcd75fc6946a0a1b2dbcd889892177776db500).
 
-- Texte officiel complet, conservé sans modification : [LICENSE](LICENSE).
-- Licence officielle : [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
-- Dépôt du projet : [abdelmac/meddiagnostic](https://github.com/abdelmac/meddiagnostic).
-- Code exact de cette release, distribué avec l’atlas : [ippomed-source-2026-10-28.zip](https://medquiz-europe.medcompass-web.workers.dev/source/ippomed-source-2026-10-28.zip). Son empreinte SHA-256 est fournie dans le fichier `.sha256` séparé.
+L’attribution historique **« Ippomed contributors — Ippomed — CC BY-SA 4.0 »** est conservée ; cette désignation générique n’établit pas l’identité juridique du titulaire ni une chaîne de cessions. La correspondance des 226 fichiers de l’ancienne archive avec cette révision a été vérifiée, avec une seule différence de fins de ligne. Le dépôt reste public et son historique contient encore les anciennes distributions ; le projet n’est donc pas entièrement privé.
 
-Attribution du code : **Ippomed contributors — Ippomed — CC BY-SA 4.0**, avec un lien vers le dépôt ou l’archive de la release. Les adaptations doivent conserver les attributions et signaler les modifications conformément à la licence.
+## Conditions envisagées pour les futures versions
+
+Le projet souhaite ne plus publier volontairement son dépôt source complet et envisage des conditions propriétaires pour ses futurs apports admissibles. Le [brouillon des conditions](docs/CONDITIONS-PROPRIETAIRES-DRAFT.md) reste à confirmer : identité du titulaire, périmètre des droits et compatibilité des composants. Aucun titulaire n’est inventé et aucune condition propriétaire globale n’est annoncée comme déjà applicable. Les questions, corrections, schémas, logos et contributions dont les droits sont insuffisamment établis restent à examiner.
+
+L’auteur de Z-Anatomy a exprimé une exigence de partage du code de l’application lisant son modèle. Cette position documentée n’est pas une règle universelle imposée à tout logiciel par CC BY-SA ; elle explique la continuité de source maintenue pour le lecteur existant. Une autorisation différente ou un remplacement compatible doit être examiné avant de présenter une future version conservant cet atlas comme totalement fermée. Aucun modèle n’est retiré et aucune fonctionnalité n’est désactivée par ce changement de distribution.
 
 ## Données, modèles et composants tiers
 
@@ -30,4 +34,4 @@ La revue a écarté **206 objets physiques** en raison de licences ou de provena
 
 Sources et détails : [rapport neurovasculaire et de licence](docs/ANATOMIE-NEUROVASCULAIRE-2026-10-27.md), [licence Z-Anatomy épinglée](https://github.com/Z-Anatomy/Models-of-human-anatomy/blob/caf0f6078f2a0ac9e65e81dce042d5a30b65d0f0/License.txt) et notices générées avec les modèles. L’autorisation de publication du propriétaire du projet ne change pas les licences des auteurs tiers.
 
-La licence et la distribution de cette release sont effectives. La disponibilité réseau des modèles et du code est contrôlée séparément dans les rapports de validation de la publication.
+Les archives de développement futures restent privées ; les notices tierces et la source historique requise pour la version déjà publiée restent disponibles. Le retrait du ZIP du site, ses statuts HTTP et les anciennes URL de prévisualisation sont vérifiés séparément après déploiement.

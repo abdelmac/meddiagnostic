@@ -4,6 +4,7 @@ import { createServer } from 'node:http';
 import { cp, mkdir, readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isRetiredSourcePath } from './check-source-distribution.mjs';
 
 const workspace = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const privateRoot = path.join(workspace, '.local');
@@ -50,6 +51,11 @@ if (process.argv[2] === 'build') {
   createServer(async (req, res) => {
     try {
       const url = new URL(req.url, 'http://127.0.0.1:8082');
+      if (isRetiredSourcePath(url.href)) {
+        res.writeHead(404, { 'cache-control': 'no-store', 'content-type': 'text/plain; charset=utf-8' });
+        res.end(req.method === 'HEAD' ? undefined : 'Not found');
+        return;
+      }
       let file = path.resolve(output, `.${decodeURIComponent(url.pathname)}`);
       if (!file.startsWith(output + path.sep) && file !== output) throw Error('Invalid path');
       let info;

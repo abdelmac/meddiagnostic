@@ -20,9 +20,11 @@ La [page de connexion et d’inscription](https://medquiz-europe.medcompass-web.
 
 ## Licence et code source
 
-Le **code original d’Ippomed** est sous **CC BY-SA 4.0**, avec l’autorisation explicite du propriétaire du projet le 28 octobre 2026. Attribution : **Ippomed contributors**. Voir le [texte officiel intégral](LICENSE) et les [attributions, périmètres et exceptions](NOTICE.md).
+Le téléchargement volontaire de l’archive source complète depuis le site est retiré. Les builds et déploiements refusent sa republication ; `node scripts/package-source.mjs` ne produit désormais qu’une sauvegarde privée sous `.local/`. Voir le [statut de distribution](LICENSE) et les [notices](NOTICE.md).
 
-Le [dépôt du projet](https://github.com/abdelmac/meddiagnostic) est déjà public. Le code exact de cette release est préparé pour être distribué dans [ippomed-source-2026-10-28.zip](https://medquiz-europe.medcompass-web.workers.dev/source/ippomed-source-2026-10-28.zip), avec une empreinte SHA-256 séparée lors du déploiement. L’archive et le nouvel atlas ne sont pas déclarés en ligne avant vérification de leur publication.
+La version antérieurement publiée le 28 octobre 2026 conserve les autorisations **CC BY-SA 4.0** valablement accordées. Son [texte de licence historique](licenses/legacy-2026-10-28/CC-BY-SA-4.0.txt) reste inchangé. La source de ce lecteur existant reste accessible dans une [révision GitHub publique vérifiée](https://github.com/abdelmac/meddiagnostic/tree/8bbcd75fc6946a0a1b2dbcd889892177776db500) pour préserver les conditions annoncées de l’intégration Z-Anatomy. Le dépôt et son historique sont encore publics ; le code navigateur reste observable. Le retrait du ZIP ne rend donc pas le projet entièrement privé.
+
+Les [conditions propriétaires futures sont un brouillon](docs/CONDITIONS-PROPRIETAIRES-DRAFT.md), limité aux droits qui seront établis. L’identité juridique du titulaire et la chaîne des droits sur le code, les questions, corrections et illustrations restent à confirmer. Aucun changement de paiement, tarif, accès, compte ou données n’est effectué. Lire l’[audit de commercialisation et des droits](docs/DROITS-COMMERCIALISATION.md).
 
 Les dépendances, médias, logos et modèles tiers conservent leurs droits et licences propres. Les notices des corpus BodyParts3D, notamment CC BY-SA 2.1 Japan lorsqu’elle s’applique, restent inchangées. La nouvelle adaptation Z-Anatomy est autorisée pour publication avec ses notices et exclusions prudentes ; elle contient 3 642 objets, dont 425 artériels et 230 veineux. Voir le [rapport neurovasculaire, ses vérifications et ses limites de provenance](docs/ANATOMIE-NEUROVASCULAIRE-2026-10-27.md).
 

@@ -9,3 +9,11 @@
 
 /anatomy/*
   Access-Control-Allow-Origin: *
+
+/source
+  Cache-Control: no-store
+  X-Robots-Tag: noindex, nofollow
+
+/source/*
+  Cache-Control: no-store
+  X-Robots-Tag: noindex, nofollow

@@ -1,5 +1,7 @@
 # Validation Ippomed — 28 octobre 2026
 
+**Mise à jour de distribution :** les vérifications ci-dessous décrivent la publication antérieure sous CC BY-SA. Le téléchargement de l’archive complète depuis le site est désormais retiré ; les droits valablement accordés restent en vigueur. La [source historique vérifiée](https://github.com/abdelmac/meddiagnostic/tree/8bbcd75fc6946a0a1b2dbcd889892177776db500) reste publique pour l’intégration existante. Voir l’[audit des droits et de la commercialisation](DROITS-COMMERCIALISATION.md) ; aucune confidentialité totale du projet n’est affirmée.
+
 L’[atlas neurovasculaire est publié](https://medquiz-europe.medcompass-web.workers.dev/anatomy?lang=fr). La première version Cloudflare vérifiée est `de921958-b2b4-4f97-b70b-3edb06d379be`. Les références BodyParts3D 4.3 et 3.0 restent accessibles séparément ; leurs géométries ne sont pas superposées à celles du nouveau corpus.
 
 ## Corpus et précision de conversion
@@ -18,7 +20,7 @@ Les exclusions, les sources épinglées et les licences sont détaillées dans [
 - **28 scénarios navigateur locaux distincts** validés sur ordinateur et mobile émulé : 24 parcours existants et quatre nouveaux parcours neurovasculaires. Deux fixtures 2D ont été corrigées pour fixer explicitement la vue de face avant leurs clics ; leurs relances passent.
 - **Quatre scénarios sur le site public** réussis : sélection réelle des sciatiques, fémoraux et tibiaux des deux côtés, chargement HIGH, filtres artères/veines, contexte osseux et changement entre les trois références. Les douze sélections souris/tactiles enregistrent un point 3D sur la surface réelle.
 - **3 649 GLB publics** téléchargés : HTTP 200, tailles et SHA-256 conformes. Le manifeste publié conserve le SHA-256 `42ddef0f0ecb3afa60c1b402dbbb25edd88240682c954a6d4cc9d62f336edfd3`.
-- Archive du code, licence officielle et anciennes notices BodyParts3D vérifiées en ligne. L’empreinte de l’[archive de cette release](https://medquiz-europe.medcompass-web.workers.dev/source/ippomed-source-2026-10-28.zip) est fournie dans son fichier `.sha256` séparé.
+- Lors de la publication initiale, l’archive du code, la licence officielle et les anciennes notices BodyParts3D avaient été vérifiées en ligne. L’archive complète et son empreinte ne sont plus distribuées par le site ; cette observation historique n’atteste pas leur disponibilité actuelle.
 - Audit des artefacts web et des exports Android/iOS : aucun des trois secrets serveur connus détecté. Cette comparaison ne constitue pas un audit de sécurité général.
 
 Les rapports détaillés sont conservés dans `.local/z-anatomy-source/validation-report.json`, `.local/neurovascular-release/public-validation.json` et `.local/z-anatomy-review/`. Aucun contenu APK n’est exécuté par ces contrôles.

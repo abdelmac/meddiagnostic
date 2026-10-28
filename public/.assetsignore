@@ -1,0 +1,6 @@
+# Application-source downloads were retired. Third-party anatomy assets and
+# their required attribution/licence files remain publishable.
+/source/**
+**/ippomed-source-*.zip
+**/ippomed-source-*.zip.sha256
+**/SOURCE-DISTRIBUTION.json

@@ -16,3 +16,4 @@ playwright-report/
 supabase/.temp/
 android/
 ios/
+public/source/

@@ -4,6 +4,7 @@
  * Exit 2 means private input data are not ready; exit 1 is an audit failure.
  */
 import fs from "node:fs";
+import { legacyCodeLicenceFile, legacySourceUrl, retiredSourceArchiveUrl } from "./lib/legacy-source-notices.mjs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { MeshoptDecoder } from "meshoptimizer";
@@ -467,14 +468,14 @@ async function main() {
       "Approved release requires explicit owner authority, distinct from third-party clearance",
     );
     check(
-      full.publicationBasis.sourceCodeUrl ===
-        "https://medquiz-europe.medcompass-web.workers.dev/source/ippomed-source-2026-10-28.zip",
-      "Approved release must identify its exact application-source archive",
+      full.publicationBasis.sourceCodeUrl === legacySourceUrl ||
+        (path.resolve(options.manifest).startsWith(path.resolve('.local') + path.sep) && full.publicationBasis.sourceCodeUrl === retiredSourceArchiveUrl),
+      "The public legacy release must identify its verified source revision; retired archive references are historical private inputs only",
     );
     check(
-      fs.existsSync("LICENSE") &&
-        sha(fs.readFileSync("LICENSE")) === OFFICIAL_CODE_LICENCE_SHA,
-      "Approved application code must retain the unmodified official CC BY-SA 4.0 legal text",
+      fs.existsSync(legacyCodeLicenceFile) &&
+        sha(fs.readFileSync(legacyCodeLicenceFile)) === OFFICIAL_CODE_LICENCE_SHA,
+      "Previously approved code must retain the unmodified historical CC BY-SA 4.0 legal text",
     );
     report.publicationReview = full.publicationReview;
     report.originalApplicationCodeLicence = "CC-BY-SA-4.0";

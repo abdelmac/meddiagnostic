@@ -205095,7 +205095,7 @@
     "conservativeSourceExclusionsRetained": true,
     "blanketLegalClearanceClaim": false,
     "additionalPersonalAuthorPermissionClaim": false,
-    "sourceCodeUrl": "https://medquiz-europe.medcompass-web.workers.dev/source/ippomed-source-2026-10-28.zip"
+    "sourceCodeUrl": "https://github.com/abdelmac/meddiagnostic/tree/8bbcd75fc6946a0a1b2dbcd889892177776db500"
   },
   "publicationReview": {
     "ownerPublicationApproved": true,
@@ -836729,5 +836729,14 @@
         }
       }
     }
-  ]
+  ],
+  "sourceDistributionPolicy": {
+    "projectHostedCompleteArchive": "withdrawn",
+    "legacySourceUrl": "https://github.com/abdelmac/meddiagnostic/tree/8bbcd75fc6946a0a1b2dbcd889892177776db500",
+    "legacyCommit": "8bbcd75fc6946a0a1b2dbcd889892177776db500",
+    "previousValidGrantsRetained": true,
+    "currentViewerSource": "previously-published-legacy-revision",
+    "futureApplicationLicence": "not-granted-by-this-model-notice",
+    "entireProjectIsPrivate": false
+  }
 }
