@@ -1,5 +1,11 @@
 # Ippomed — licences et attributions
 
+## Lecteur courant : BodyParts3D uniquement
+
+Le propriétaire a choisi le **29 octobre 2026** de garder les nouveaux apports applicatifs hors publication du dépôt source et de retirer Z-Anatomy du nouveau lecteur. Les références actives sont **BodyParts3D 2018 (5.3)**, **BodyParts3D 4.3** et **BodyParts3D 3.0** ; la référence régionale 2018 s’ouvre par défaut avec ses 4 614 objets et 2 374 repères supplémentaires identifiés.
+
+Les modèles et adaptations BodyParts3D conservent leurs licences et crédits DBCLS, notamment **CC BY-SA 2.1 Japan** pour ces trois corpus. Ils ne deviennent pas propriétaires. Les anciens packs, attributions et sources de la version Z-Anatomy restent disponibles pour les installations existantes ; le nouveau code n’importe pas ces modèles et ne les demande pas. Aucun nouveau partage du code complet n’est autorisé par cette décision. Les conditions propriétaires futures restent limitées aux droits effectivement établis, avec leur brouillon et ses champs à confirmer.
+
 ## Version antérieure et retrait de l’archive
 
 La version du code propre antérieurement publiée le 28 octobre 2026 a été diffusée sous **CC BY-SA 4.0** pour les droits alors valablement accordés. Le retrait de l’archive complète du site ne révoque pas ces autorisations et n’efface pas les copies déjà reçues. Cette mention ne constitue pas une nouvelle licence ouverte globale pour les versions futures.
@@ -15,7 +21,7 @@ L’attribution historique **« Ippomed contributors — Ippomed — CC BY-SA 4.
 
 Le projet souhaite ne plus publier volontairement son dépôt source complet et envisage des conditions propriétaires pour ses futurs apports admissibles. Le [brouillon des conditions](docs/CONDITIONS-PROPRIETAIRES-DRAFT.md) reste à confirmer : identité du titulaire, périmètre des droits et compatibilité des composants. Aucun titulaire n’est inventé et aucune condition propriétaire globale n’est annoncée comme déjà applicable. Les questions, corrections, schémas, logos et contributions dont les droits sont insuffisamment établis restent à examiner.
 
-L’auteur de Z-Anatomy a exprimé une exigence de partage du code de l’application lisant son modèle. Cette position documentée n’est pas une règle universelle imposée à tout logiciel par CC BY-SA ; elle explique la continuité de source maintenue pour le lecteur existant. Une autorisation différente ou un remplacement compatible doit être examiné avant de présenter une future version conservant cet atlas comme totalement fermée. Aucun modèle n’est retiré et aucune fonctionnalité n’est désactivée par ce changement de distribution.
+L’auteur de Z-Anatomy a exprimé une exigence de partage du code de l’application lisant son modèle. Cette position documentée n’est pas une règle universelle imposée à tout logiciel par CC BY-SA ; elle explique la continuité de source maintenue pour les anciens lecteurs. Le remplacement autorisé le 29 octobre retire ce corpus du lecteur courant. Les fichiers historiques conservés ne constituent pas une nouvelle licence sur le code de cette version BodyParts3D.
 
 ## Données, modèles et composants tiers
 
@@ -23,7 +29,7 @@ La licence du code original ne remplace pas celles des dépendances, modèles, d
 
 | Élément                                      | Licence et attribution applicables                                                                                                                                                                           |
 | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Adaptation neurovasculaire Z-Anatomy         | Adaptation retenue sous CC BY-SA 4.0, avec crédits Z-Anatomy et contributions amont conservés dans les notices du pack. Le socle BodyParts3D identifié par cette source est crédité sous CC BY-SA 2.1 Japan. |
+| Adaptation neurovasculaire Z-Anatomy historique | Hors lecteur courant ; pack conservé sous CC BY-SA 4.0 pour les anciennes installations, avec ses crédits et la référence de code antérieure. Le socle BodyParts3D identifié par cette source est crédité sous CC BY-SA 2.1 Japan. |
 | Modèles BodyParts3D déjà présents            | Licences spécifiques inchangées, notamment CC BY-SA 2.1 Japan et CC BY 4.0 selon le corpus ; voir les notices existantes sous `public/anatomy/`.                                                             |
 | Dépendances et composants logiciels tiers    | Licences propres de leurs auteurs ; leurs fichiers de licence et attributions ne sont pas remplacés par LICENSE.                                                                                             |
 | Médias et identité visuelle fournis ou cités | Droits et conditions applicables à chaque élément ; exclus du changement de licence du code.                                                                                                                 |

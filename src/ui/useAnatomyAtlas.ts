@@ -66,7 +66,7 @@ export function useAnatomyAtlas({
   );
   const initial =
     (initialStructureId ? atlasStructure(initialStructureId) : undefined) ??
-    [atlasStructure(sourceId === "comprehensive" ? "sciatic-nerve" : "deltoid"), ...atlasLandmarks.filter(item => item.system === "nerves"), ...atlasLandmarks]
+    [atlasStructure("deltoid"), ...atlasLandmarks.filter(item => item.system === "nerves"), ...atlasLandmarks]
       .find(item => item && item.meshIds.length > 0) ??
     atlasMeshStructures[0] ?? atlasStructure("deltoid")!;
   const [system, setSystem] = useState<AnatomySystem>(initial.system);
@@ -178,7 +178,7 @@ export function useAnatomyAtlas({
   const sourceOptions = atlasSourceIds.map(id => ({ id, ...atlasSources[id], available: atlasSourceAvailable(id) }));
   const sourceInfo = atlasSources[sourceId];
   const sourceAttributionUrl = anatomyModelManifest.attributionUrl
-    ?? `/anatomy/${sourceId === "detailed" ? "bodyparts3d-complete" : sourceId === "comprehensive" ? "z-anatomy" : sourceId === "regional" ? "bodyparts3d-regional" : "bodyparts3d"}/ATTRIBUTION.txt`;
+    ?? `/anatomy/${sourceId === "detailed" ? "bodyparts3d-complete" : sourceId === "regional" ? "bodyparts3d-regional" : "bodyparts3d"}/ATTRIBUTION.txt`;
   const systemAvailable = (id: AnatomySystem) => mode === "2d"
     || anatomyModelManifest.systems.some(item => item.id === id && item.files.length > 0);
   const detailAvailable =

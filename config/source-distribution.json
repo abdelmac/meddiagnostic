@@ -10,7 +10,7 @@
     "commit": "8bbcd75fc6946a0a1b2dbcd889892177776db500",
     "gitTree": "3786c432a044e397af73e35183e29e36f1223183",
     "sourceContinuity": "verified-226-files-byte-or-line-ending-equivalent",
-    "publicSourceRetainedReason": "Existing Z-Anatomy integration and previously published CC release; no new application source publication is authorized by this policy."
+    "publicSourceRetainedReason": "Historical Z-Anatomy readers and previously published CC release; current readers use BodyParts3D only. No new application source publication is authorized by this policy."
   },
   "futureProprietaryTerms": {
     "status": "draft-pending-rights-confirmation-and-component-clearance",

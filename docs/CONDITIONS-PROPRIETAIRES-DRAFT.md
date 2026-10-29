@@ -33,6 +33,6 @@ Le [commit historique public retenu](https://github.com/abdelmac/meddiagnostic/t
 
 Les licences et attributions applicables aux dépendances, fontes, médias, logos, données et contenus de tiers sont conservées. Les modèles BodyParts3D et Z-Anatomy restent soumis à leurs conditions propres. Les droits sur les questions, corrections et schémas doivent être établis selon leurs contributions effectives ; une référence bibliographique ne transfère aucun droit sur le texte ou l’image cités.
 
-Z-Anatomy est conservé dans l’application. La position documentée de son auteur sur le partage du code de l’application doit être résolue avant de considérer compatible une distribution entièrement privée et propriétaire. Le présent brouillon ne constitue ni une exemption obtenue auprès de cet auteur ni une validation juridique de cette compatibilité.
+Le propriétaire a autorisé le 29 octobre 2026 le retrait de Z-Anatomy du lecteur courant, qui utilise uniquement BodyParts3D. Les modèles et notices Z-Anatomy historiques restent conservés pour les anciens lecteurs, avec leurs références de source publiques. Ce retrait ne révoque aucun droit antérieur et ne transforme pas leurs contenus en contenus propriétaires. Il ne remplace pas non plus la confirmation des droits et de l’identité du titulaire demandée dans ce brouillon.
 
 Les faits observés, les sources et les limites de cette transition sont consignés dans [l’audit de droits et de commercialisation](DROITS-COMMERCIALISATION.md).

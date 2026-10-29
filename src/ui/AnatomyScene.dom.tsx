@@ -4,12 +4,12 @@ import React, { useCallback, useEffect, useMemo } from "react";
 import type { DOMProps } from "expo/dom";
 import detailedManifest from "../data/bodyparts3d-complete-manifest.json";
 import extendedManifest from "../data/bodyparts3d-manifest.json";
-import comprehensiveManifest from "../data/z-anatomy-manifest.json";
 import regionalManifest from "../data/bodyparts3d-regional-manifest.json";
 import {
   ANATOMY_ASSET_ORIGIN,
   ANATOMY_NATIVE_CHANNEL,
   parseAnatomyNativeState,
+  isNativeAnatomySource,
   type NativeAnatomyEvent,
   type NativeAnatomyState,
 } from "../domain/anatomy-native-bridge";
@@ -47,17 +47,18 @@ class RendererBoundary extends React.Component<
 /** This module and Three.js ship inside the binary; no remote application page. */
 export default function AnatomySceneDOM({ state: input, onEvent }: Props) {
   const state = parseAnatomyNativeState(input);
-  const source = state?.source ?? "extended";
+  const source = state?.source ?? (isNativeAnatomySource(input?.source) ? input.source : undefined);
   const manifest = useMemo(
     () =>
-      ({
-        ...({ detailed: detailedManifest, extended: extendedManifest, comprehensive: comprehensiveManifest, regional: regionalManifest }[source]),
+      source ? ({
+        ...({ detailed: detailedManifest, extended: extendedManifest, regional: regionalManifest }[source]),
         assetBaseUrl: ANATOMY_ASSET_ORIGIN,
-      }) as unknown as BodyPartsManifest,
+      }) as unknown as BodyPartsManifest : undefined,
     [source],
   );
   const notify = useCallback(
     (event: EventPayload) => {
+      if (!source) return;
       void onEvent({
         channel: ANATOMY_NATIVE_CHANNEL,
         version: 1,
@@ -79,7 +80,9 @@ export default function AnatomySceneDOM({ state: input, onEvent }: Props) {
     document.addEventListener("click", blockLink, true);
     return () => document.removeEventListener("click", blockLink, true);
   }, [notify, !!state]);
-  if (!state) return null;
+  if (!state || !manifest) return <div role="alert" data-testid="anatomy-dom-source-unavailable">
+    {input?.language === "fr" ? "Cette référence 3D n’est pas disponible dans ce lecteur. Choisissez une référence BodyParts3D." : "This 3D reference is unavailable in this viewer. Choose a BodyParts3D reference."}
+  </div>;
   return (
     <div
       style={{

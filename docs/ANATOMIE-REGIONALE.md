@@ -1,6 +1,6 @@
 # Extension anatomique régionale
 
-L’extension **Anatomie régionale / Regional anatomy** utilise le corpus officiel **BodyParts3D 20181210i412**, jeu d’objets **20181210**, moteur source **5.3**, ontologie **FMA4.12.0-inference**. Elle est préparée localement ; sa publication applicative reste en attente du choix décrit dans [DROITS-COMMERCIALISATION.md](DROITS-COMMERCIALISATION.md).
+L’extension **Anatomie régionale / Regional anatomy** utilise le corpus officiel **BodyParts3D 20181210i412**, jeu d’objets **20181210**, moteur source **5.3**, ontologie **FMA4.12.0-inference**. Le propriétaire a autorisé sa publication le 29 octobre 2026 avec un lecteur **BodyParts3D uniquement**, sans publication du dépôt applicatif ; la décision et ses limites figurent dans [DROITS-COMMERCIALISATION.md](DROITS-COMMERCIALISATION.md).
 
 ## Explorer les détails
 
@@ -8,7 +8,7 @@ Dans `/anatomy`, le bouton **Nouveaux détails / New details** ouvre cette réf�
 
 Après **Isoler**, **Centrer la structure** utilise les dimensions de la pièce pour exploiter l’espace d’étude, y compris pour les structures millimétriques. Le cadrage en contexte conserve les structures voisines.
 
-La nouvelle référence conserve son propre repère spatial. Elle ne superpose pas des géométries issues de corps différents aux atlas Z-Anatomy, BodyParts3D 4.3 ou BodyParts3D 3.0, qui restent disponibles séparément.
+La nouvelle référence conserve son propre repère spatial. Les atlas BodyParts3D 4.3 et 3.0 restent disponibles séparément. Le lecteur courant n’importe plus Z-Anatomy ; ses fichiers et sources historiques sont conservés pour les anciennes installations. Les trois références courantes ne modélisent pas tous les nerfs du corps : les trajets 3D des nerfs sciatiques, fémoraux et tibiaux de Z-Anatomy ne sont pas repris ; les cours conservent leurs schémas 2D.
 
 ## Contenu et comptage
 
@@ -36,9 +36,13 @@ Le bridge et le lecteur DOM natifs reconnaissent la référence `bodyparts3d-201
 
 ## Vérifications du 29 octobre 2026
 
-- **146 tests unitaires et d’intégration passent** : 137 tests de régression et 9 tests propres au nouvel atlas. Ces derniers décodent les **4 621 GLB**, contrôlent leurs empreintes et vérifient les réparations contre les OBJ originaux.
-- **4 scénarios navigateur passent** sur ordinateur et mobile simulé : anciennes couches et changements de référence, ouverture des nouveautés, sélection de deux nouvelles pièces, vrais clics/taps sur leurs surfaces, isolation, cadrage lisible, coupe et bascule FR/EN. Les captures ont été examinées ; le centrage des petites pièces a été corrigé après ce contrôle visuel.
+- **152 tests unitaires et d’intégration passent**, sans test exclu : atlas et modèles existants, neuf tests géométriques régionaux et six tests des garde-fous BodyParts3D uniquement. Les contrôles régionaux décodent les **4 621 GLB**, vérifient les empreintes et comparent les réparations aux OBJ originaux.
+- **20 scénarios navigateur locaux passent** sur ordinateur et mobile simulé : couches, changements entre trois références, six vrais clics/taps bilatéraux sur les structures disponibles, recherche, nouveautés, isolation, cadrage lisible, coupe, variantes, dissection, bascule FR/EN et anciennes notices. Les captures ont été examinées ; le centrage des petites pièces a été corrigé après ce contrôle visuel.
 - Typage TypeScript, audit des traductions, build web et exports locaux Android/iOS avec lecteur DOM embarqué réussis.
-- Les guards de build confirment l’absence de ZIP public du code applicatif. Aucun déploiement, build cloud, APK signé, publication sur les stores ni nouvelle publication du code n’a été effectué pour cette extension.
+- Les guards de build confirment l’absence de ZIP public du code applicatif et de données de modèles Z-Anatomy dans les bundles web, DOM et Hermes. Aucun build cloud, nouvel APK signé, publication sur les stores ou push du code source n’a été effectué pour cette extension.
 
-L’aperçu est disponible sur `http://127.0.0.1:8081/anatomy?lang=fr`. Le site en production reste sur la version antérieure : conserver Z-Anatomy dans le lecteur modifié tout en gardant son code privé reste incompatible avec la condition de partage affirmée par son auteur. Le choix de publication doit être résolu avant mise en ligne.
+L’aperçu est disponible sur `http://127.0.0.1:8081/anatomy?lang=fr`. Le lecteur courant est **déployé** sur [Ippomed](https://medquiz-europe.medcompass-web.workers.dev/anatomy?lang=fr), version Cloudflare **`1672ff96-f204-4586-acd5-170bfe98e711`**. Le déploiement contient 12 568 fichiers et a envoyé 4 633 assets nouveaux ou modifiés par la procédure existante, sans publication du dépôt applicatif.
+
+**Huit scénarios publics passent** sur ordinateur et mobile simulé : les trois sources actives chargent uniquement BodyParts3D, aucun identifiant physique Z n’est embarqué dans le JavaScript chargé, les nouveaux détails répondent aux vrais clics/taps, et l’ancien ZIP répond toujours HTTP 404 pour GET, HEAD, Range, paramètres et ancien ETag. Les notices, le manifeste et un vrai GLB historique restent accessibles aux anciens lecteurs. Le manifeste régional public et trois modèles HIGH, dont le ganglion ayant révélé le défaut de quantification, ont été comparés octet par octet aux sorties locales vérifiées.
+
+SHA-256 du manifeste client et public : `d8796e83eee5ab4662c06b353bb6e06f59a279ee41146d5eeccd88bda84d1e45`. Preuves privées : `.local/bodyparts-only-release/public-assets.json`, résultats Playwright et captures de `.local/regional-anatomy-review/`. L’ancienne publication GitHub reste inchangée ; les nouveaux apports contrôlés restent hors du dépôt distant inspecté.

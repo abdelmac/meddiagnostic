@@ -34,6 +34,7 @@ type SourceMesh = {
   vascularKind?: "artery" | "vein" | "other";
   representationGroup?: string;
   representationDefault?: boolean;
+  defaultVisible?: boolean;
   lod?: { triangles: number; bytes: number };
 };
 type SourceManifest = {
@@ -51,6 +52,10 @@ const venousIds = manifest.meshes
 const sourceById = new Map(manifest.meshes.map((mesh) => [mesh.id, mesh]));
 const bodyPartsById = new Map(bodyPartsManifest.meshes.map((mesh) => [mesh.id, mesh]));
 const neuralIds = manifest.meshes.filter(mesh => mesh.system === "nerves").map(mesh => mesh.id);
+const defaultVisible = (mesh: SourceMesh) => mesh.defaultVisible !== false && (!mesh.representationGroup || mesh.representationDefault === true);
+const visibleArterialIds = manifest.meshes.filter(mesh => mesh.vascularKind === "artery" && defaultVisible(mesh)).map(mesh => mesh.id);
+const visibleVenousIds = manifest.meshes.filter(mesh => mesh.vascularKind === "vein" && defaultVisible(mesh)).map(mesh => mesh.id);
+const visibleNeuralIds = manifest.meshes.filter(mesh => mesh.system === "nerves" && defaultVisible(mesh)).map(mesh => mesh.id);
 
 async function openBody(page: Page, source: AtlasSource = defaultAtlasSource) {
   await page.goto("/anatomy?lang=fr");
@@ -179,13 +184,13 @@ test("whole body defaults to one coherent source and network shortcuts preserve 
 }, info) => {
   test.setTimeout(210000);
   expect(manifest.meshes.length).toBeGreaterThan(3000);
-  expect(manifest.meshes.every((mesh) => defaultAtlasSource === "comprehensive"
-    ? mesh.id.startsWith("ZA_") && !!mesh.source?.originalName
-    : mesh.sourceVersion === "4.3")).toBe(
+  expect(defaultAtlasSource).toBe("regional");
+  expect(manifest.datasetId).toBe("bodyparts3d-2018");
+  expect(manifest.meshes.every((mesh) => /^FMA\d+/.test(mesh.id) && mesh.sourceVersion === "20181210i412")).toBe(
     true,
   );
-  expect(arterialIds.length).toBeGreaterThan(defaultAtlasSource === "comprehensive" ? 400 : 800);
-  expect(venousIds.length).toBeGreaterThan(defaultAtlasSource === "comprehensive" ? 200 : 500);
+  expect(arterialIds.length).toBe(526);
+  expect(venousIds.length).toBe(288);
   const { canvas } = await openBody(page);
   let panel = await openAtlasPanel(page, "layers");
   await expect(
@@ -198,7 +203,7 @@ test("whole body defaults to one coherent source and network shortcuts preserve 
   const hidden = await canvas.getAttribute("data-hidden-ids");
   expect(JSON.parse(hidden!)).not.toHaveLength(0);
   const hiddenIds = new Set(JSON.parse(hidden!) as string[]);
-  const visibleNerves = neuralIds.filter(id => !hiddenIds.has(id)).length;
+  const visibleNerves = visibleNeuralIds.filter(id => !hiddenIds.has(id)).length;
   panel = await openAtlasPanel(page, "layers");
   await panel
     .getByRole("button", { name: "Coupe anatomique", exact: true })
@@ -222,8 +227,8 @@ test("whole body defaults to one coherent source and network shortcuts preserve 
     ).toBeGreaterThan(0);
     const arteries = await counter(canvas, "arteries"),
       veins = await counter(canvas, "veins");
-    expect(arteries).toBe(name === "Artères" ? arterialIds.length : 0);
-    expect(veins).toBe(name === "Veines" ? venousIds.length : 0);
+    expect(arteries).toBe(name === "Artères" ? visibleArterialIds.length : 0);
+    expect(veins).toBe(name === "Veines" ? visibleVenousIds.length : 0);
     await expect(canvas).toHaveAttribute(
       "data-visible-nerves",
       name === "Nerfs" ? String(visibleNerves) : "0",
@@ -311,7 +316,7 @@ test("whole body defaults to one coherent source and network shortcuts preserve 
       .click();
     await closeAtlasPanel(page);
     await waitForAtlasSteady(canvas);
-    await expect(canvas).toHaveAttribute("data-visible-nerves", String(neuralIds.length));
+    await expect(canvas).toHaveAttribute("data-visible-nerves", String(visibleNeuralIds.length));
     await expect(canvas).toHaveAttribute("data-visible-skeleton", "0");
     expect(
       (await page.getByTestId("anatomy-study-stage").boundingBox())!.height /
@@ -333,7 +338,7 @@ test("global search reveals a vein during an arterial subset and real picks cann
   test.setTimeout(180000);
   const { canvas } = await openBody(page);
   await quickView(page, canvas, "Artères");
-  expect(await counter(canvas, "arteries")).toBe(arterialIds.length);
+  expect(await counter(canvas, "arteries")).toBe(visibleArterialIds.length);
   expect(await counter(canvas, "veins")).toBe(0);
   const excludedArterial = JSON.parse(
     (await canvas.getAttribute("data-excluded-ids")) ?? "null",
@@ -348,12 +353,12 @@ test("global search reveals a vein during an arterial subset and real picks cann
   );
   const vein = manifest.meshes.find(
     (mesh) =>
-      mesh.vascularKind === "vein" && /^inferior vena cava(?: \((?:abdominal|thoracic) part\))?$/i.test(mesh.name),
+      mesh.vascularKind === "vein" && /^superior vena cava$/i.test(mesh.name),
   )!;
   await physicalSelection(page, canvas, vein);
   await waitForAtlasSteady(canvas);
   expect(await counter(canvas, "arteries")).toBe(0);
-  expect(await counter(canvas, "veins")).toBe(venousIds.length);
+  expect(await counter(canvas, "veins")).toBe(visibleVenousIds.length);
   const excludedVenous = JSON.parse(
     (await canvas.getAttribute("data-excluded-ids")) ?? "null",
   ) as string[];
@@ -385,8 +390,8 @@ test("global search reveals a vein during an arterial subset and real picks cann
   await closeAtlasPanel(page);
   await waitForAtlasSteady(canvas);
   await expect(canvas).toHaveAttribute("data-excluded-ids", "[]");
-  expect(await counter(canvas, "arteries")).toBe(arterialIds.length);
-  expect(await counter(canvas, "veins")).toBe(venousIds.length);
+  expect(await counter(canvas, "arteries")).toBe(visibleArterialIds.length);
+  expect(await counter(canvas, "veins")).toBe(visibleVenousIds.length);
   await record(page, info, "vascular-picking", {
     picked,
     excludedArterial: excludedArterial.length,

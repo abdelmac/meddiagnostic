@@ -1,13 +1,13 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import sourceData from '../src/data/z-anatomy-manifest.json';
+import sourceData from '../src/data/bodyparts3d-regional-manifest.json';
 import { localizeAnatomyName } from '../src/data/anatomy-nomenclature';
 import { chooseAtlasSource, closeAtlasPanel, openAtlasPanel, selectAtlasStructure, waitForAtlasSteady } from './anatomy-helpers';
 
-type Mesh = { id: string; name: string; source: { originalName: string }; system: string; vascularKind?: string };
-const manifest = sourceData as unknown as { datasetId: string; meshes: Mesh[]; publicationStatus: string };
-test.skip(manifest.publicationStatus !== 'approved' && process.env.PLAYWRIGHT_PRIVATE_ANATOMY !== '1', 'Private source approval preview only');
-const artifacts = '.local/z-anatomy-review';
+type Mesh = { id: string; name: string; system: string; vascularKind?: string; defaultVisible?: boolean; representationGroup?: string; representationDefault?: boolean };
+const manifest = sourceData as unknown as { datasetId: string; meshes: Mesh[] };
+const defaultVisible = (mesh: Mesh) => mesh.defaultVisible !== false && (!mesh.representationGroup || mesh.representationDefault === true);
+const artifacts = '.local/bodyparts3d-neurovascular-review';
 mkdirSync(artifacts, { recursive: true });
 
 async function openPreview(page: Page) {
@@ -60,23 +60,24 @@ async function pickRealMesh(page: Page, canvas: Locator, id: string, touch: bool
   throw Error(`No real surface pick for ${id}`);
 }
 
-test('bilateral sciatic, femoral and tibial nerves retain source identity and respond to real surface picks', async ({ page }, info) => {
+test('bilateral abducens, trigeminal and optic nerve structures retain BodyParts3D identity and respond to six real surface picks', async ({ page }, info) => {
   test.setTimeout(360000);
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   const canvas = await openPreview(page);
   const picks = [];
-  for (const name of ['Sciatic nerve', 'Femoral nerve', 'Tibial nerve']) {
-    for (const side of ['l', 'r']) {
-      const mesh = manifest.meshes.find(entry => entry.source.originalName === `${name}.${side}`);
-      expect(mesh, `${name}.${side} needs its own actual source object`).toBeDefined();
+  for (const pattern of ['{side} abducens nerve', 'Trunk of {side} trigeminal nerve', 'Intracranial part of {side} optic nerve']) {
+    for (const side of ['left', 'right']) {
+      const name = pattern.replace('{side}', side);
+      const mesh = manifest.meshes.find(entry => entry.name.toLowerCase() === name.toLowerCase());
+      expect(mesh, `${name} needs its own actual source object`).toBeDefined();
       await selectAtlasStructure(page, localizeAnatomyName(mesh!.name, 'fr'), mesh!.id);
       await page.getByRole('button', { name: 'Isoler', exact: true }).click();
       await page.getByRole('button', { name: 'Centrer la structure', exact: true }).click();
       await waitForAtlasSteady(canvas);
       await expect(canvas).toHaveAttribute('data-selected-lod', 'high');
-      picks.push({ name: mesh!.source.originalName, ...await pickRealMesh(page, canvas, mesh!.id, info.project.name === 'mobile-web') });
-      if (name === 'Sciatic nerve' && side === 'l') await page.screenshot({ path: `${artifacts}/sciatic-${info.project.name}.png` });
+      picks.push({ name: mesh!.name, ...await pickRealMesh(page, canvas, mesh!.id, info.project.name === 'mobile-web') });
+      if (pattern === '{side} abducens nerve' && side === 'left') await page.screenshot({ path: `${artifacts}/abducens-${info.project.name}.png` });
       await page.getByRole('button', { name: 'Isoler', exact: true }).click();
     }
   }
@@ -96,13 +97,13 @@ test('neural and vascular layers filter the real source objects and preserve a s
     await waitForAtlasSteady(canvas);
     const arteries = Number(await canvas.getAttribute('data-visible-arteries'));
     const veins = Number(await canvas.getAttribute('data-visible-veins'));
-    expect(arteries).toBe(kind === 'artery' ? manifest.meshes.filter(mesh => mesh.system === 'vessels' && mesh.vascularKind === 'artery').length : 0);
-    expect(veins).toBe(kind === 'vein' ? manifest.meshes.filter(mesh => mesh.system === 'vessels' && mesh.vascularKind === 'vein').length : 0);
+    expect(arteries).toBe(kind === 'artery' ? manifest.meshes.filter(mesh => mesh.system === 'vessels' && mesh.vascularKind === 'artery' && defaultVisible(mesh)).length : 0);
+    expect(veins).toBe(kind === 'vein' ? manifest.meshes.filter(mesh => mesh.system === 'vessels' && mesh.vascularKind === 'vein' && defaultVisible(mesh)).length : 0);
     await expect(canvas).toHaveAttribute('data-source-id', manifest.datasetId);
     await page.screenshot({ path: `${artifacts}/${kind}-${info.project.name}.png` });
     counts.push({ kind, arteries, veins, meshes: await canvas.getAttribute('data-mesh-count') });
   }
-  for (const source of ['extended', 'detailed', 'comprehensive'] as const) {
+  for (const source of ['extended', 'detailed', 'regional'] as const) {
     await chooseAtlasSource(page, source);
     canvas = page.getByTestId('anatomy-webgl-canvas');
     await expect(page.getByTestId('anatomy-3d-scene')).toHaveAttribute('data-ready', 'true', { timeout: 90000 });

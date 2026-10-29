@@ -1,20 +1,44 @@
 import { expect, test } from '@playwright/test';
-import { openAtlasPanel } from './anatomy-helpers';
-import source from '../src/data/z-anatomy-manifest.json';
+import { chooseAtlasSource, openAtlasPanel, closeAtlasPanel, waitForAtlasSteady } from './anatomy-helpers';
 
-test('normal builds keep the published atlas and cannot open publication-pending geometry', async ({ page }) => {
-  test.skip(process.env.PLAYWRIGHT_PRIVATE_ANATOMY === '1', 'Check the normal build without the local preview flag');
-  test.skip((source as { publicationStatus?: string }).publicationStatus !== 'private-preview-pending-approval', 'The owner has approved this dataset for publication');
-  const privateRequests: string[] = [];
+test('the current web reader ships and requests only BodyParts3D models across every active reference', async ({ page }) => {
+  test.setTimeout(240000);
+  const legacyRequests: string[] = [];
+  const scriptChecks: Promise<{ url: string; modelIds: string[] }>[] = [];
   page.on('request', request => {
     const url = new URL(request.url());
-    if (url.pathname.startsWith('/anatomy/z-anatomy/')) privateRequests.push(url.pathname);
+    if (url.pathname.startsWith('/anatomy/z-anatomy/')) legacyRequests.push(url.pathname);
+  });
+  page.on('response', response => {
+    const url = new URL(response.url());
+    if (!url.pathname.endsWith('.js') || response.status() >= 400) return;
+    scriptChecks.push(response.text().then(text => ({
+      url: url.pathname,
+      modelIds: [...new Set(text.match(/ZA_[a-f0-9]{16}/g) ?? [])],
+    })));
   });
   await page.goto('/anatomy?lang=fr');
-  await expect(page.getByTestId('anatomy-3d-scene')).toHaveAttribute('data-source-id', 'bodyparts3d-4.3');
-  await expect(page.getByTestId('anatomy-3d-scene')).toHaveAttribute('data-ready', 'true', { timeout: 60000 });
+  const scene = page.getByTestId('anatomy-3d-scene');
+  await expect(scene).toHaveAttribute('data-source-id', 'bodyparts3d-2018');
+  await expect(scene).toHaveAttribute('data-ready', 'true', { timeout: 90000 });
   const panel = await openAtlasPanel(page, 'layers');
-  await expect(panel.getByRole('button', { name: 'Atlas neurovasculaire', exact: true })).toBeDisabled();
-  await expect(panel.getByRole('button', { name: 'Corps complet', exact: true })).toHaveAttribute('aria-pressed', 'true');
-  expect(privateRequests).toEqual([]);
+  await expect(panel.getByRole('button', { name: 'Atlas neurovasculaire', exact: true })).toHaveCount(0);
+  await expect(panel.getByRole('button', { name: 'Anatomie régionale', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await closeAtlasPanel(page);
+  for (const [source, dataset] of [
+    ['extended', 'bodyparts3d-4.3'],
+    ['detailed', 'bodyparts3d-3.0-95'],
+    ['regional', 'bodyparts3d-2018'],
+  ] as const) {
+    await chooseAtlasSource(page, source);
+    await expect(scene).toHaveAttribute('data-source-id', dataset);
+    await expect(scene).toHaveAttribute('data-ready', 'true', { timeout: 90000 });
+    const canvas = page.getByTestId('anatomy-webgl-canvas');
+    await waitForAtlasSteady(canvas);
+    expect(await canvas.getAttribute('data-selected-id')).not.toMatch(/^ZA_/);
+  }
+  const scripts = await Promise.all(scriptChecks);
+  expect(scripts.length, 'the check must inspect actual application JavaScript responses').toBeGreaterThan(0);
+  for (const script of scripts) expect(script.modelIds, `${script.url} must not embed historical Z-Anatomy models`).toEqual([]);
+  expect(legacyRequests).toEqual([]);
 });

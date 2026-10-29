@@ -6,7 +6,7 @@ import React, {
   useState,
 } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
-import defaultManifest from "../data/bodyparts3d-manifest.json";
+import defaultManifest from "../data/bodyparts3d-regional-manifest.json";
 import { anatomyStructure } from "../data/anatomy-structures";
 import {
   parseAnatomyNativeEvent,
@@ -14,6 +14,7 @@ import {
   validAnatomyBridgeId,
   anatomySourceForDataset,
   type NativeAnatomyState,
+  type NativeAnatomySource,
 } from "../domain/anatomy-native-bridge";
 import AnatomySceneDOM from "./AnatomyScene.dom";
 import { HumanFigure } from "./anatomy-vector";
@@ -35,6 +36,18 @@ export function AnatomyScene(props: AnatomySceneProps) {
   const manifest =
     props.sourceManifest ?? (defaultManifest as unknown as BodyPartsManifest);
   const source = anatomySourceForDataset(manifest.datasetId);
+  if (!source) return (
+    <View testID="anatomy-native-source-unavailable" style={{ minHeight: clamp(props.height, 580, 120, 1600), backgroundColor: "#171120", padding: 18, borderRadius: 12 }}>
+      <Text accessibilityRole="alert" style={{ color: "#e1d7ee", textAlign: "center" }}>
+        {props.language === "en" ? "This 3D reference is unavailable in this viewer. Choose a BodyParts3D reference." : "Cette référence 3D n’est pas disponible dans ce lecteur. Choisissez une référence BodyParts3D."}
+      </Text>
+    </View>
+  );
+  return <SupportedAnatomyScene {...props} sourceManifest={manifest} source={source} />;
+}
+
+function SupportedAnatomyScene(props: AnatomySceneProps & { sourceManifest: BodyPartsManifest; source: NativeAnatomySource }) {
+  const manifest = props.sourceManifest, source = props.source;
   const physicalIds = useMemo(
     () => new Set(manifest.meshes.map((mesh) => mesh.id)),
     [manifest],

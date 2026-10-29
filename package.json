@@ -8,7 +8,7 @@
     "web": "expo start --web",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "build:web": "node scripts/check-source-distribution.mjs public && expo export --platform web && node scripts/check-source-distribution.mjs public dist",
+    "build:web": "node scripts/check-source-distribution.mjs public && node scripts/check-anatomy-publication.mjs && expo export --platform web && node scripts/check-source-distribution.mjs public dist && node scripts/check-anatomy-publication.mjs --web",
     "build:native": "node scripts/export-native.mjs",
     "build:android": "node scripts/export-native.mjs android",
     "build:ios": "node scripts/export-native.mjs ios",
@@ -20,7 +20,7 @@
     "preview:anatomy": "node scripts/preview-z-anatomy.mjs serve",
     "economics": "tsx scripts/economics.ts",
     "check:i18n": "tsx scripts/audit-i18n.ts",
-    "deploy:web": "node scripts/check-source-distribution.mjs public dist && node scripts/check-anatomy-publication.mjs && npm run build:web && node scripts/check-source-distribution.mjs public dist && node scripts/check-anatomy-publication.mjs && npx --yes wrangler@4.151.1 deploy"
+    "deploy:web": "node scripts/check-source-distribution.mjs public dist && node scripts/check-anatomy-publication.mjs && npm run build:web && node scripts/check-source-distribution.mjs public dist && node scripts/check-anatomy-publication.mjs --web && npx --yes wrangler@4.151.1 deploy"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",

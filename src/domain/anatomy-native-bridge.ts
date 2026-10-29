@@ -13,12 +13,15 @@ export const ANATOMY_ASSET_ORIGIN =
   "https://medquiz-europe.medcompass-web.workers.dev";
 export const ANATOMY_NATIVE_CHANNEL = "ippomed.anatomy";
 export const ANATOMY_NATIVE_VERSION = 1;
-export type NativeAnatomySource = "detailed" | "extended" | "comprehensive" | "regional";
+export type NativeAnatomySource = "detailed" | "extended" | "regional";
+export const isNativeAnatomySource = (value: unknown): value is NativeAnatomySource =>
+  value === "regional" || value === "extended" || value === "detailed";
 export const ANATOMY_NATIVE_MAX_IDS = 10000;
-export const anatomySourceForDataset = (datasetId: string | undefined): NativeAnatomySource =>
-  datasetId === "z-anatomy-neurovascular" ? "comprehensive"
-    : datasetId === "bodyparts3d-3.0-95" ? "detailed"
-      : datasetId === "bodyparts3d-2018" ? "regional" : "extended";
+/** An unrecognised reference cannot silently select another body's catalogue. */
+export const anatomySourceForDataset = (datasetId: string | undefined): NativeAnatomySource | undefined =>
+  datasetId === "bodyparts3d-2018" ? "regional"
+    : datasetId === "bodyparts3d-4.3" ? "extended"
+      : datasetId === "bodyparts3d-3.0-95" ? "detailed" : undefined;
 export type NativeAnatomyBounds = { min: number[]; max: number[] };
 export type NativeAnatomyState = {
   version: 1;
@@ -89,7 +92,7 @@ export function parseAnatomyNativeState(
   if (
     !object(value) ||
     value.version !== 1 ||
-    (value.source !== "detailed" && value.source !== "extended" && value.source !== "comprehensive" && value.source !== "regional") ||
+    !isNativeAnatomySource(value.source) ||
     !isSystem(value.system) ||
     (value.view !== "anterior" && value.view !== "posterior") ||
     (value.language !== "fr" && value.language !== "en") ||
@@ -203,6 +206,7 @@ export function parseAnatomyNativeEvent(
 ): NativeAnatomyEvent | undefined {
   if (
     !object(value) ||
+    !isNativeAnatomySource(expectedSource) ||
     value.channel !== ANATOMY_NATIVE_CHANNEL ||
     value.version !== 1 ||
     value.source !== expectedSource
@@ -246,7 +250,7 @@ export function parseAnatomyNativeEvent(
 /** Only our pinned public model directories are valid remote resources. */
 export function anatomyNativeAssetUrl(value: string): string | undefined {
   if (
-    !/^\/anatomy\/(bodyparts3d|bodyparts3d-complete|bodyparts3d-regional|z-anatomy)\/[a-zA-Z0-9_./-]+\.glb$/.test(
+    !/^\/anatomy\/(bodyparts3d|bodyparts3d-complete|bodyparts3d-regional)\/[a-zA-Z0-9_./-]+\.glb$/.test(
       value,
     ) ||
     value.includes("..") ||

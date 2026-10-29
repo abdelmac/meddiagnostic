@@ -2,22 +2,25 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { atlasCatalog, atlasSourceIds, atlasSources, createAtlasCatalog, anatomyModelManifest, anatomySourceAvailable, defaultAtlasSource, defaultNetworkSource } from "../src/data/anatomy-catalog";
 
-test("catalogues preserve old source identities while exposing an independent regional reference", () => {
-  assert.deepEqual(atlasSourceIds, ["comprehensive", "extended", "detailed", "regional"]);
+test("the active reader exposes only independent BodyParts3D references and defaults to regional anatomy", () => {
+  assert.deepEqual(atlasSourceIds, ["regional", "extended", "detailed"]);
   assert.equal(atlasCatalog("extended").manifest, anatomyModelManifest);
   assert.equal(atlasCatalog("extended").manifest.datasetId, "bodyparts3d-4.3");
   assert.equal(atlasCatalog("detailed").manifest.datasetId, "bodyparts3d-3.0-95");
-  assert.equal(atlasCatalog("comprehensive").manifest.datasetId, "z-anatomy-neurovascular");
   assert.equal(atlasCatalog("regional").manifest.datasetId, "bodyparts3d-2018");
-  for (const source of ["comprehensive", "extended", "detailed"] as const) {
+  for (const source of ["extended", "detailed"] as const) {
     assert.notEqual(atlasCatalog("regional").manifest, atlasCatalog(source).manifest);
     assert.notEqual(atlasCatalog("regional").meshes, atlasCatalog(source).meshes);
   }
   assert.deepEqual(atlasSources.regional.name, { fr: "Anatomie régionale", en: "Regional anatomy" });
   assert.match(atlasSources.regional.description.fr, /BodyParts3D 2018 \(5\.3\).*corps séparé/);
   assert.match(atlasSources.regional.description.en, /BodyParts3D 2018 \(5\.3\).*body separate/);
-  assert.equal(defaultNetworkSource, anatomySourceAvailable(atlasCatalog("comprehensive").manifest) ? "comprehensive" : "extended");
+  assert.equal(defaultNetworkSource, "regional");
   assert.equal(defaultAtlasSource, defaultNetworkSource);
+  for (const source of atlasSourceIds) {
+    assert.match(atlasCatalog(source).manifest.datasetId!, /^bodyparts3d-/);
+    assert.ok(atlasCatalog(source).meshes.every(mesh => !mesh.id.startsWith("ZA_")));
+  }
 });
 
 test("publication-pending data stays unavailable except in an explicit private preview", () => {

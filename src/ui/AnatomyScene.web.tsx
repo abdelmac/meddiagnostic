@@ -3,7 +3,7 @@ import { Text, View } from "react-native";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
-import bodypartsManifest from "../data/bodyparts3d-manifest.json";
+import bodypartsManifest from "../data/bodyparts3d-regional-manifest.json";
 import { anatomyStructure } from "../data/anatomy-structures";
 import type { AnatomySystem } from "../data/anatomy-structures";
 import { localizeAnatomyName, anatomyNameHasFrench } from "../data/anatomy-nomenclature";
@@ -13,6 +13,7 @@ import { applyAnatomyTissueProfile } from "./anatomy-materials.web";
 import { createAnatomyOcclusion } from "./anatomy-occlusion.web";
 import { anatomySectionContainsPoint, anatomySectionPlane, type AnatomySectionPlane } from "../domain/anatomy-section";
 import { anatomyRepresentationChoices } from "../domain/anatomy-representations";
+import { anatomySourceForDataset } from "../domain/anatomy-native-bridge";
 import type { AnatomySceneProps } from "./anatomy-scene-types";
 
 export type { AnatomySceneProps } from "./anatomy-scene-types";
@@ -36,6 +37,14 @@ type World = {
 
 /** Source anatomy meshes only: no procedural body is substituted for the dataset. */
 export function AnatomyScene(props: AnatomySceneProps) {
+  const manifest = props.sourceManifest ?? defaultManifest;
+  if (!anatomySourceForDataset(manifest.datasetId)) return <div role="alert" data-testid="anatomy-3d-source-unavailable" style={{ minHeight: props.height ?? 580, padding: 18, backgroundColor: "#171120", color: "#e1d7ee", textAlign: "center" }}>
+    {props.language === "en" ? "This 3D reference is unavailable in this viewer. Choose a BodyParts3D reference." : "Cette référence 3D n’est pas disponible dans ce lecteur. Choisissez une référence BodyParts3D."}
+  </div>;
+  return <SupportedAnatomyScene {...props} sourceManifest={manifest} />;
+}
+
+function SupportedAnatomyScene(props: AnatomySceneProps & { sourceManifest: BodyPartsManifest }) {
   const manifest = props.sourceManifest ?? defaultManifest;
   const datasetKey = manifest.datasetId ?? manifest.dataset ?? "bodyparts3d-4.0";
   const sourceLabel = manifest.dataset ?? "BodyParts3D";

@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { assertBodyPartsOnlyReader } from "./check-anatomy-publication.mjs";
 
 const requested = process.argv.slice(2);
 if (
@@ -12,6 +13,7 @@ if (
 }
 const root = fileURLToPath(new URL("../", import.meta.url));
 const cli = path.join(root, "node_modules", "expo", "bin", "cli");
+assertBodyPartsOnlyReader({ root });
 for (const platform of requested.length ? requested : ["android", "ios"]) {
   console.log(
     `Exporting ${platform}: bundled DOM renderer, remote anatomy assets.`,
@@ -40,4 +42,5 @@ for (const platform of requested.length ? requested : ["android", "ios"]) {
     child.once("exit", (code) => resolve(code ?? 1));
   });
   if (exitCode !== 0) process.exit(Number(exitCode));
+  assertBodyPartsOnlyReader({ root, bundleRoots: [`dist-native/${platform}`] });
 }

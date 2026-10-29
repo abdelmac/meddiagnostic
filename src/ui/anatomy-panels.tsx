@@ -184,8 +184,8 @@ export function AnatomyInspector({
               secondary
               small
               label={
-                alternateSource === "comprehensive"
-                  ? l("Voir dans l’atlas neurovasculaire", "View in neurovascular atlas")
+                alternateSource === "regional"
+                  ? l("Voir dans l’anatomie régionale", "View in regional anatomy")
                   : alternateSource === "extended"
                   ? l("Voir dans le corps complet", "View in whole body")
                   : l("Voir dans le corps détaillé", "View in detailed body")

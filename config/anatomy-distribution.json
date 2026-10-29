@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "decision": "owner-authorized-bodyparts-only-2026-10-29",
+  "applicationSourcePublication": "disabled",
+  "defaultSource": "regional",
+  "currentSources": [
+    { "id": "regional", "datasetId": "bodyparts3d-2018", "manifest": "src/data/bodyparts3d-regional-manifest.json", "assetPrefix": "/anatomy/bodyparts3d-regional/" },
+    { "id": "extended", "datasetId": "bodyparts3d-4.3", "manifest": "src/data/bodyparts3d-manifest.json", "assetPrefix": "/anatomy/bodyparts3d/" },
+    { "id": "detailed", "datasetId": "bodyparts3d-3.0-95", "manifest": "src/data/bodyparts3d-complete-manifest.json", "assetPrefix": "/anatomy/bodyparts3d-complete/" }
+  ],
+  "legacyZAnatomy": {
+    "activeInCurrentReader": false,
+    "assetsRetainedForExistingInstallations": true,
+    "noticesAndPreviousValidGrantsRetained": true,
+    "sourceUrl": "https://github.com/abdelmac/meddiagnostic/tree/8bbcd75fc6946a0a1b2dbcd889892177776db500"
+  }
+}

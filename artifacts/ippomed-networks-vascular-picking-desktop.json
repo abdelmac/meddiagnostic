@@ -1,18 +1,18 @@
 {
   "origin": "http://127.0.0.1:8081",
   "project": "desktop",
-  "datasetId": "z-anatomy-neurovascular",
+  "datasetId": "bodyparts3d-2018",
   "data": {
     "picked": {
-      "id": "ZA_6c6f0050b01ebe5d",
+      "id": "FMA4720_FJ3645",
       "worldPoint": [
-        -0.009467127169364086,
-        1.102185606956482,
-        0.01698409265515216
+        -0.014725265620051659,
+        1.3704212307929993,
+        0.025895146479415574
       ],
       "actualTouch": false
     },
-    "excludedArterial": 247,
-    "excludedVenous": 442
+    "excludedArterial": 292,
+    "excludedVenous": 530
   }
 }

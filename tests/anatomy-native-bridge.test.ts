@@ -59,27 +59,28 @@ test("native state preserves study controls across its JSON transport", () => {
   );
 });
 
-test("a comprehensive atlas transports more than four thousand source models without truncation", () => {
-  const sourceIds = Array.from({ length: 5520 }, (_, index) => `ZA_${index.toString(16).padStart(16, "0")}`);
-  const input = { ...state, source: "comprehensive", selectedId: sourceIds.at(-1), hiddenIds: sourceIds, excludedIds: sourceIds, representationIds: sourceIds };
+test("regional anatomy transports more than four thousand source models without truncation", () => {
+  const sourceIds = Array.from({ length: 5520 }, (_, index) => `FMA${index + 1000}_MM${index}`);
+  const input = { ...state, source: "regional", selectedId: sourceIds.at(-1), hiddenIds: sourceIds, excludedIds: sourceIds, representationIds: sourceIds };
   const parsed = parseAnatomyNativeState(JSON.parse(JSON.stringify(input)))!;
-  assert.equal(parsed.source, "comprehensive");
+  assert.equal(parsed.source, "regional");
   for (const field of ["hiddenIds", "excludedIds", "representationIds"] as const) {
     assert.equal(parsed[field].length, 5520);
     assert.equal(parsed[field].at(-1), sourceIds.at(-1));
     assert.notEqual(parsed[field], sourceIds);
   }
-  const ready = { ...envelope, source: "comprehensive", type: "ready", meshCount: 5520, structureIds: sourceIds };
-  assert.deepEqual(parseAnatomyNativeEvent(ready, new Set(sourceIds), "comprehensive"), ready);
-  assert.equal(parseAnatomyNativeEvent({ ...ready, source: "extended" }, new Set(sourceIds), "comprehensive"), undefined);
-  assert.equal(anatomySourceForDataset("z-anatomy-neurovascular"), "comprehensive");
+  const ready = { ...envelope, source: "regional", type: "ready", meshCount: 5520, structureIds: sourceIds };
+  assert.deepEqual(parseAnatomyNativeEvent(ready, new Set(sourceIds), "regional"), ready);
+  assert.equal(parseAnatomyNativeEvent({ ...ready, source: "extended" }, new Set(sourceIds), "regional"), undefined);
   assert.equal(anatomySourceForDataset("bodyparts3d-3.0-95"), "detailed");
   assert.equal(anatomySourceForDataset("bodyparts3d-4.3"), "extended");
 });
 
 test("regional anatomy has its own native dataset and rejects callbacks from other bodies", () => {
   assert.equal(anatomySourceForDataset("bodyparts3d-2018"), "regional");
-  assert.equal(anatomySourceForDataset(undefined), "extended");
+  assert.equal(anatomySourceForDataset(undefined), undefined);
+  assert.equal(anatomySourceForDataset("z-anatomy-neurovascular"), undefined);
+  assert.equal(anatomySourceForDataset("unknown-reference"), undefined);
   const regional = { ...state, source: "regional" } as const;
   assert.deepEqual(parseAnatomyNativeState(JSON.parse(JSON.stringify(regional))), regional);
   const select = { ...envelope, source: "regional", type: "select", id: "FMA13377" };
@@ -87,11 +88,15 @@ test("regional anatomy has its own native dataset and rejects callbacks from oth
   const ready = { ...envelope, source: "regional", type: "ready", meshCount: 2, structureIds: ["FMA13377", "FMA13378"] };
   assert.deepEqual(parseAnatomyNativeEvent(ready, allowed, "regional"), ready);
   assert.equal(parseAnatomyNativeEvent({ ...select, id: "FMA_NOT_REAL" }, allowed, "regional"), undefined);
-  for (const source of ["comprehensive", "extended", "detailed"] as const) {
+  for (const source of ["extended", "detailed"] as const) {
     assert.equal(parseAnatomyNativeEvent({ ...select, source }, allowed, "regional"), undefined);
     assert.equal(parseAnatomyNativeEvent({ ...ready, source }, allowed, "regional"), undefined);
     assert.equal(parseAnatomyNativeEvent(select, allowed, source), undefined);
   }
+  assert.equal(parseAnatomyNativeState({ ...state, source: "comprehensive" }), undefined);
+  assert.equal(parseAnatomyNativeEvent({ ...select, source: "comprehensive" }, allowed, "regional"), undefined);
+  assert.equal(parseAnatomyNativeEvent({ ...ready, source: "comprehensive" }, allowed, "regional"), undefined);
+  assert.equal(parseAnatomyNativeEvent({ ...select, source: "comprehensive" }, allowed, "comprehensive" as never), undefined, "untyped callers cannot reopen a retired source by matching its legacy envelope");
 });
 
 test("state transport strips unrelated account fields and copies nested state", () => {
@@ -350,14 +355,14 @@ test("only relative public GLBs resolve to the pinned HTTPS model host", () => {
     "/anatomy/bodyparts3d-complete/high/fma13377.glb",
     "/anatomy/bodyparts3d/muscles-01.glb",
     "/anatomy/bodyparts3d/details/fma34682-fj1467.glb",
-    "/anatomy/z-anatomy/preview/nerves-01.glb",
-    "/anatomy/z-anatomy/high/za_0123456789abcdef.glb",
     "/anatomy/bodyparts3d-regional/preview/skeleton-01.glb",
     "/anatomy/bodyparts3d-regional/high/fma13377-fj1234.glb",
   ])
     assert.equal(anatomyNativeAssetUrl(file), ANATOMY_ASSET_ORIGIN + file);
   for (const value of [
     "https://attacker.test/x.glb",
+    "/anatomy/z-anatomy/preview/nerves-01.glb",
+    "/anatomy/z-anatomy/high/za_0123456789abcdef.glb",
     "//attacker.test/x.glb",
     "file:///secret.glb",
     "/anatomy/bodyparts3d/../secret.glb",

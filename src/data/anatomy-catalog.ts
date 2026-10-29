@@ -1,6 +1,5 @@
 import manifestData from "./bodyparts3d-manifest.json";
 import completeManifestData from "./bodyparts3d-complete-manifest.json";
-import neurovascularManifestData from "./z-anatomy-manifest.json";
 import regionalManifestData from "./bodyparts3d-regional-manifest.json";
 import {
   anatomyStructure,
@@ -72,17 +71,9 @@ export type AnatomyMesh = {
     vertexCount: number;
   };
 };
-export const atlasSourceIds = ["comprehensive", "extended", "detailed", "regional"] as const;
+export const atlasSourceIds = ["regional", "extended", "detailed"] as const;
 export type AtlasSource = (typeof atlasSourceIds)[number];
 export const atlasSources = {
-  comprehensive: {
-    name: { fr: "Atlas neurovasculaire", en: "Neurovascular atlas" },
-    description: {
-      fr: "Nerfs et réseaux vasculaires dans une référence anatomique distincte. La couverture dépend des modèles réellement disponibles.",
-      en: "Nerves and vascular networks within a separate anatomical reference. Coverage depends on the models actually available.",
-    },
-    networks: true,
-  },
   extended: {
     name: { fr: "Corps complet", en: "Whole body" },
     description: {
@@ -261,7 +252,6 @@ export function createAtlasCatalog(data: unknown) {
   };
 }
 const catalogs = {
-  comprehensive: createAtlasCatalog(neurovascularManifestData),
   detailed: createAtlasCatalog(completeManifestData),
   extended: createAtlasCatalog(manifestData),
   regional: createAtlasCatalog(regionalManifestData),
@@ -277,12 +267,9 @@ export function anatomySourceAvailable(
       || (manifest.publicationStatus === "private-preview-pending-approval" && options.privatePreview === true));
 }
 export const atlasSourceAvailable = (source: AtlasSource) =>
-  anatomySourceAvailable(catalogs[source].manifest, {
-    privatePreview: process.env.EXPO_PUBLIC_Z_ANATOMY_PRIVATE_PREVIEW === "1",
-  });
-export const defaultNetworkSource: AtlasSource = atlasSourceAvailable("comprehensive")
-  ? "comprehensive" : "extended";
-export const defaultAtlasSource = defaultNetworkSource;
+  !!catalogs[source] && anatomySourceAvailable(catalogs[source].manifest);
+export const defaultAtlasSource: AtlasSource = "regional";
+export const defaultNetworkSource = defaultAtlasSource;
 // Compatibility for consumers of the original extended atlas.
 export const anatomyModelManifest = catalogs.extended.manifest;
 export const anatomyModelMeshes = catalogs.extended.meshes;

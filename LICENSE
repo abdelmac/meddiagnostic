@@ -13,11 +13,18 @@ Le texte intégral est conservé dans :
 Les attributions historiques sont conservées dans :
   licenses/legacy-2026-10-28/NOTICE.md
 
-Le lecteur anatomique déployé conserve cette version de son code applicatif.
-Sa source historique reste accessible dans la révision publique vérifiée :
+La source historique du lecteur Z-Anatomy reste accessible dans la révision
+publique vérifiée pour les versions antérieures et installations existantes :
   https://github.com/abdelmac/meddiagnostic/tree/8bbcd75fc6946a0a1b2dbcd889892177776db500
-Cette continuité est conservée pour l'intégration Z-Anatomy existante.
+Cette continuité concerne l'ancienne intégration Z-Anatomy.
 Le projet ne peut donc pas être présenté comme entièrement privé.
+
+LECTEUR COURANT — DÉCISION DU 29 OCTOBRE 2026
+Le nouveau lecteur web et natif utilise uniquement les références BodyParts3D
+2018, 4.3 et 3.0. Z-Anatomy est retiré de ses imports, catalogues et chemins
+autorisés. Ses anciens assets et notices restent accessibles aux anciens
+lecteurs, sous leurs conditions antérieures. Aucun nouveau dépôt source ni
+ZIP du code applicatif n'est publié par cette évolution.
 
 VERSIONS FUTURES ENVISAGÉES
 Des conditions propriétaires sont envisagées uniquement pour les éléments
@@ -32,8 +39,9 @@ COMPOSANTS ET CONTENUS TIERS
 Les licences des bibliothèques, modèles anatomiques, médias et autres contenus
 tiers conservent leurs effets et leurs notices. Ce fichier ne les remplace pas
 et ne transforme pas des droits incertains en droits propriétaires établis.
-Le maintien de Z-Anatomy et les conditions exprimées par son auteur doivent
-être résolus avant une distribution prétendument entièrement fermée.
+Les modèles BodyParts3D conservent leurs licences et attributions propres ;
+ils ne deviennent pas propriétaires avec le code du lecteur. Les anciennes
+versions Z-Anatomy conservent leurs obligations et références de source.
 
 Voir NOTICE.md et docs/DROITS-COMMERCIALISATION.md pour les périmètres,
 sources vérifiées et points restant à confirmer. Le JavaScript envoyé au
