@@ -21,8 +21,12 @@ function quantization(source) {
     for (let a = 0; a < 3; a++) {
       const value = source.position[i * 3 + a],
         q = Math.round((value - translation[a]) / scale);
+      if (!Number.isInteger(q) || q < 0 || q > 65535)
+        throw Error("Position quantization falls outside its declared source bounds");
       position[i * 4 + a] = q;
-      distance += (q * scale + translation[a] - value) ** 2;
+      if (position[i * 4 + a] !== q)
+        throw Error("Stored position quantization differs from its checked value");
+      distance += (position[i * 4 + a] * scale + translation[a] - value) ** 2;
       normal[i * 4 + a] = Math.round(
         Math.max(-1, Math.min(1, source.normal[i * 3 + a])) * 32767,
       );

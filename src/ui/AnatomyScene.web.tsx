@@ -75,7 +75,7 @@ export function AnatomyScene(props: AnatomySceneProps) {
     camera.position.set(0, 0.85, 3.3);
     const controls = new OrbitControls(camera, canvas);
     controls.target.set(0, 0.85, 0); controls.enableDamping = false; controls.autoRotate = false;
-    controls.enablePan = true; controls.screenSpacePanning = true; controls.zoomToCursor = true; controls.minDistance = 0.025; controls.maxDistance = 10;
+    controls.enablePan = true; controls.screenSpacePanning = true; controls.zoomToCursor = true; controls.minDistance = 0.001; controls.maxDistance = 10;
     controls.minPolarAngle = 0.04; controls.maxPolarAngle = Math.PI - 0.04;
     controls.rotateSpeed = 0.7; controls.zoomSpeed = 0.75; controls.panSpeed = 0.8;
     controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
@@ -284,8 +284,11 @@ export function AnatomyScene(props: AnatomySceneProps) {
       cancelAnimationFrame(motion);
       const target = bounds.getCenter(new THREE.Vector3()), size = bounds.getSize(new THREE.Vector3()), tangent = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
       if (options.selection) {
-        const minimum = live.current.isolate || value.detailMode ? 0.18 : 0.3;
-        size.x = Math.max(size.x, minimum); size.y = Math.max(size.y, minimum); size.z = Math.max(size.z, 0.05);
+        // Isolated millimetre-scale parts need their own frame rather than an
+        // 18 cm body region. Context selections keep neighbouring anatomy.
+        const isolated = live.current.isolate || value.detailMode;
+        const minimum = isolated ? 0.001 : 0.3;
+        size.x = Math.max(size.x, minimum); size.y = Math.max(size.y, minimum); size.z = Math.max(size.z, isolated ? 0.0001 : 0.05);
       }
       const distance = Math.max(size.y / (2 * tangent), size.x / (2 * tangent * Math.max(0.25, camera.aspect))) + size.z / 2;
       const radius = THREE.MathUtils.clamp(distance * 1.2 / (options.zoom ?? 1), controls.minDistance * 2, controls.maxDistance);
@@ -337,7 +340,11 @@ export function AnatomyScene(props: AnatomySceneProps) {
       manifest, camera, canvas, lowPower, getLayers: () => value.activeLayers, getSelectedId: () => live.current.selectedId, getSectionPlane: () => sectionPlane,
       enabled: () => !value.detailMode && value.activeLayers.length > 0, changed: present, status: setLodStatus, disposeLayer: releaseLayer,
     });
-    const cameraChange = () => { settleResolution(); settleOcclusion(); render(); value.lod?.schedule(); };
+    const cameraChange = () => {
+      const near = Math.max(0.00001, Math.min(0.005, camera.position.distanceTo(controls.target) / 100));
+      if (camera.near !== near) { camera.near = near; camera.updateProjectionMatrix(); }
+      settleResolution(); settleOcclusion(); render(); value.lod?.schedule();
+    };
     world.current = value; controls.addEventListener("change", cameraChange);
     const stopMotion = () => { fittedFrame = undefined; interacting = true; settleResolution(); settleOcclusion(); cancelAnimationFrame(motion); value.lod?.pause(); canvas.style.cursor = "grabbing"; };
     const stopDrag = () => { interacting = false; settleResolution(); settleOcclusion(); value.lod?.resume(); canvas.style.cursor = hovered ? "pointer" : "grab"; };
@@ -534,7 +541,7 @@ export function AnatomyScene(props: AnatomySceneProps) {
 
   const error = status === "error" || status === "webgl-error";
   const fallbackId = anatomyStructure(selectedId ?? "")?.id ?? manifest.meshes.find((entry) => entry.id === selectedId)?.legacyIds?.find((id) => !!anatomyStructure(id));
-  const attributionUrl = manifest.attributionUrl ?? (manifest.datasetId === "bodyparts3d-3.0-95" ? "/anatomy/bodyparts3d-complete/ATTRIBUTION.txt" : "/anatomy/bodyparts3d/ATTRIBUTION.txt");
+  const attributionUrl = manifest.attributionUrl ?? (manifest.datasetId === "bodyparts3d-3.0-95" ? "/anatomy/bodyparts3d-complete/ATTRIBUTION.txt" : manifest.datasetId === "bodyparts3d-2018" ? "/anatomy/bodyparts3d-regional/ATTRIBUTION.txt" : "/anatomy/bodyparts3d/ATTRIBUTION.txt");
   return <div data-testid="anatomy-3d-scene" data-ready={status === "ready" ? "true" : "false"} data-selected-id={selectedId ?? ""} data-source={sourceLabel} data-source-id={datasetKey}
     data-detail-mode={isolatedDetail ? "true" : "false"} data-detail-ready={isolatedDetail && status === "ready" ? "true" : "false"}
     style={{ position: "relative", height, minHeight: Math.min(320, height), width: "100%", overflow: "hidden", background: "radial-gradient(ellipse at 48% 38%, #2b3039 0%, #1b1e26 54%, #111219 100%)" }}>

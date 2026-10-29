@@ -323,6 +323,19 @@ export function AnatomyStudyWorkspace({
     setPanel((current) => (current === next ? null : next));
   };
   const CurrentIcon = systemIcons[system];
+  const exploreNewDetails = () => {
+    atlas.exploreNewDetails();
+    setZen(false);
+    setPanel("search");
+  };
+  const newDetailsAction = () => atlas.newDetailCount > 0 ? (
+    <Action
+      label={l(`${atlas.newDetailCount} nouveaux détails`, `${atlas.newDetailCount} new details`)}
+      Icon={Sparkles}
+      active={sourceId === "regional" && atlas.newDetailsOnly}
+      onPress={exploreNewDetails}
+    />
+  ) : null;
   const quickActions = () =>
     anatomyQuickViews.map((entry) => (
       <Action
@@ -430,7 +443,7 @@ export function AnatomyStudyWorkspace({
                   <Txt style={styles.eyebrow}>
                     {l("VUES RAPIDES", "QUICK VIEWS")}
                   </Txt>
-                  <View style={styles.wrap}>{quickActions()}</View>
+                  <View style={styles.wrap}>{newDetailsAction()}{quickActions()}</View>
                 </View>
               )}
               <View style={{ gap: 8 }}>
@@ -794,7 +807,7 @@ export function AnatomyStudyWorkspace({
                     <Action
                       key={option.id}
                       label={option.name[language]}
-                      Icon={option.id === "detailed" ? Activity : Network}
+                      Icon={option.id === "regional" ? Sparkles : option.id === "detailed" ? Activity : Network}
                       active={sourceId === option.id}
                       disabled={!option.available}
                       onPress={() => atlas.changeSource(option.id)}
@@ -912,6 +925,7 @@ export function AnatomyStudyWorkspace({
             paddingVertical: 4,
           }}
         >
+          {newDetailsAction()}
           {quickActions()}
         </ScrollView>
       )}

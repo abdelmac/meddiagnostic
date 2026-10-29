@@ -141,6 +141,11 @@ export function AnatomyInspector({
             : `${selected.fmaId ?? selected.id}${selected.fmaId && selected.id !== selected.fmaId ? ` · ${selected.id.split("_").at(-1)}` : ""}`}
         </Txt>
       )}
+      {atlas.newDetailIds.has(selected.id) && (
+        <Txt style={{ color: "#d1eb9d", fontSize: 11 }}>
+          {l("Nouveau détail 3D · référence 2018", "New 3D detail · 2018 reference")}
+        </Txt>
+      )}
       {!!selected.sourceName && selected.sourceName !== selected.name.en && (
         <Txt style={{ color: "#a18aae", fontSize: 10 }}>
           {l("Nom source", "Source name")} : {selected.sourceName}
@@ -496,7 +501,7 @@ export function AnatomyStructureSearch({
       aria-pressed={item.id === selectedId}
       onPress={() => select(item.id)}
       style={{
-        minHeight: 40,
+        minHeight: 44,
         borderWidth: 1,
         borderColor:
           item.id === selectedId ? "#b7e85c" : study ? "#705388" : "#49384f",
@@ -572,6 +577,37 @@ export function AnatomyStructureSearch({
           autoCorrect={false}
         />
       </View>
+      {mode === "3d" && atlas.newDetailIds.size > 0 && (
+        <View style={{ gap: 8 }}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={l("Nouveaux détails uniquement", "New details only")}
+            accessibilityState={{ selected: atlas.newDetailsOnly }}
+            aria-pressed={atlas.newDetailsOnly}
+            onPress={() => atlas.setNewDetailsOnly((current) => !current)}
+            style={{
+              minHeight: 44,
+              padding: 12,
+              borderRadius: 10,
+              borderWidth: 1,
+              borderColor: atlas.newDetailsOnly ? "#b7e85c" : "#49384f",
+              backgroundColor: atlas.newDetailsOnly ? "#39482a" : "#281d32",
+              justifyContent: "center",
+            }}
+          >
+            <Txt style={{ color: "#e7f9c9", fontSize: 12 }}>
+              {l("Nouveaux détails uniquement", "New details only")}
+              {" · "}{atlas.newDetailCount}
+            </Txt>
+          </Pressable>
+          <Txt style={{ color: "#ad9bbc", fontSize: 11 }}>
+            {l(
+              "Explorez chaque pièce dans la référence régionale, puis isolez-la pour étudier ses reliefs.",
+              "Explore each part in the regional reference, then isolate it to study its shape.",
+            )}
+          </Txt>
+        </View>
+      )}
       {landmarks.length > 0 && (
         <View style={{ gap: 9 }}>
           <Txt style={{ color: "#bfa6d0", fontSize: 11, fontWeight: "600" }}>

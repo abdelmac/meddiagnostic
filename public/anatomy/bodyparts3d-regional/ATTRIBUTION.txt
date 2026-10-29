@@ -1,0 +1,8 @@
+BodyParts3D, Copyright 2008 Database Center for Life Science (DBCLS), licensed under CC Attribution-ShareAlike 2.1 Japan
+License: CC-BY-SA-2.1-JP
+https://creativecommons.org/licenses/by-sa/2.1/jp/
+Official source: https://lifesciencedb.jp/bp3d/
+Official license: https://lifesciencedb.jp/bp3d/info_en/license/index.html
+Reference: BodyParts3D 20181210i412 / object set 20181210 / FMA4.12.0-inference.
+Adaptations: one coherent source reference, axes rotated -90 degrees about X and millimetres converted to metres; source normals normalized and encoded with measured angular error <=1 degree; position quantization bounded by measured vector error <=0.02 mm, float fallback otherwise; lossless Meshopt compression and indexing reorder. HIGH preserves every non-degenerate source triangle and its coordinates. Exactly 4 zero-area source faces incident to absent normals are excluded from rendering and listed in provenance. Only source zero-normal corners are split per valid triangle and assigned that source-oriented face normal; valid authored normal directions are preserved. Original source vertex/triangle counts and rendered counts are recorded separately. Only preview geometry is simplified, with a 0.5 mm estimated appearance error limit.
+Source regions, spaces, alternative representations and their authored concept extensions retain their identities. They are not claimed to be additional tissues or exhaustive human anatomy. Geometry from another body reference is never merged here. These anatomical asset terms are separate from application-code terms.

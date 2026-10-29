@@ -46,6 +46,26 @@ test("les noms inconnus ne subissent aucune traduction partielle ou transformati
   }
 });
 
+test("les nouveaux reliefs vertébraux et branches intercostales restent précis dans les deux langues", () => {
+  const entries = [
+    ["Body of tenth thoracic vertebra", "Corps de la dixième vertèbre thoracique (T10)"],
+    ["Left pedicle of fifth lumbar vertebra", "Pédicule gauche de la cinquième vertèbre lombaire (L5)"],
+    ["Right lamina of third lumbar vertebra", "Lame droite de la troisième vertèbre lombaire (L3)"],
+    ["Spinous process of fourth lumbar vertebra", "Processus épineux de la quatrième vertèbre lombaire (L4)"],
+    ["Left superior articular process of fifth lumbar vertebra", "Processus articulaire supérieur gauche de la cinquième vertèbre lombaire (L5)"],
+    ["Anterior cutaneous branch of left second intercostal nerve", "Branche cutanée antérieure du deuxième nerf intercostal gauche"],
+    ["Intracranial part of left optic nerve", "Partie intracrânienne du nerf optique gauche"],
+  ];
+  for (const [source, expected] of entries) {
+    assert.equal(localizeAnatomyName(source!, "fr"), expected);
+    assert.equal(localizeAnatomyName(source!, "en"), source);
+  }
+  for (const source of ["Lamina of unfamiliar tissue", "Pedicle of kidney", "Anterior cutaneous branch of artery"]) {
+    assert.equal(localizeAnatomyName(source, "fr"), source);
+    assert.equal(anatomyNameHasFrench(source), false);
+  }
+});
+
 test("les objets sans nom anatomique restent explicitement non nommés dans les deux langues", () => {
   const source = "Unnamed source structure ZA_0123456789abcdef";
   assert.equal(localizeAnatomyName(source, "fr"), "Structure non nommée dans la source (ZA_0123456789abcdef)");

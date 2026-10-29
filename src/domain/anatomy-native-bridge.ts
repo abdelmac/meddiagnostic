@@ -13,11 +13,12 @@ export const ANATOMY_ASSET_ORIGIN =
   "https://medquiz-europe.medcompass-web.workers.dev";
 export const ANATOMY_NATIVE_CHANNEL = "ippomed.anatomy";
 export const ANATOMY_NATIVE_VERSION = 1;
-export type NativeAnatomySource = "detailed" | "extended" | "comprehensive";
+export type NativeAnatomySource = "detailed" | "extended" | "comprehensive" | "regional";
 export const ANATOMY_NATIVE_MAX_IDS = 10000;
 export const anatomySourceForDataset = (datasetId: string | undefined): NativeAnatomySource =>
   datasetId === "z-anatomy-neurovascular" ? "comprehensive"
-    : datasetId === "bodyparts3d-3.0-95" ? "detailed" : "extended";
+    : datasetId === "bodyparts3d-3.0-95" ? "detailed"
+      : datasetId === "bodyparts3d-2018" ? "regional" : "extended";
 export type NativeAnatomyBounds = { min: number[]; max: number[] };
 export type NativeAnatomyState = {
   version: 1;
@@ -88,7 +89,7 @@ export function parseAnatomyNativeState(
   if (
     !object(value) ||
     value.version !== 1 ||
-    (value.source !== "detailed" && value.source !== "extended" && value.source !== "comprehensive") ||
+    (value.source !== "detailed" && value.source !== "extended" && value.source !== "comprehensive" && value.source !== "regional") ||
     !isSystem(value.system) ||
     (value.view !== "anterior" && value.view !== "posterior") ||
     (value.language !== "fr" && value.language !== "en") ||
@@ -245,7 +246,7 @@ export function parseAnatomyNativeEvent(
 /** Only our pinned public model directories are valid remote resources. */
 export function anatomyNativeAssetUrl(value: string): string | undefined {
   if (
-    !/^\/anatomy\/(bodyparts3d|bodyparts3d-complete|z-anatomy)\/[a-zA-Z0-9_./-]+\.glb$/.test(
+    !/^\/anatomy\/(bodyparts3d|bodyparts3d-complete|bodyparts3d-regional|z-anatomy)\/[a-zA-Z0-9_./-]+\.glb$/.test(
       value,
     ) ||
     value.includes("..") ||

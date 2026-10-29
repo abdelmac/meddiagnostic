@@ -1,5 +1,7 @@
 # Anatomie : atlas pédagogique, cours et quiz illustrés
 
+Une extension **Anatomie régionale / Regional anatomy**, issue de BodyParts3D 2018 (5.3), est préparée localement pour ajouter des pièces et repères 3D détaillés. Son contenu, ses contrôles et son état de publication sont décrits dans [ANATOMIE-REGIONALE.md](ANATOMIE-REGIONALE.md). Les sections historiques ci-dessous documentent les références antérieures.
+
 L’espace **Anatomie** d’Ippomed et l’espace **Spécialités** sont accessibles au même niveau sur l’accueil. Depuis le **26 octobre 2026**, le **Corps complet** ouvre une référence BodyParts3D **4.3**, avec ses nerfs, artères, veines, os, articulations et autres tissus. Le **Corps détaillé** BodyParts3D **3.0** reste une référence séparée pour ses surfaces plus fines. Sept parcours de cours et **140 questions originales en français et en anglais**, dont 98 musculaires, accompagnent les deux références.
 
 ## Explorer le corps

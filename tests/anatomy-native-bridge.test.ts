@@ -77,6 +77,23 @@ test("a comprehensive atlas transports more than four thousand source models wit
   assert.equal(anatomySourceForDataset("bodyparts3d-4.3"), "extended");
 });
 
+test("regional anatomy has its own native dataset and rejects callbacks from other bodies", () => {
+  assert.equal(anatomySourceForDataset("bodyparts3d-2018"), "regional");
+  assert.equal(anatomySourceForDataset(undefined), "extended");
+  const regional = { ...state, source: "regional" } as const;
+  assert.deepEqual(parseAnatomyNativeState(JSON.parse(JSON.stringify(regional))), regional);
+  const select = { ...envelope, source: "regional", type: "select", id: "FMA13377" };
+  assert.deepEqual(parseAnatomyNativeEvent(select, allowed, "regional"), select);
+  const ready = { ...envelope, source: "regional", type: "ready", meshCount: 2, structureIds: ["FMA13377", "FMA13378"] };
+  assert.deepEqual(parseAnatomyNativeEvent(ready, allowed, "regional"), ready);
+  assert.equal(parseAnatomyNativeEvent({ ...select, id: "FMA_NOT_REAL" }, allowed, "regional"), undefined);
+  for (const source of ["comprehensive", "extended", "detailed"] as const) {
+    assert.equal(parseAnatomyNativeEvent({ ...select, source }, allowed, "regional"), undefined);
+    assert.equal(parseAnatomyNativeEvent({ ...ready, source }, allowed, "regional"), undefined);
+    assert.equal(parseAnatomyNativeEvent(select, allowed, source), undefined);
+  }
+});
+
 test("state transport strips unrelated account fields and copies nested state", () => {
   const input = {
     ...state,
@@ -335,6 +352,8 @@ test("only relative public GLBs resolve to the pinned HTTPS model host", () => {
     "/anatomy/bodyparts3d/details/fma34682-fj1467.glb",
     "/anatomy/z-anatomy/preview/nerves-01.glb",
     "/anatomy/z-anatomy/high/za_0123456789abcdef.glb",
+    "/anatomy/bodyparts3d-regional/preview/skeleton-01.glb",
+    "/anatomy/bodyparts3d-regional/high/fma13377-fj1234.glb",
   ])
     assert.equal(anatomyNativeAssetUrl(file), ANATOMY_ASSET_ORIGIN + file);
   for (const value of [
@@ -350,6 +369,12 @@ test("only relative public GLBs resolve to the pinned HTTPS model host", () => {
     "/anatomy/z-anatomy/../secret.glb",
     "/anatomy/z-anatomy/%2e%2e/secret.glb",
     "/anatomy/z-anatomy/x.glb?token=private",
+    "/anatomy/bodyparts3d-regional/../secret.glb",
+    "/anatomy/bodyparts3d-regional/%2e%2e/secret.glb",
+    "/anatomy/bodyparts3d-regional/high/x.glb?token=private",
+    "/anatomy/bodyparts3d-regional/high//x.glb",
+    "/anatomy/bodyparts3d-regional/high/x.js",
+    "/anatomy/bodyparts3d-regional-other/high/x.glb",
   ])
     assert.equal(anatomyNativeAssetUrl(value), undefined, value);
 });

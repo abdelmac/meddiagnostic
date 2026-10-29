@@ -238,6 +238,7 @@ ordinals.forEach(([en, fr], index) => {
   names[`${en} costal cartilage`] = { fr: `${index === 0 ? "premier" : fr} cartilage costal`, gender: "m", kind: "bone" };
   names[`${en} posterior intercostal artery`] = { fr: `${fr} artère intercostale postérieure`, gender: "f", kind: "vessel" };
   names[`${en} thoracic vertebra`] = { fr: `${fr} vertèbre thoracique (T${index + 1})`, gender: "f", kind: "bone" };
+  names[`${en} intercostal nerve`] = { fr: `${index === 0 ? "premier" : fr} nerf intercostal`, gender: "m", kind: "nerve" };
   if (index < 7) names[`${en} cervical vertebra`] = { fr: `${fr} vertèbre cervicale (C${index + 1})`, gender: "f", kind: "bone" };
   if (index < 5) {
     names[`${en} lumbar vertebra`] = { fr: `${fr} vertèbre lombaire (L${index + 1})`, gender: "f", kind: "bone" };
@@ -333,6 +334,34 @@ function frenchName(key: string, depth = 0): Name | undefined {
       const child = frenchName(key.slice(en.length), depth + 1);
       if (child && allowed.includes(child.kind)) return compound(fr, gender, child.kind, child);
     }
+  }
+  // Standard vertebral terms: Académie nationale de médecine, entries
+  // arc vertébral, lame/pédicule de l'arc vertébral. Match a known bone only;
+  // the similarly named ocular lamina and unknown structures stay untouched.
+  // https://www.academie-medecine.fr/le-dictionnaire/index.php?q=arc+vert%C3%A9bral.
+  for (const [en, fr, gender] of [
+    ["pedicle of ", "pédicule", "m"],
+    ["lamina of ", "lame", "f"],
+    ["vertebral arch of ", "arc vertébral", "m"],
+    ["spinous process of ", "processus épineux", "m"],
+    ["transverse process of ", "processus transverse", "m"],
+    ["superior articular process of ", "processus articulaire supérieur", "m"],
+    ["inferior articular process of ", "processus articulaire inférieur", "m"],
+  ] as [string, string, Gender][]) {
+    if (!key.startsWith(en)) continue;
+    const child = frenchName(key.slice(en.length), depth + 1);
+    if (child?.kind === "bone") return compound(fr, gender, "bone", child);
+  }
+  for (const [en, fr, gender] of [
+    ["anterior cutaneous branch of ", "branche cutanée antérieure", "f"],
+    ["lateral cutaneous branch of ", "branche cutanée latérale", "f"],
+    ["anterior ramus of ", "rameau antérieur", "m"],
+    ["posterior ramus of ", "rameau postérieur", "m"],
+    ["intracranial part of ", "partie intracrânienne", "f"],
+  ] as [string, string, Gender][]) {
+    if (!key.startsWith(en)) continue;
+    const child = frenchName(key.slice(en.length), depth + 1);
+    if (child?.kind === "nerve") return compound(fr, gender, "nerve", child);
   }
   return undefined;
 }

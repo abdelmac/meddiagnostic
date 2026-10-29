@@ -82,6 +82,13 @@ export function useAnatomyAtlas({
   const [representationIds, setRepresentationIds] = useState<string[]>([]);
   const [zoom, setZoom] = useState(1);
   const [search, setSearch] = useState("");
+  const [newDetailsOnly, setNewDetailsOnly] = useState(false);
+  const newDetailIds = useMemo(
+    () => new Set(anatomyModelManifest.detailExpansion?.newMeshIds ?? []),
+    [anatomyModelManifest],
+  );
+  const regionalDetails = atlasCatalog("regional").manifest.detailExpansion;
+  const newDetailCount = regionalDetails?.newConceptIds.length ?? 0;
   const [resultLimit, setResultLimit] = useState(48);
   const [isolate, setIsolate] = useState(false);
   const [detailMode, setDetailMode] = useState(false);
@@ -171,7 +178,7 @@ export function useAnatomyAtlas({
   const sourceOptions = atlasSourceIds.map(id => ({ id, ...atlasSources[id], available: atlasSourceAvailable(id) }));
   const sourceInfo = atlasSources[sourceId];
   const sourceAttributionUrl = anatomyModelManifest.attributionUrl
-    ?? `/anatomy/${sourceId === "detailed" ? "bodyparts3d-complete" : sourceId === "comprehensive" ? "z-anatomy" : "bodyparts3d"}/ATTRIBUTION.txt`;
+    ?? `/anatomy/${sourceId === "detailed" ? "bodyparts3d-complete" : sourceId === "comprehensive" ? "z-anatomy" : sourceId === "regional" ? "bodyparts3d-regional" : "bodyparts3d"}/ATTRIBUTION.txt`;
   const systemAvailable = (id: AnatomySystem) => mode === "2d"
     || anatomyModelManifest.systems.some(item => item.id === id && item.files.length > 0);
   const detailAvailable =
@@ -222,7 +229,7 @@ export function useAnatomyAtlas({
   const query = anatomySearchKey(search.trim());
   const landmarks = useMemo(
     () =>
-      atlasLandmarks.filter((item) =>
+      newDetailsOnly ? [] : atlasLandmarks.filter((item) =>
         query
           ? anatomySearchKey(
               item.name.fr + " " + item.name.en + " " + item.region[language],
@@ -233,14 +240,14 @@ export function useAnatomyAtlas({
               item.vascularKind === vascularFilter) &&
             (mode === "3d" || item.views.includes(view)),
       ),
-    [query, system, view, mode, language, sourceId, vascularFilter],
+    [query, system, view, mode, language, sourceId, vascularFilter, newDetailsOnly],
   );
   const results = useMemo(
     () =>
       mode === "2d"
         ? []
         : atlasMeshStructures.filter((item) =>
-            query
+            (!newDetailsOnly || newDetailIds.has(item.id)) && (query
               ? anatomySearchKey(
                   item.name.fr +
                     " " +
@@ -252,12 +259,12 @@ export function useAnatomyAtlas({
                     " " +
                     (item.fmaId ?? ""),
                 ).includes(query)
-              : item.system === system &&
+              : newDetailsOnly || item.system === system &&
                 (item.system !== "vessels" ||
                   vascularFilter === "all" ||
-                  item.vascularKind === vascularFilter),
+                  item.vascularKind === vascularFilter)),
           ),
-    [query, system, mode, sourceId, vascularFilter],
+    [query, system, mode, sourceId, vascularFilter, newDetailsOnly, newDetailIds],
   );
 
   const select = (id: string, fromModel = false) => {
@@ -321,13 +328,14 @@ export function useAnatomyAtlas({
   }, [initialStructureId, focusRequest]);
   useEffect(() => {
     setResultLimit(48);
-  }, [query, system, vascularFilter]);
-  const changeSource = (nextSource: AtlasSource) => {
-    if (nextSource === sourceId || !atlasSourceAvailable(nextSource)) return;
+  }, [query, system, vascularFilter, newDetailsOnly]);
+  const changeSource = (nextSource: AtlasSource, options?: { newDetails?: boolean; structureId?: string }) => {
+    if ((nextSource === sourceId && !options) || !atlasSourceAvailable(nextSource)) return;
     const nextCatalog = atlasCatalog(nextSource);
     const mapped = nextCatalog.structure(selected.legacyId);
     const mappedSystemAvailable = mapped && (mode === "2d" || (mapped.meshIds.length > 0 && nextCatalog.manifest.systems.some(item => item.id === mapped.system && item.files.length)));
     const next =
+      nextCatalog.structure(options?.structureId) ??
       (mappedSystemAvailable ? mapped : undefined) ??
       (selected.fmaId ? nextCatalog.structures.find((entry) => entry.fmaId === selected.fmaId && entry.meshIds.length) : undefined) ??
       nextCatalog.landmarks.find(
@@ -338,7 +346,9 @@ export function useAnatomyAtlas({
       nextCatalog.structures[0] ??
       nextCatalog.structure("deltoid")!;
     setSourceId(nextSource);
-    setAppearance(nextSource === "detailed" ? "natural" : "study");
+    setNewDetailsOnly(options?.newDetails === true);
+    if (options?.newDetails) setMode("3d");
+    setAppearance(nextSource === "detailed" || nextSource === "regional" ? "natural" : "study");
     setSelectedId(next.id);
     setSystem(next.system);
     setVascularFilter("all");
@@ -355,9 +365,16 @@ export function useAnatomyAtlas({
     setRegionBounds(undefined);
     setReset((value) => value + 1);
   };
+  const exploreNewDetails = () => {
+    const regional = atlasCatalog("regional");
+    const first = regional.manifest.detailExpansion?.newMeshIds[0];
+    if (!first) return;
+    changeSource("regional", { newDetails: true, structureId: first });
+  };
   const changeSystem = (nextSystem: AnatomySystem) => {
     if (!systemAvailable(nextSystem)) return;
     setDetailMode(false);
+    setNewDetailsOnly(false);
     setOverlays(nextSystem === "muscles" && anatomyModelManifest.systems.some(item => item.id === "skeleton" && item.files.length) ? ["skeleton"] : []);
     setSearch("");
     setIsolate(false);
@@ -387,6 +404,7 @@ export function useAnatomyAtlas({
       ? selected
       : (atlasLandmarks.find(matches) ?? atlasMeshStructures.find(matches));
     if (!next) return;
+    setNewDetailsOnly(false);
     setVascularFilter(nextFilter);
     setSelectedId(next.id);
     setSystem("vessels");
@@ -410,6 +428,7 @@ export function useAnatomyAtlas({
     if (!next) return;
     const changingSource = sourceId !== defaultNetworkSource;
     setSourceId(defaultNetworkSource);
+    setNewDetailsOnly(false);
     setMode("3d");
     setSystem(preset.system);
     setSelectedId(next.id);
@@ -436,6 +455,7 @@ export function useAnatomyAtlas({
     setMode(next);
     setDetailMode(false);
     if (next === "2d") {
+      setNewDetailsOnly(false);
       setSection(undefined);
       setVascularFilter("all");
     }
@@ -510,6 +530,11 @@ export function useAnatomyAtlas({
     setZoom,
     search,
     setSearch,
+    newDetailsOnly,
+    setNewDetailsOnly,
+    newDetailCount,
+    newDetailIds,
+    exploreNewDetails,
     resultLimit,
     setResultLimit,
     isolate,

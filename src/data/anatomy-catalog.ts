@@ -1,6 +1,7 @@
 import manifestData from "./bodyparts3d-manifest.json";
 import completeManifestData from "./bodyparts3d-complete-manifest.json";
 import neurovascularManifestData from "./z-anatomy-manifest.json";
+import regionalManifestData from "./bodyparts3d-regional-manifest.json";
 import {
   anatomyStructure,
   anatomyStructures,
@@ -49,6 +50,8 @@ export const anatomyQuickViews = [
 export type AnatomyMesh = {
   id: string;
   fmaId?: string;
+  /** Exact source concept, including the author's explicit lateral extensions. */
+  sourceConceptId?: string;
   elementId: string;
   representationId: string;
   representationGroup?: string;
@@ -69,7 +72,7 @@ export type AnatomyMesh = {
     vertexCount: number;
   };
 };
-export const atlasSourceIds = ["comprehensive", "extended", "detailed"] as const;
+export const atlasSourceIds = ["comprehensive", "extended", "detailed", "regional"] as const;
 export type AtlasSource = (typeof atlasSourceIds)[number];
 export const atlasSources = {
   comprehensive: {
@@ -96,6 +99,14 @@ export const atlasSources = {
     },
     networks: false,
   },
+  regional: {
+    name: { fr: "Anatomie régionale", en: "Regional anatomy" },
+    description: {
+      fr: "Détails régionaux BodyParts3D 2018 (5.3), chargés progressivement dans un corps séparé des autres références.",
+      en: "BodyParts3D 2018 (5.3) regional details, loaded progressively within a body separate from the other references.",
+    },
+    networks: true,
+  },
 } as const;
 export type AtlasManifest = {
   status?: string;
@@ -115,6 +126,13 @@ export type AtlasManifest = {
   meshes: AnatomyMesh[];
   legacyMapping: Record<string, string[]>;
   bounds: { min: number[]; max: number[] };
+  detailExpansion?: {
+    baselineDatasets: string[];
+    newMeshIds: string[];
+    newConceptIds: string[];
+    excludedUnmappedCount: number;
+    definition: string;
+  };
   isolatedDetails?: {
     dataset: string;
     license: string;
@@ -246,6 +264,7 @@ const catalogs = {
   comprehensive: createAtlasCatalog(neurovascularManifestData),
   detailed: createAtlasCatalog(completeManifestData),
   extended: createAtlasCatalog(manifestData),
+  regional: createAtlasCatalog(regionalManifestData),
 };
 export const atlasCatalog = (source: AtlasSource) => catalogs[source];
 /** Publication-pending data can only be exposed by an explicit local build. */

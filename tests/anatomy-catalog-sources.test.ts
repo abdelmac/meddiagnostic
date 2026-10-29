@@ -1,13 +1,23 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { atlasCatalog, atlasSourceIds, createAtlasCatalog, anatomyModelManifest, anatomySourceAvailable } from "../src/data/anatomy-catalog";
+import { atlasCatalog, atlasSourceIds, atlasSources, createAtlasCatalog, anatomyModelManifest, anatomySourceAvailable, defaultAtlasSource, defaultNetworkSource } from "../src/data/anatomy-catalog";
 
-test("catalogues preserve old source identities while exposing an independent third reference", () => {
-  assert.deepEqual(atlasSourceIds, ["comprehensive", "extended", "detailed"]);
+test("catalogues preserve old source identities while exposing an independent regional reference", () => {
+  assert.deepEqual(atlasSourceIds, ["comprehensive", "extended", "detailed", "regional"]);
   assert.equal(atlasCatalog("extended").manifest, anatomyModelManifest);
   assert.equal(atlasCatalog("extended").manifest.datasetId, "bodyparts3d-4.3");
   assert.equal(atlasCatalog("detailed").manifest.datasetId, "bodyparts3d-3.0-95");
   assert.equal(atlasCatalog("comprehensive").manifest.datasetId, "z-anatomy-neurovascular");
+  assert.equal(atlasCatalog("regional").manifest.datasetId, "bodyparts3d-2018");
+  for (const source of ["comprehensive", "extended", "detailed"] as const) {
+    assert.notEqual(atlasCatalog("regional").manifest, atlasCatalog(source).manifest);
+    assert.notEqual(atlasCatalog("regional").meshes, atlasCatalog(source).meshes);
+  }
+  assert.deepEqual(atlasSources.regional.name, { fr: "Anatomie régionale", en: "Regional anatomy" });
+  assert.match(atlasSources.regional.description.fr, /BodyParts3D 2018 \(5\.3\).*corps séparé/);
+  assert.match(atlasSources.regional.description.en, /BodyParts3D 2018 \(5\.3\).*body separate/);
+  assert.equal(defaultNetworkSource, anatomySourceAvailable(atlasCatalog("comprehensive").manifest) ? "comprehensive" : "extended");
+  assert.equal(defaultAtlasSource, defaultNetworkSource);
 });
 
 test("publication-pending data stays unavailable except in an explicit private preview", () => {
@@ -22,6 +32,7 @@ test("publication-pending data stays unavailable except in an explicit private p
   assert.equal(anatomySourceAvailable({ ...pending, publicationStatus: "rejected" }, { privatePreview: true }), false);
   assert.equal(anatomySourceAvailable(atlasCatalog("extended").manifest), true);
   assert.equal(anatomySourceAvailable(atlasCatalog("detailed").manifest), true);
+  assert.equal(anatomySourceAvailable(atlasCatalog("regional").manifest), true);
 });
 
 test("source object IDs never become invented FMA identifiers or BodyParts3D attributions", () => {
